@@ -7417,7 +7417,7 @@ export const Kit = {
 
     /**
      * 检查源码的HTML结构。
-     * 按深度优先遍历，但一次返回一个兄弟层级内的非法节点。
+     * 按深度优先遍历，但一次返回一个兄弟层级内的非法节点信息。
      * 最终无错时返回null。
      * @data: Element 容器元素
      * @return {[String]|null}

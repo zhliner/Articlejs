@@ -392,29 +392,36 @@
     <aside
         on="invalid|(1, true);
             valid|(0, false)"
-        to="(/button)|$disabled disable;
-            (/button)|$disabled disable">
+        to="(/button)|$disabled disable|fire('/pre', 'reset');
+            (/button)|$disabled disable|fire('/pre', 'reset')">
         <div class="_option"
             on="click(button)|sel0 $('form/textarea') val trim dup pass"
             by="Kit.checkhtml(_1) dup $if('err', 'ok')"
             to="/pre|trigger(_1)">
             <button type="button">结构检查</button>
             <!--反馈信息：
-                ok  结构正常。设置_ok类名、文本并取消聚焦能力。
-                    3秒后隐藏文本，便于再次检查时反馈更清晰（不变的提示缺乏表达力）。
-                err 结构错误。设置提示文本、移除_ok类名、赋予聚焦能力。
+                ok      结构正常。设置提示并取消聚焦能力。
+                        3秒后隐藏文本，便于再次检查时反馈更清晰（不变的提示缺乏表达力）。
+                err     结构错误。设置_err类名、提示文本、赋予聚焦能力。
+                        detail: [String]|null
+                reset   清除消息、类名，取消可聚焦。在内容区选取变化时使用。
                 错误时：
-                focus 获取焦点后即平铺最大化。
-                blur  失焦时取消平铺最大化。
+                focus   获取焦点后即平铺显示。
+                blur    失焦时取消平铺最大化。
+                click   友好已聚焦单击（可能由ESC键取消平铺）。
                 注记：
                 信息封装在<i>内便于样式控制。 -->
             <pre class="_info"
-                on="ok|('_ok', '<i>Good!</i>', null);
-                    err|(0, '_ok') ev('detail') wrap('<i>') prop('outerHTML') join('\n');
+                on="ok|('_err', '<i>Good!</i>', null);
+                    reset|stop ('_err', '', null);
+                    err|(0, '_err') ev('detail') wrap('<i>') prop('outerHTML') join('\n');
+                    click|evo(3) dup fulled end blur;
                     focus|evo(3) full;
                     blur|evo(3) full(false)"
-                to="|@tabindex @html addClass|delay(3000) $('/i') hide;
-                    |@html removeClass @tabindex">...</pre>
+                to="|@tabindex @html removeClass|delay(3000) $('/i') hide;
+                    |@tabindex @html removeClass;
+                    |@html addClass @tabindex;
+                    |trigger('focus')"></pre>
         </div>
         <hr tpl-node="common:submit" />
     </aside>

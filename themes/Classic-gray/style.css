@@ -1499,29 +1499,30 @@ menu._cells code {
 }
 .Source ._info {
     flex: 1 1 auto;
-    font-size: 12px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #0b3;
+    padding: 5px 12px;
     border: 1px #e6e6e6 solid;
     background-color: #111;
     border-radius: 16px;
-    padding: 5px 10px;
     overflow-y: auto;
-    color: red;
     cursor: default;
     outline: none;
 }
-.Source ._info[data-pbo~=fulled] {
-    font-size: 14px;
+.Source ._info._err {
+    color: red;
+    font-size: 12px;
+    font-weight: normal;
+    padding-left: 10px;
 }
-.Source ._info._ok {
-    color: #0b3;
+.Source ._info._err[data-pbo~=fulled] {
     font-size: 14px;
-    font-weight: bold;
-    padding-left: 12px;
 }
 .Source ._info > i {
     font-style: normal;
 }
-.Source ._ok *[data-pbo~='hidden'] {
+.Source ._info i[data-pbo~='hidden'] {
     transition: all 3s 500ms;
 }
 
