@@ -57,7 +57,8 @@ const
 
         plugRoot:   'plugins',  // 插件根目录
 
-        // 默认插件配置
+        // 初始插件配置
+        // 不在此处配置的插件可以手动从命令行安装。
         // [插件/目录名, 按钮提示]
         plugList: [
             ['example', '示例插件'],
@@ -66,7 +67,7 @@ const
         // 目标插件内文件
         plugMain:   'main.js',      // 主文件
         plugLogo:   'logo.png',     // 按钮图标文件
-        plugConf:   'project.json', // 配置文件
+        plugConf:   'files.json',   // 其它文件配置
 
 
         // 样式元素ID

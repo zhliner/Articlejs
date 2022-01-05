@@ -13,7 +13,7 @@
 //
 
 import $ from "./tpb/config.js";
-import { Tpb, obtBuilder, BaseOn, BaseBy } from "./tpb/tpb.esm.js";
+import { Tpb, obtBuilder } from "./tpb/tpb.esm.js";
 import { Templater } from "./tpb/tools/templater.js";
 
 import { ROOT, Local } from "../config.js";
@@ -21,18 +21,6 @@ import { Loader, TplLoader } from "./tpb/tools/tloader.js";
 
 
 const
-    // 插件专用On定义集
-    // 用于所有插件，可能在外部被扩展。
-    PlugOn = Object.create( BaseOn ),
-
-    // 插件专用By定义集
-    // （说明同上）
-    PlugBy = Object.create( BaseBy ),
-
-    // OBT构建器
-    // 针对插件On/By定义集。
-    __obter = obtBuilder( PlugOn, PlugBy ),
-
     // 通用载入器。
     __loader = new Loader( ROOT ),
 
@@ -60,11 +48,29 @@ const
  * @param  {String} file 配置文件名
  * @return {Promise<Templater>}
  */
-function plugConf( dir, file ) {
+function plugConf( dir, file = Local.plugConf ) {
     return __loader
         .json( `${dir}/${file}` )
         .then( obj => plugStyle(dir, obj) )
+        .then( obj => plugOBT(dir, obj) )
         .then( obj => plugTpls(dir, obj) );
+}
+
+
+/**
+ * 插件OBT扩展。
+ * 注记：
+ * 扩展后的On/By对象设置到conf{On, By}上供此使用。
+ * 若无扩展则无需设置，则仅使用基础集。
+ * @param  {String} dir 插件目录
+ * @param  {Object} conf 插件配置对象
+ * @return {Object} conf
+ */
+function plugOBT( dir, conf ) {
+    if ( !conf.extend ) {
+        return conf;
+    }
+    return import( `${ROOT}${dir}/${conf.extend}` ).then( o => obconf(conf, o) );
 }
 
 
@@ -73,7 +79,7 @@ function plugConf( dir, file ) {
  * 原样返回配置对象以便于下一步的模板解析。
  * @param  {String} dir 插件目录
  * @param  {Object} conf 插件配置对象
- * @return {Promise<Object>}
+ * @return {Object}
  */
 function plugStyle( dir, conf ) {
     if ( conf.style ) {
@@ -87,20 +93,34 @@ function plugStyle( dir, conf ) {
  * 导入并解析模板节点。
  * - 导入模板节点清单文件配置。
  * - 导入主模板文件并执行系列（子模版）解析构建。
- * 返回模板管理器实例，以便于插件的卸载。
+ * 返回模板管理器实例，返回null无害。
  * @param  {String} dir 插件目录
  * @param  {Object} conf 插件配置对象
  * @return {Promise<Templater>|null}
  */
 function plugTpls( dir, conf ) {
-    if ( !conf.maps ) {
-        return null;
-    }
-    let _tplr = new Templater( __obter, new TplLoader(dir, __loader) );
+    if ( !conf.root ) return null;
+    // window.console.info(conf);
 
-    return _tplr.config( conf.maps )
-        .then( () => __loader.node(`${dir}/${conf.node}`) )
-        .then( frg => _tplr.build(frg, conf.node) );
+    let _tplr = new Templater(
+        obtBuilder( conf.on, conf.by ),
+        new TplLoader( dir, __loader )
+    );
+    return _tplr.config( conf.maps ).then( () => __loader.node(`${dir}/${conf.root}`) ).then( frg => _tplr.build(frg, conf.root) );
+}
+
+
+/**
+ * 设置on/by配置对象。
+ * 模块导出对象需要包含{On, By}两个成员。
+ * @param  {Object} conf 配置对象（目标）
+ * @param  {Object} mobj 模块导出对象
+ * @return {Object} conf 添加配置后的对象
+ */
+function obconf( conf, mobj ) {
+    conf.on = mobj.On || null;
+    conf.by = mobj.By || null;
+    return conf;
 }
 
 
@@ -115,7 +135,8 @@ function plugTpls( dir, conf ) {
  * 会导入模板配置和模板，并自动构建模板的OBT逻辑。
  * 如果插件已经安装，则返回null。
  * 注意：
- * 外部应当保证插件（目录）已经存在。
+ * 外部应当保证插件已经存在。
+ * 只能安装本地系统的插件，这由插件根目录限定。
  * @param  {String} name 插件名
  * @param  {String} tips 按钮提示（title），可选
  * @return {Promise<Element|null>} 插件按钮（<button/img>）
@@ -128,14 +149,13 @@ export function pluginsInsert( name, tips = null ) {
         _img = $.Element( 'img', { src: `${ROOT}${_dir}/${Local.plugLogo}` } ),
         _btn = $.wrap( _img, $.Element('button', {title: tips}) );
 
-    return plugConf( _dir, Local.plugConf )
+    return plugConf( _dir )
         .then( tr => __Pool.set(name, _btn) && Tpb.templater(name, tr) || __btnPool.set(_btn, name) && _btn );
 }
 
 
 /**
  * 移除插件。
- * 同时会清除插件导入的模板节点（全局缓存中）。
  * 如果目标插件不存在，返回null。
  * 返回按钮以用于UI中移除。
  * @param  {String} name 插件名
