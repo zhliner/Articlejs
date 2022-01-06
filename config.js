@@ -69,6 +69,10 @@ const
         plugLogo:   'logo.png',     // 按钮图标文件
         plugConf:   'files.json',   // 其它文件配置
 
+        // 模板节点名
+        // 插件结果默认显示框，插件无模板配置时使用。
+        plugResult: 'plug:result',
+
 
         // 样式元素ID
         // 参考主模板文件（editor.html）中的值设定。

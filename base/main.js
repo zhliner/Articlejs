@@ -60,7 +60,7 @@ Tpb.init( On, By )
     .config( tplMaps )
     .then( tr => tr.build(document) )
     .then( () => $.trigger(document.body, 'finish') )
-    .then( () => Api.init('#outline', '#editor', '#content', '#help', '#beeptip') )
+    .then( () => Api.init('#content') )
     .then( () => Sys.readyCall() )
     .catch( e => Sys.failCall(e) )
     // 初始内容填充

@@ -6,11 +6,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-//  编辑器基础Api定义集。
-//  主要包含内容区各条目的提取/设置、大纲列表内容和帮助侧栏等部分。
-//
-//  注意：
-//  如果对内容区执行了设置操作，会清空编辑历史栈。
+//  编辑器简单Api定义。
+//  如果对内容区执行了设置，会清空编辑历史栈。主要用于编辑器用户初始调用
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -23,13 +20,8 @@ import { create } from "./create.js";
 import { resetState, topInsert } from "./edit.js";
 
 
-// 各主要区域根元素集
-let
-    __outline,
-    __editor ,
-    __content,
-    __help,
-    __beeptip;
+// 内容区根元素
+let __content;
 
 
 const Api = {
@@ -42,14 +34,8 @@ const Api = {
      * @param  {String} beeptip 提示音元素（<audio>）选择器
      * @return {void}
      */
-    init( outline, editor, content, help, beeptip ) {
-        __outline = $.get( outline );
-        __editor  = $.get( editor );
+    init( content ) {
         __content = $.get( content );
-        __help    = $.get( help );
-        __beeptip = $.get( beeptip );
-
-        window.console.info( __outline, __editor, __content, __help, __beeptip );
     },
 
 
@@ -180,7 +166,7 @@ const Api = {
     /**
      * 获取/设置文章声明。
      * 返回值是一个两成员数组，其中：
-     * [0] 声明名称源码（不含<h3>本身）。
+     * [0] 名称源码（不含<h3>本身）。
      * [1] 内容源码（顶层条目outerHTML合并串）。
      * 如果声明单元本就不存在，返回null。
      * 设置时，假值实参对于的目标会保持原始内容（无修改）。
@@ -212,6 +198,7 @@ const Api = {
         if ( html === undefined ) {
             return $.html( __content );
         }
+        resetState();
         $.html( __content, html );
     },
 
@@ -221,6 +208,7 @@ const Api = {
      * @return {String}
      */
     toc( h3 = Tips.tocLabel ) {
+        // 对__content为只读
         return create( T.TOC, {h3}, $.get('article', __content) ).outerHTML;
     },
 
@@ -359,7 +347,6 @@ function updateBlock2( h3, cons, box, tag, type ) {
 function loadStyle( el, url ) {
     return $.style( {id: el.id, href : url}, el ).then( () => $.remove(el) );
 }
-
 
 
 // expose

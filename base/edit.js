@@ -3112,13 +3112,24 @@ function selfHTML( el ) {
  * @return {String}
  */
 function cleanHTML( el ) {
+    return cleanElem( el ).outerHTML;
+}
+
+
+/**
+ * 获取干净的元素副本。
+ * 移除元素及内部子孙元素上临时的类名。
+ * @param  {Element} el 目标元素
+ * @return {Element} el
+ */
+function cleanElem( el ) {
     let _new = $.clone( el );
 
     $.find(__tmpclsSlr, _new, true)
         .forEach(
             el => $.removeClass( el, __tmpcls )
         );
-    return _new.outerHTML;
+    return _new;
 }
 
 
@@ -3128,6 +3139,7 @@ function cleanHTML( el ) {
  *      TEXT:[String] 选取集内容文本
  *      HTML:[String] 选取集源码（outerHTML）
  * }
+ * 注：如果选取集为空，则取全部内容（顶层子元素集）。
  * @param  {ESet} eset 当前选取集
  * @param  {Object} obj 存储对象
  * @param  {Boolean} itext 包含文本集数据
@@ -3135,8 +3147,11 @@ function cleanHTML( el ) {
  * @return {Object} obj
  */
 function scriptData( eset, obj, itext, ihtml ) {
-    let _els = [...eset];
+    let _els = [ ...eset ];
 
+    if ( !_els.length ) {
+        _els = [ ...contentElem.children ];
+    }
     if ( itext ) {
         obj.TEXT = _els.map( el => el.textContent );
     }
@@ -3227,20 +3242,24 @@ function plugLoad( url, data ) {
  *      result: 插件结果数据
  *      node:   引入的模板节点名，可选
  *      title:  展示框标题条文本，可选
+ *      error:  错误信息反馈
  * }
  * @param  {Object} obj 结果数据对象
- * @param  {String} name
+ * @param  {String} name 插件名
  * @param  {String} ttl 插件按钮提示文本
- * @return {[Element, String]} [展示根元素, 标题条文本]
+ * @return {[Value, Element, String]} [结果数据, 展示根元素, 标题条文本]
  */
 function plugResult( obj, name, ttl ) {
     let _tplr = TplsPool.get( name );
     ttl = obj.title || ttl;
 
-    if ( obj.node ) {
+    if ( obj.node && !obj.error ) {
         return [ obj.result, _tplr.node(obj.node), ttl ];
     }
-    return [ $.elem( 'textarea', JSON.stringify(obj.result, null, 4) ), ttl ];
+    _tplr = TplsPool.get( TplrName );
+
+    // 默认处理
+    return [ obj.error || obj.result, _tplr.node( Local.plugResult ), ttl ];
 }
 
 
@@ -4067,7 +4086,7 @@ function insFixnode( pels, subs ) {
 /**
  * 插入顶层单元。
  * 仅在一个副本容器中插入时才需要box实参，
- * 必须获取源码时添加目录。
+ * 比如获取源码时添加目录。
  * @param  {Number} type 条目类型值
  * @param  {Element} el  条目元素
  * @param  {Element} box 顶层内容容器（<main>），可选
@@ -6952,12 +6971,9 @@ export const Kit = {
      * @return {String} 存储完成提示
      */
     save( evo ) {
-        let _box = $.clone( evo.data );
-
-        // 清理临时类名
-        $( __tmpclsSlr, _box ).removeClass( __tmpcls );
-
-        let _html = $.html( _box );
+        let _html = $( evo.data.children )
+            .map( cleanHTML )
+            .join( '' );
 
         if ( !Sys.saver(_html) ) {
             __EDStore.set( Sys.storeMain, _html );
@@ -6989,17 +7005,15 @@ export const Kit = {
 
     /**
      * 导出包含目录的内容源码。
+     * 注记：
+     * 目录需要插入合适的位置，因此克隆一个根元素。
      * @data: [String] 目标标签
      * @return {String} 结果源码
      */
     export2( evo ) {
-        let _box = $.clone( contentElem ),
+        let _box = cleanElem( contentElem ),
             _art = $.get( 'article', _box );
 
-        $.find( __tmpclsSlr, _box )
-        .forEach(
-            el => $.removeClass( el, __tmpcls )
-        );
         topInsert( T.TOC, create(T.TOC, {h3: evo.data}, _art), _box );
 
         return $.html( _box );
