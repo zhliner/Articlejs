@@ -1115,8 +1115,9 @@
 
 <!--插件结果输出：
     在插件没有模板配置时使用，简单格式化显示。 -->
-<textarea cols="80" rows="10" tpl-name="plug:result"
+<div class="_plugx" tpl-name="plug:result"
     on="vinit|ev('detail') json(4)"
-    to="|$value">
-    <!-- 简单填充 -->
-</textarea>
+    to="/textarea|$value">
+    <label>执行结果：</label>
+    <textarea><!-- 简单填充 --></textarea>
+</div>

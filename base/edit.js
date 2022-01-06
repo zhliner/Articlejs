@@ -3251,6 +3251,7 @@ function plugLoad( url, data ) {
  */
 function plugResult( obj, name, ttl ) {
     let _tplr = TplsPool.get( name );
+
     ttl = obj.title || ttl;
 
     if ( obj.node && !obj.error ) {

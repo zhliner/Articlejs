@@ -2050,13 +2050,14 @@ menu._cells code {
     margin: 0 1em;
     height: calc(100% - 150px);
 }
+
+
+/* 源码导出 */
 .Modal ._page ._export {
     display: flex;
     flex-direction: column;
     height: 100%;
 }
-
-/* 源码导出 */
 .Modal ._export ._top {
     margin-bottom: 6px;
     padding: 0 5px;
@@ -2089,4 +2090,19 @@ menu._cells code {
 .Modal ._export fieldset > legend {
     color: green;
     margin-left: 10px;
+}
+
+
+/* 插件结果 */
+.Modal ._page ._plugx {
+    display: flex;
+    flex-direction: column;
+    height: 94%;
+}
+.Modal ._plugx > label {
+    margin: 4px;
+    font-weight: bold;
+}
+.Modal ._plugx > textarea {
+    flex: 1 1 auto;
 }

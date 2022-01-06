@@ -29,6 +29,10 @@ const
     // { name => button:Element }
     __Pool = new Map(),
 
+    // 样式元素暂存。
+    // {dir: Element}
+    __styPool = new Map(),
+
     // 插件名记忆
     // 在单击按钮执行插件时有用。
     // {Element => name:String}
@@ -76,6 +80,7 @@ function plugOBT( dir, conf ) {
 
 /**
  * 载入插件样式。
+ * 暂存样式元素，卸载插件时一并移除。
  * 原样返回配置对象以便于下一步的模板解析。
  * @param  {String} dir 插件目录
  * @param  {Object} conf 插件配置对象
@@ -83,7 +88,7 @@ function plugOBT( dir, conf ) {
  */
 function plugStyle( dir, conf ) {
     if ( conf.style ) {
-        return $.style( {href: `${ROOT}${dir}/${conf.style}`} ).then( () => conf );
+        return $.style( {href: `${ROOT}${dir}/${conf.style}`} ).then( el => __styPool.set(dir, el) && conf );
     }
     return conf;
 }
@@ -156,17 +161,24 @@ export function pluginsInsert( name, tips = null ) {
 
 /**
  * 移除插件。
- * 如果目标插件不存在，返回null。
+ * 同时会移除可能有的专项样式元素。
  * 返回按钮以用于UI中移除。
+ * 如果目标插件不存在，返回null。
  * @param  {String} name 插件名
  * @return {Element|null} 插件按钮
  */
 export function pluginsDelete( name ) {
-    let _btn = __Pool.get( name );
+    let _btn = __Pool.get( name ),
+        _dir = `${Local.plugRoot}/${name}`,
+        _sty = __styPool.get( _dir );
 
     if ( _btn ) {
         __Pool.delete( name );
         Tpb.templater( name, null );
+    }
+    if ( _sty ) {
+        $.remove( _sty );
+        __styPool.delete( _dir );
     }
     return _btn || null;
 }
