@@ -74,7 +74,7 @@ function plugOBT( dir, conf ) {
     if ( !conf.extend ) {
         return conf;
     }
-    return import( `${ROOT}${dir}/${conf.extend}` ).then( o => obconf(conf, o) );
+    return import( `${ROOT}${dir}/${conf.extend}` ).then( m => obconf(conf, m) );
 }
 
 
