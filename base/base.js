@@ -82,7 +82,7 @@ const OnlyChild = new Set([
 // 适用：存在于DOM树中已有的节点。
 // {tagName: function(Element): Number}
 // 注记：
-// 优先使用字符串标签名判断，避免类型取值循环可能带来的攻击。
+// 优先使用字符串标签名判断，避免类型取值循环可能带来的安全隐患。
 //
 const CustomStruct = {
     /**
@@ -143,7 +143,7 @@ const CustomStruct = {
         if ( el.parentElement.tagName === 'FIGURE' ) {
             return T.FIGIMGBOX;
         }
-        return el.hasAttribute('space') ? T.SPACE : null;
+        return el.hasAttribute('space') && !el.childNodes.length ? T.SPACE : null;
     },
 
 

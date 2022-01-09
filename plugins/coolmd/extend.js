@@ -19,7 +19,30 @@ const
     $ = window.$,
 
     On = Object.create( BaseOn ),
-    By = Object.create( BaseBy );
+    By = Object.create( BaseBy ),
+
+    // 引用块行前缀
+    __blockquote = '>',
+
+    // 单元格分隔序列
+    __tableCell = ' §§ ',   // 单元格之间
+    __cellStart = '§ ',     // 首个单元格开头
+    __cellEnd   = ' §',     // 最后单元格末尾
+
+    // 片区间隔（双空行）。
+    __spaceSection = '\n\n\n';
+
+
+//
+// 全局变量：
+// 可以由外部配置修改。
+//
+let
+    // 小标题级别
+    __miniLevel = 5,
+
+    // 一个缩进的空格数。
+    __indentSpace = 4;
 
 
 //
@@ -34,6 +57,7 @@ const __blockFunc =
     P:          conLine,
     ADDRESS:    conLine,
     DD:         conLine,
+    TR:         cellsTr,
     TH:         conLine,
     TD:         conLine,
     LI:         convLi,
@@ -53,20 +77,23 @@ const __blockFunc =
     CAPTION:    miniTitle,
 
     // 结构块
-    HGROUP:     null,
-    HEADER:     null,
-    FOOTER:     null,
-    ARTICLE:    null,
-    SECTION:    null,
-    UL:         null,
-    OL:         null,
-    DL:         null,
-    TABLE:      null,
-    FIGURE:     null,
-    BLOCKQUOTE: null,
-    ASIDE:      null,
-    DETAILS:    null,
-    HR:         null,
+    HGROUP:     blockIgnore,
+    HEADER:     convBlockquote,
+    FOOTER:     convBlockquote,
+    ARTICLE:    blockIgnore,
+    SECTION:    convSection,
+    UL:         convList,
+    OL:         convList,
+    DL:         convDl,
+    TABLE:      convTable,
+    TBODY:      convTable,
+    THEAD:      convTable,
+    TFOOT:      convTable,
+    FIGURE:     convFigure,
+    BLOCKQUOTE: convBlockquote,
+    ASIDE:      smallBlock,
+    DETAILS:    smallBlock,
+    HR:         () => '------',
 }
 
 
@@ -116,6 +143,21 @@ const __inlineFunc =
 };
 
 
+//
+// 定制类型转换。
+// 主要用于代码块/代码表单元。
+//
+const __roleFunc =
+{
+    // 代码块
+    codeblock:  convCodeblock,
+
+    // 代码表
+    codelist:   convCodelist,
+}
+
+
+
 // 定制转换
 //////////////////////////////////////////////////////////////////////////////
 
@@ -158,12 +200,191 @@ function convLi( el ) {
  * 编辑器支持的区块小标题为<h3>，但在MarkDown中这样的级别明显偏大。
  * 通常合理的设计为第5级，避免对大纲造成干扰。
  * @param  {Element} el 目标元素
- * @param  {Number} n 设定级别，可选
+ * @param  {Number} n 标题层级数
  * @return {String}
  */
-function miniTitle( el, n = 5 ) {
+function miniTitle( el, n = __miniLevel ) {
     let _tt = conLine( el );
     return n ? `${''.padStart(n, '#')} ${_tt}` : _tt;
+}
+
+
+/**
+ * 片区转换。
+ * 内部的<h2>标题转换为合适层级。
+ * 对于无role定义的深片区，内部的<h2>转为第6级。
+ * 注记：
+ * 片区只存在于顶层，故返回一个合并了的字符串。
+ * @param  {Element} el 片区元素
+ * @return {String}
+ */
+function convSection( el ) {
+    let _hx = $.get( 'h2', el ),
+        _sx = $.attr( el, 'role' ) || '_6',
+        _buf = [];
+
+    if ( _hx ) {
+        _buf.push( miniTitle(_hx, +_sx.slice(-1)) );
+    }
+    for ( const sub of el.children ) {
+        _buf.push(
+            convNormal( sub, __blockFunc )
+        );
+    }
+    return _buf.join( __spaceSection );
+}
+
+
+/**
+ * 列表转换。
+ * 支持有序和无需列表，以及由这两种列表组成的级联表。
+ * 注：级联表用缩进表示。
+ * @param  {Element} el 列表元素
+ * @return {[String]} 行集
+ */
+function convList( el ) {
+    let _n = cascadeNth( el.parentElement ),
+        _ind = '',
+        _buf = [];
+
+    if ( _n ) {
+        _ind = ''.padStart( _n*__indentSpace, ' ' );
+    }
+    for ( const li of el.children ) {
+        _buf.push( _ind + convLi(li) );
+    }
+    return _buf;
+}
+
+
+/**
+ * 引用块转换。
+ * 内部的<h3>小标题级别需要调整。
+ * 注记：
+ * 其它小区块也使用引用块语法封装。
+ * @param  {Element} el 目标元素
+ * @return {[String]} 行集
+ */
+function convBlockquote( el ) {
+    let _h3 = $.get( '>h3:first-child', el ),
+        _buf = [];
+
+    if ( _h3 ) {
+        // 后附一空行
+        _buf.push( miniTitle(_h3), '' );
+    }
+    for ( const sub of el.children ) {
+        // 后附一空行
+        _buf.push( convNormal(sub, __blockFunc), '' );
+    }
+    return _buf;
+}
+
+
+/**
+ * 小区块转换。
+ * 主要针对<aside>、<details>等单元。
+ * 内部各子单元以一个前缀封装字符（空行）分隔。
+ * @param  {Element} el 目标元素
+ * @return {[String]} 行集
+ */
+function smallBlock( el ) {
+    let _buf = [];
+
+    for ( const sub of el.children ) {
+        // 后附一空行
+        _buf.push( convNormal(sub, __blockFunc), '' );
+    }
+    return _buf;
+}
+
+
+/**
+ * 定义列表转换。
+ * 各 <dd> 行之间以一个换行符分隔。
+ * 各 <dt><dd>+ 块之间用一个空行分隔。
+ * @param  {Element} el 目标元素
+ * @return {[String]} 行集
+ */
+function convDl( el ) {
+    let _buf = [];
+
+    for ( const sub of el.children ) {
+        // 非首个<dt>之前插入一个空行
+        if ( sub.tagName === 'DT' && _buf.length > 0 ) {
+            _buf.push( '' );
+        }
+        _buf.push( convNormal(sub, __blockFunc) );
+    }
+    return _buf;
+}
+
+
+/**
+ * 插图转换。
+ * 每一个图片&讲解转换为一个普通段落（<img>+<i>）文本。
+ * 参考：<figure/figcaption, [span/img, i]+
+ * 注：
+ * 插图标题可能在底部，统一提取到上部首行。
+ * @param  {Element} el 插图元素
+ * @return {[String]} 行集
+ */
+function convFigure( el ) {
+    let _cap = $.get( 'figcaption', el ),
+        _els = _cap ? $.siblings(_cap) : [...el.children],
+        _buf = [];
+
+    if ( _cap ) {
+        _buf.push( miniTitle(_cap), '' );
+    }
+    for ( const sub of _els ) {
+        // 后附一空行
+        _buf.push( convNormal(sub, __blockFunc), '' );
+    }
+    return _buf;
+}
+
+
+/**
+ * 表格数据转换。
+ * 适用表格及其内部的块单元（tbody|tfoot|thead）。
+ * @param  {Element} el 目标元素
+ * @return {[String]} 行集
+ */
+function convTable( el ) {
+    let _cap = $.get( 'caption', el ),
+        _trs = $.find( 'tr', el ),
+        _buf = [];
+
+    if ( _cap ) {
+        _buf.push( miniTitle(_cap), '' );
+    }
+    for ( const tr of _trs ) {
+        _buf.push( cellsTr(tr) );
+    }
+    return _buf;
+}
+
+
+/**
+ * 代码块转换。
+ * 结构：<pre role="codeblock">/<code>+
+ * @param  {Element} el 根元素
+ * @return {String}
+ */
+function convCodeblock( el ) {
+    //
+}
+
+
+/**
+ * 代码表转换。
+ * 结构：<ol role="codelist">/[<li>/<code>]+
+ * @param  {Element} el 根元素
+ * @return {String}
+ */
+function convCodelist( el ) {
+    //
 }
 
 
@@ -189,10 +410,10 @@ function convNormal( el, cobj ) {
  * 内容行元素转换。
  * 比如<p>、<li>、<dd>、<td>等可直接包含文本内容的元素。
  * @param  {Element} el 目标元素
- * @param  {String} 前导字符，可选
+ * @param  {String} prefix 前导字符，可选
  * @return {String}
  */
-function conLine( el, previx = '' ) {
+function conLine( el, prefix = '' ) {
     let _tts = [];
 
     for ( const nd of $.contents(el, null, false, true) ) {
@@ -202,7 +423,45 @@ function conLine( el, previx = '' ) {
         }
         _tts.push( convNormal(el, __inlineFunc) );
     }
-    return previx + _tts.join( '' );
+    return prefix + _tts.join( '' );
+}
+
+
+/**
+ * 表格行转换。
+ * - 单元格之间以一个特殊序列 §§ 分隔。
+ * - 首尾单元格外围则只有单个 § 包围。
+ * @param  {Element} tr 表格行元素
+ * @return {String} 一行文本
+ */
+function cellsTr( tr ) {
+    return __cellStart +
+        [...tr.children].map( conLine ).join( __tableCell ) +
+        __cellEnd;
+}
+
+
+/**
+ * 结构块忽略。
+ * @return {String}
+ */
+function blockIgnore() { return ''; }
+
+
+/**
+ * 获取级联表所在层级。
+ * 即子列表在<li>元素之内。
+ * @param  {Element} el 列表容器元素
+ * @return {Number}
+ */
+function cascadeNth( el ) {
+    let _n = 0;
+
+    while ( el.tagName === 'LI' ) {
+        _n++;
+        el = el.parentElement;
+    }
+    return _n;
 }
 
 
