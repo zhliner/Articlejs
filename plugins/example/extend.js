@@ -13,11 +13,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { BaseOn, BaseBy } from "../../base/tpb/tpb.esm.js";
+import { PlugOn, PlugBy } from "../../base/plugins.js";
 
 const
-    On = Object.create( BaseOn ),
-    By = Object.create( BaseBy );
+    On = Object.create( PlugOn ),
+    By = Object.create( PlugBy );
 
 
 On.test = "example On";

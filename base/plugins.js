@@ -13,7 +13,7 @@
 //
 
 import $ from "./tpb/config.js";
-import { Tpb, obtBuilder } from "./tpb/tpb.esm.js";
+import { Tpb, obtBuilder, BaseOn, BaseBy } from "./tpb/tpb.esm.js";
 import { Templater } from "./tpb/tools/templater.js";
 
 import { ROOT, Local } from "../config.js";
@@ -21,6 +21,12 @@ import { Loader, TplLoader } from "./tpb/tools/tloader.js";
 
 
 const
+    // 插件基础集
+    // 可能添加插件专用的共享On/By集。
+    // 外部插件应当从此继承。
+    PlugOn = Object.create( BaseOn ),
+    PlugBy = Object.create( BaseBy ),
+
     // 通用载入器。
     __loader = new Loader( ROOT ),
 
@@ -129,7 +135,6 @@ function obconf( conf, mobj ) {
 }
 
 
-
 //
 // 导出
 //////////////////////////////////////////////////////////////////////////////
@@ -208,3 +213,8 @@ export function pluginsInit( list ) {
 export function pluginsName( btn ) {
     return __btnPool.get( btn ) || null;
 }
+
+
+// 基础集导出
+// 供外部插件OnBy扩展继承用。
+export { PlugOn, PlugBy };
