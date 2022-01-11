@@ -149,16 +149,18 @@ const __inlineFunc =
 
     // 无特性仅内容
     // 注：不支持内联样式延续。
-    cite:   el => `<cite>${el.textContent}</cite>`,
-    small:  el => `<small>${el.textContent}</small>`,
-    sub:    el => `<sub>${el.textContent}</sub>`,
-    sup:    el => `<sup>${el.textContent}</sup>`,
-    mark:   el => `<mark>${el.textContent}</mark>`,
-    samp:   el => `<samp>${el.textContent}</samp>`,
-    kbd:    el => `<kbd>${el.textContent}</kbd>`,
-    s:      el => `<s>${el.textContent}</s>`,
-    u:      el => `<u>${el.textContent}</u>`,
-    var:    el => `<var>${el.textContent}</var>`,
+    CITE:   el => `<cite>${el.textContent}</cite>`,
+    SMALL:  el => `<small>${el.textContent}</small>`,
+    SUB:    el => `<sub>${el.textContent}</sub>`,
+    SUP:    el => `<sup>${el.textContent}</sup>`,
+    MARK:   el => `<mark>${el.textContent}</mark>`,
+    // SAMP:   el => `<samp>${el.textContent}</samp>`,
+    SAMP:   convCode,
+    // KBD:    el => `<kbd>${el.textContent}</kbd>`,
+    KBD:    convCode,
+    S:      el => `<s>${el.textContent}</s>`,
+    U:      el => `<u>${el.textContent}</u>`,
+    VAR:    el => `<var>${el.textContent}</var>`,
 };
 
 
@@ -186,7 +188,8 @@ function convCode( el ) {
 
 /**
  * 列表项转换。
- * 在用户单独转换列表项时，视为顶层列表。
+ * 在用户单独转换列表项时，视为顶层列表，
+ * 此时父容器为一个文档片段，此时判断UL为假，故会按有序列表转换。
  * 如果是级联表项，返回一个行集。
  * 注记：
  * 自行判断前缀字符，因为用户可能选取单独的列表项转换。
@@ -195,7 +198,7 @@ function convCode( el ) {
  * @return {String|[String]}
  */
 function convLi( el, n ) {
-    let _pfix = el.parentElement.tagName === 'UL' ?
+    let _pfix = el.parentNode.tagName === 'UL' ?
         '- ' :
         `${n || $.siblingNth(el)}. `;
 
@@ -231,18 +234,18 @@ function miniTitle( el, n = __miniLevel ) {
  */
 function convSection( el ) {
     let _hx = $.get( 'h2', el ),
-        _sx = $.attr( el, 'role' ) || '_6',
+        _sx = $.attr( el, 'role' ) || '_5',
+        _els = $.not( [...el.children], 'h2' ),
         _buf = [];
 
     if ( _hx ) {
-        _buf.push( miniTitle(_hx, +_sx.slice(-1)) );
+        _buf.push( miniTitle(_hx, +_sx.slice(-1)+1) );
     }
-    for ( const sub of el.children ) {
-        _buf.push(
-            convNormal( sub, __blockFunc )
-        );
+    for ( const sub of _els ) {
+        _buf.push( convNormal(sub, __blockFunc) );
     }
-    return _buf.join( __spaceSection );
+    // 段落间隔
+    return _buf.flat().join( '\n\n' );
 }
 
 
@@ -258,7 +261,7 @@ function convList( el ) {
         _n = 1,
         _buf = [];
 
-    if ( el.parentElement.tagName === 'LI' ) {
+    if ( el.parentNode.tagName === 'LI' ) {
         _ind = __indentSpace;
     }
     for ( const li of el.children ) {
@@ -284,17 +287,18 @@ function convList( el ) {
  */
 function convH3Block( el ) {
     let _h3 = $.get( '>h3:first-child', el ),
+        _els = $.not( [...el.children], 'h3' ),
         _buf = [];
 
     if ( _h3 ) {
         // 后附一空行
         _buf.push( miniTitle(_h3), '' );
     }
-    for ( const sub of el.children ) {
+    for ( const sub of _els ) {
         // 后附一空行
         _buf.push( convNormal(sub, __blockFunc), '' );
     }
-    return blockPrefix( _buf );
+    return blockPrefix( _buf.flat() );
 }
 
 
@@ -332,7 +336,7 @@ function smallBlock( el ) {
         // 后附一空行
         _buf.push( convNormal(sub, __blockFunc), '' );
     }
-    return blockPrefix( _buf );
+    return blockPrefix( _buf.flat() );
 }
 
 
@@ -353,7 +357,7 @@ function convDl( el ) {
         }
         _buf.push( convNormal(sub, __blockFunc) );
     }
-    return blockPrefix( _buf );
+    return blockPrefix( _buf.flat() );
 }
 
 
@@ -378,7 +382,7 @@ function convFigure( el ) {
         // 后附一空行
         _buf.push( convNormal(sub, __blockFunc), '' );
     }
-    return blockPrefix( _buf );
+    return blockPrefix( _buf.flat() );
 }
 
 
@@ -399,7 +403,7 @@ function convTable( el ) {
     for ( const tr of _trs ) {
         _buf.push( cellsTr(tr) );
     }
-    return blockPrefix( _buf );
+    return blockPrefix( _buf.flat() );
 }
 
 
@@ -456,9 +460,9 @@ function convCodelist( el ) {
  * @return {String|[String]}
  */
 function convNormal( el, cobj ) {
-    let _fn = cobj[
-        $.attr(el, 'role') || el.tagName
-    ];
+    let _rk = $.attr( el, 'role' ),
+        _fn = cobj[ _rk ] || cobj[ el.tagName ];
+
     return _fn ? _fn( el ) : el.textContent.trim();
 }
 
@@ -473,12 +477,12 @@ function convNormal( el, cobj ) {
 function conLine( el, prefix = '' ) {
     let _tts = [];
 
-    for ( const nd of $.contents(el, null, false, true) ) {
-        if ( nd.nodeType === 3 ) {
-            _tts.push( nd.textContent )
+    for ( const sub of $.contents(el, null, false, true) ) {
+        if ( sub.nodeType === 3 ) {
+            _tts.push( sub.textContent )
             continue;
         }
-        _tts.push( convNormal(el, __inlineFunc) );
+        _tts.push( convNormal(sub, __inlineFunc) );
     }
     return prefix + _tts.join( '' );
 }
@@ -575,21 +579,25 @@ function codeBlock( code ) {
 
 /**
  * 转换为MarkDown源码。
- * @data: [String] 选取集源码
- * @param  {String} nl 换行间隔序列，可选
+ * @data: String 选取集源码
+ * @param  {Number} nl 间隔行数，可选
  * @return {String}
  */
 function mdblock( evo, nl ) {
-    let _frg = $.fragment( evo.data.join('') );
+    let _frg = $.fragment( evo.data );
+
+    nl = nl >= 0 && ''.padStart( nl+1, '\n' );
 
     return [..._frg.children]
         .map( el => convNormal(el, __blockFunc) )
+        .map( vs => $.isArray(vs) ? vs.join('\n') : vs )
+        .map( v => window.console.info(v, '&&&&&&') || v )
         .join( nl || __spaceSection );
 }
 
 
 // On扩展
-customGetter( On, null, mdblock, 1 );
+customGetter( On, 'mdblock', mdblock, 1 );
 
 
 export { On, By };

@@ -1,6 +1,17 @@
-<div class="_coolmd"
-    on="vinit|ev('detail') mdblock"
-    to="/textarea|$value">
-    <label>转换结果：</label>
-    <textarea class="_code"><!-- 简单填充 --></textarea>
+<div class="_plugx _coolmd" tpl-name="coolmd:root"
+    on="vinit|ev('detail');
+        trans|$('/textarea') prop('defaultValue') $('/input') val int mdblock(_1)"
+    to="/textarea|$defaultValue|goto('trans');
+        /textarea|$value">
+    <!-- 调整 -->
+    <div class="_ttl"
+        on="change(input)"
+        to="1/|trigger('trans')">
+        <b>转换结果：</b>
+        <label>
+            顶层间隔
+            <input type="number" name="rows" class="_char" value="1" />
+        </label>
+    </div>
+    <textarea class="_code" spellcheck="false"><!-- 简单填充 --></textarea>
 </div>

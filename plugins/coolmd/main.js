@@ -37,8 +37,9 @@
 onmessage = function( ev ) {
     let _o = ev.data,
         _tmp = {
-            node:   null,
-            result: _o.HTML,
+            node:   'coolmd:root',
+            result: _o.HTML.join( '' ),
+            title:  'HTML-MD 转换',
         };
     postMessage( _tmp );
 };

@@ -23,5 +23,8 @@ const
 On.test = "example On";
 By.test = "example By";
 
+//:debug
+window.console.info( On, By );
+
 
 export { On, By };

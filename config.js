@@ -62,6 +62,7 @@ const
         // [插件/目录名, 按钮提示]
         plugList: [
             ['example', '示例插件'],
+            ['coolmd',  'HTML/MD 转换'],
         ],
 
         // 目标插件内文件

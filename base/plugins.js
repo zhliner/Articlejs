@@ -68,23 +68,6 @@ function plugConf( dir, file = Local.plugConf ) {
 
 
 /**
- * 插件OBT扩展。
- * 注记：
- * 扩展后的On/By对象设置到conf{On, By}上供此使用。
- * 若无扩展则无需设置，则仅使用基础集。
- * @param  {String} dir 插件目录
- * @param  {Object} conf 插件配置对象
- * @return {Object} conf
- */
-function plugOBT( dir, conf ) {
-    if ( !conf.extend ) {
-        return conf;
-    }
-    return import( `${ROOT}${dir}/${conf.extend}` ).then( m => obconf(conf, m) );
-}
-
-
-/**
  * 载入插件样式。
  * 暂存样式元素，卸载插件时一并移除。
  * 原样返回配置对象以便于下一步的模板解析。
@@ -97,6 +80,23 @@ function plugStyle( dir, conf ) {
         return $.style( {href: `${ROOT}${dir}/${conf.style}`} ).then( el => __styPool.set(dir, el) && conf );
     }
     return conf;
+}
+
+
+/**
+ * 插件OBT扩展。
+ * 注记：
+ * 扩展后的On/By对象设置到conf{On, By}上供此使用。
+ * 若无扩展则无需设置，则仅使用基础集。
+ * @param  {String} dir 插件目录
+ * @param  {Object} conf 插件配置对象
+ * @return {Promise<Object>} conf
+ */
+function plugOBT( dir, conf ) {
+    if ( !conf.extend ) {
+        return conf;
+    }
+    return import( `${ROOT}${dir}/${conf.extend}` ).then( m => obconf(conf, m) );
 }
 
 

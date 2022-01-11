@@ -1814,6 +1814,10 @@ menu._cells code {
     border-radius: 50%;
     min-width: 0;
     box-shadow: 1px 0px 4px #a4e5f9;
+    /* 图标居中 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
     /* 溢出时保持 */
     height: 60px;
 }
@@ -1821,8 +1825,8 @@ menu._cells code {
     border-radius: 1.2em;
 }
 .Modal ._plugins button > img {
-    max-width: 48px;
-    max-height: 48px;
+    width: 36px;
+    height: 36px;
 }
 
 
