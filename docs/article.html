@@ -94,7 +94,7 @@
                                 <li><a href="#白板">白板</a></li>
                             </ol>
                         </li>
-                        <li data-pbo="">
+                        <li>
                             <h5><a href="#原生结构">原生结构</a></h5>
                             <ol>
                                 <li><a href="#标题">标题</a></li>
@@ -117,7 +117,6 @@
                                 <li><a href="#注音">注音</a></li>
                             </ol>
                         </li>
-
                     </ol>
                 </li>
                 <li>
@@ -533,7 +532,7 @@
                 <section role="s2">
                     <h2 id="定制结构">定制结构</h2>
                     <section role="s3">
-                        <h2 id="提要">提 要</h2>
+                        <h2 id="提要">提要</h2>
                         <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">header</b> role=<s>"abstract"</s>&gt;
     &lt;<b role="tag">h4</b>&gt;提要&lt;<b role="tag">h4</b>&gt;
@@ -635,10 +634,10 @@
                     </section>
                     <section role="s3">
                         <h2 id="代码表">代码表</h2>
-                        <p>包含 <code>data-lang</code> 属性用于指定代码的语言。可以有两级定义：</p>
+                        <p>包含<code>data-lang</code>特性用于指定代码的语言，可以有两级定义：</p>
                         <ol>
-                            <li>根级。书写在 <code>&lt;ol&gt;</code> 元素上，对应整个代码表的默认值。</li>
-                            <li>行级。书写在 <code>&lt;code&gt;</code> 元素上，对应当前行代码的语言（可选）。</li>
+                            <li><strong>根级</strong>。书写在 <code>&lt;ol&gt;</code> 元素上，对应整个代码表的默认值。</li>
+                            <li><strong>行级</strong>。书写在 <code>&lt;code&gt;</code> 元素上，对应当前行代码的语言，可选。</li>
                         </ol>
                         <p>元素的 <code>start</code> 属性在引用代码片段时很有用。例：<a href="#源码2（代码表）">源码2（代码表）</a>。</p>
                         <pre role="codeblock">
@@ -658,7 +657,7 @@
                     </section>
                     <section role="s3">
                         <h2 id="代码块">代码块</h2>
-                        <p>与代码表相似，包含 <code>data-lang</code>属性定义代码的特性，<strong>注意</strong>：是设置在 <code>&lt;code&gt;</code> 元素上。</p>
+                        <p>与代码表一样，包含<code>data-lang</code>特性指定代码所属语言。注意<em>语言</em>是设置在<code>&lt;code&gt;</code>元素而不是<code>&lt;pre&gt;</code>容器上。</p>
                         <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">pre</b> role=<s>"codeblock"</s>&gt; <i>&lt;!-- 容许简单换行 --&gt;</i>
 &lt;<b role="tag">code</b> data-lang=<s>"xx"</s>&gt; ...&lt;<b role="tag">b</b>&gt;... &lt;<b role="tag">i</b>&gt;...

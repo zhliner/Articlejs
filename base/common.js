@@ -973,7 +973,7 @@ function newLineStart( el, indent ) {
  * @return {String}
  */
 function newLineClose( el, indent ) {
-    return el.nodeType === 3 || isInlines( el ) || isContent( el ) || el.tagName === 'LI' ?
+    return el.nodeType === 3 || isInlines( el ) || isContent( el ) || inlineBox( el ) ?
         '' :
         '\n' + indent;
 }
@@ -1039,6 +1039,18 @@ function obtNice( fmt, ind, prefix ) {
     return [ ...__dlmtSplit.split(fmt) ]
         .map( s => quoteEscape(s.trim()) )
         .join( `${__chrDlmt}\n${prefix}${ind}` );
+}
+
+
+/**
+ * 其它内联容器。
+ * 适用定制<li>单元是否仅包含内联内容（结束不换行）。
+ * @param  {Element} el 目标元素
+ * @return {Boolean}
+ */
+function inlineBox( el ) {
+    let _last = $.contents( el, -1, false, true );
+    return _last.nodeType === 3 || isInlines( _last );
 }
 
 
