@@ -4239,7 +4239,7 @@ function childrenGetter( el ) {
  * @return {[Element]}
  */
 function xblockGetter( el ) {
-    return _bodyGets( el, '>h3' );
+    return _bodyGets( el, '>h4' );
 }
 
 
@@ -6979,10 +6979,9 @@ export const Kit = {
      * 提取内容源码，发送到源码导出模态框。
      * 如果当前没有选取元素，取内容区全部内容。
      * @data: [Element] 当前选取集
-     * @param  {String} h3 目录标题条，可选
      * @return {String} 结果源码
      */
-    export( evo, ) {
+    export( evo ) {
         let _els = evo.data.length ?
             evo.data :
             $.children( contentElem );
@@ -6997,14 +6996,14 @@ export const Kit = {
      * 导出包含目录的内容源码。
      * 注记：
      * 目录需要插入合适的位置，因此克隆一个根元素。
-     * @data: [String] 目标标签
+     * @data: [String] 目录标签
      * @return {String} 结果源码
      */
     export2( evo ) {
         let _box = cleanElem( contentElem ),
             _art = $.get( 'article', _box );
 
-        topInsert( T.TOC, create(T.TOC, {h3: evo.data}, _art), _box );
+        topInsert( T.TOC, create(T.TOC, {h4: evo.data}, _art), _box );
 
         return $.html( _box );
     },

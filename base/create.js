@@ -557,7 +557,7 @@ const Children = {
      * 文献参考清单插入。
      * @param {Element|null} ref 参考子元素
      * @param {Element} box 列表根容器（<nav>）
-     * @param {String} h4 小标题
+     * @param {String} opts.h4 小标题
      * @param {Element} ol 清单元素
      */
     [ T.REFERENCE ]: function( ref, box, {h4}, ol ) {
@@ -575,7 +575,7 @@ const Children = {
      * 另参见清单插入。
      * @param {Element|null} ref 参考子元素
      * @param {Element} box 列表根容器（<aside>）
-     * @param {String} h4 小标题
+     * @param {String} opts.h4 小标题
      * @param {Element} ul 清单元素
      */
     [ T.SEEALSO ]: function( ref, box, {h4}, ul ) {
@@ -1767,7 +1767,7 @@ function tocItem( sec ) {
     if ( !_ss.length ) {
         return tocLi( _h2 );
     }
-    let _li = tocH4li( _h2 );
+    let _li = tocH5li( _h2 );
 
     $.append(
         _li.lastElementChild, tocList( _ss )
@@ -1783,7 +1783,7 @@ function tocItem( sec ) {
  * @param  {[Element]} ses 跟随子片区集
  * @return {Element} 列表标题项<li/h5/a>
  */
-function tocH4li( h2 ) {
+function tocH5li( h2 ) {
     let _a = build(
         elem( T.A ),
         { href: h2.id ? `#${h2.id}` : null },

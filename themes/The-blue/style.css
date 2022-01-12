@@ -623,7 +623,7 @@ menu._cells code {
 /* [ 顶层 ]
  ****************************************************************************/
 
-#outline > nav > h3,
+#outline > nav > h4,
 #help > nav {
     height: 46px;
     box-sizing: border-box;
@@ -705,7 +705,7 @@ menu._cells code {
     height: calc(100% - 70px);
     overflow-y: auto;
 }
-#outline nav[role=toc] h3 {
+#outline nav[role=toc] h4 {
     font-size: 1.1em;
     padding: 12px 1em;
     font-weight: normal;
@@ -715,7 +715,7 @@ menu._cells code {
     border-bottom-right-radius: 0;
     color: white;
 }
-#outline nav[role=toc] h3 > b {
+#outline nav[role=toc] h4 > b {
     float: right;
     font-family: monospace;
     padding: 2px 8px;
@@ -724,7 +724,7 @@ menu._cells code {
     margin-top: -3px;
     margin-right: -3px;
 }
-#outline nav[role=toc] h3 > b:hover {
+#outline nav[role=toc] h4 > b:hover {
     background-color: #18b361;
     border-radius: 16px;
 }

@@ -164,12 +164,12 @@ export const
     S3              = 503,  // 区 （section:s3/h2, header?, s4 | {content}, footer?）
     S4              = 504,  // 段 （section:s4/h2, header?, s5 | {content}, footer?）
     S5              = 505,  // 末 （section:s5/h2, header?, {content}, footer?）
-    ABSTRACT        = 506,  // 提要 （header:abstract/h3, p...）
-    TOC             = 507,  // 目录 （nav:toc/h3, ol:cascade/li/(h5/a), ol/[li/a]+）
-    REFERENCE       = 508,  // 文献参考 （nav:reference/h3, ol）
-    SEEALSO         = 509,  // 另参见 （aside:seealso/h3, ul）
-    HEADER          = 510,  // 导言 （header/h3, p...）
-    FOOTER          = 511,  // 结语/小结/声明 （footer/h3, p...）
+    ABSTRACT        = 506,  // 提要 （header:abstract/h4, p...）
+    TOC             = 507,  // 目录 （nav:toc/h4, ol:cascade/li/(h5/a), ol/[li/a]+）
+    REFERENCE       = 508,  // 文献参考 （nav:reference/h4, ol）
+    SEEALSO         = 509,  // 另参见 （aside:seealso/h4, ul）
+    HEADER          = 510,  // 导言 （header/h4, p...）
+    FOOTER          = 511,  // 结语/小结/声明 （footer/h4, p...）
     ARTICLE         = 512,  // 文章区 （article/header?, s1 | {content}, footer?, hr?）
     SECTION         = 513,  // 深片区 ([s5]/section)
     UL              = 514,  // 无序列表 （ul/li）
@@ -181,8 +181,8 @@ export const
     DL              = 520,  // 描述列表 （dl/dt, dd+）
     TABLE           = 521,  // 表格 （table/thead, tbody, tfoot/tr/th, td）
     FIGURE          = 522,  // 插图 （figure/figcaption, span/img, i:explain）
-    BLOCKQUOTE      = 523,  // 块引用 （blockquote/h3, p...） {cite}
-    ASIDE           = 524,  // 批注 （aside/h3, p...）
+    BLOCKQUOTE      = 523,  // 块引用 （blockquote/h4, p...） {cite}
+    ASIDE           = 524,  // 批注 （aside/h4, p...）
     DETAILS         = 525,  // 详细内容 （details/summary, p...） {open}
     CODEBLOCK       = 526,  // 代码块 （pre:codeblock/code/#text, b, i）
     // 单体单元。

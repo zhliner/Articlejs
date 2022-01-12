@@ -119,7 +119,7 @@ const
         // 章节空标题占位
         sectionH2: '[ Empty heading ]',
 
-        // 目录标题条（<h3>）
+        // 目录标题条
         tocLabel: '目 录',
 
         // 本地暂存

@@ -50,13 +50,13 @@
 //      下面接口由编辑器实现提供
 //      .heading( html ): String        获取/设置主标题
 //      .subtitle( html, add ): String  获取/设置副标题
-//      .abstract( h3, html ): String   获取/设置文章提要
+//      .abstract( h4, html ): String   获取/设置文章提要
 //      .article( html ): String        获取/设置文章主体内容
-//      .seealso( h3, html ): String    获取/设置另参见
-//      .reference( h3, html ): Strin   获取/设置文献参考
-//      .footer( h3, html ): Strin      获取/设置文章声明
+//      .seealso( h4, html ): String    获取/设置另参见
+//      .reference( h4, html ): Strin   获取/设置文献参考
+//      .footer( h4, html ): Strin      获取/设置文章声明
 //      .content( html ): String        获取/设置文章全部内容
-//      .toc( h3 ): String              获取文章目录源码
+//      .toc( h4 ): String              获取文章目录源码
 //
 //      .theme( url:String ): String    获取/设置主题
 //      .style( url:String ): String    获取/设置内容样式
@@ -214,12 +214,12 @@ class Editor {
 
     /**
      * 获取/设置文章提要。
-     * @param  {String} h3 小标题
+     * @param  {String} h4 小标题
      * @param  {String} html 内容源码
      * @return {[String2]|null|this}
      */
-    abstract( h3, html ) {
-        return this._value( 'abstract', h3, html );
+    abstract( h4, html ) {
+        return this._value( 'abstract', h4, html );
     }
 
 
@@ -235,34 +235,34 @@ class Editor {
 
     /**
      * 获取/设置另参见。
-     * @param  {String} h3 小标题
+     * @param  {String} h4 小标题
      * @param  {String} html 内容源码
      * @return {[String, [String]]|null|this} [小标题, 内容清单（<li>内容集）]
      */
-    seealso( h3, html ) {
-        return this._value( 'seealso', h3, html );
+    seealso( h4, html ) {
+        return this._value( 'seealso', h4, html );
     }
 
 
     /**
      * 获取/设置文献参考。
-     * @param  {String} h3 小标题
+     * @param  {String} h4 小标题
      * @param  {String} html 内容源码
      * @return {[String, [String]]|null|this} [小标题, 内容清单（<li>内容集）]
      */
-    reference( h3, html ) {
-        return this._value( 'reference', h3, html );
+    reference( h4, html ) {
+        return this._value( 'reference', h4, html );
     }
 
 
     /**
      * 获取/设置文章声明。
-     * @param  {String} h3 小标题
+     * @param  {String} h4 小标题
      * @param  {String} html 内容源码
      * @return {[String2]|null|this} [小标题, 内容源码]
      */
-    footer( h3, html ) {
-        return this._value( 'footer', h3, html );
+    footer( h4, html ) {
+        return this._value( 'footer', h4, html );
     }
 
 
@@ -279,12 +279,12 @@ class Editor {
     /**
      * 获取目录（大纲）。
      * 注：没有设置的功能。
-     * h3 的默认值为 config.js 中的 Tips.tocLabel 配置。
-     * @param  {String} h3 目录标题条文本，可选
+     * h4 的默认值为 config.js 中的 Tips.tocLabel 配置。
+     * @param  {String} h4 目录标题条文本，可选
      * @return {String}
      */
-    toc( h3 ) {
-        return this._value( 'toc', h3 );
+    toc( h4 ) {
+        return this._value( 'toc', h4 );
     }
 
 

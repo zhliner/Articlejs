@@ -89,22 +89,22 @@ const Api = {
     /**
      * 获取/设置文章提要。
      * 返回值是一个两成员数组，其中：
-     * [0] 提要名称源码（不含<h3>本身）。
+     * [0] 提要名称源码（不含<h4>本身）。
      * [1] 内容源码（顶层条目outerHTML合并串）。
      * 如果提要单元本就不存在，返回null。
      * 设置时，假值实参对于的目标会保持原始内容（无修改）。
-     * @param  {String} h3 提要名称
+     * @param  {String} h4 提要名称
      * @param  {String} cons 内容源码（顶层outerHTML）
      * @return {[String2]|null|void} [小标题, 内容源码]
      */
-    abstract( h3, cons ) {
+    abstract( h4, cons ) {
         let _box = $.get( '>header[role=abstract]', __content );
 
-        if ( h3 === undefined && cons === undefined ) {
+        if ( h4 === undefined && cons === undefined ) {
             return _box && getBlock1( _box );
         }
         resetState();
-        updateBlock1( h3, cons, _box, T.ABSTRACT );
+        updateBlock1( h4, cons, _box, T.ABSTRACT );
     },
 
 
@@ -129,18 +129,18 @@ const Api = {
      * 获取/设置另见条目集。
      * 返回的条目集不包含条目容器<li>元素，而是内容的源码。
      * 仅在设置时需要提供可选的小标题。
-     * @param  {String} h3 小标题（如：'另参见'），可选
+     * @param  {String} h4 小标题（如：'另参见'），可选
      * @param  {[String]} cons 内容源码集
      * @return {[String, [String]]|null|void} [小标题, 内容清单（<li>内容集）]
      */
-    seealso( h3, cons ) {
+    seealso( h4, cons ) {
         let _box = $.get( '>aside[role=seealso]', __content );
 
-        if ( h3 === undefined && cons === undefined ) {
+        if ( h4 === undefined && cons === undefined ) {
             return _box && getBlock2( _box, 'ul' );
         }
         resetState();
-        updateBlock2( h3, cons, _box, 'ul', T.SEEALSO );
+        updateBlock2( h4, cons, _box, 'ul', T.SEEALSO );
     },
 
 
@@ -148,40 +148,40 @@ const Api = {
      * 获取/设置参考条目集。
      * 返回的条目集不包含条目容器<li>元素，而是内容的源码。
      * 仅在设置时需要提供可选的小标题。
-     * @param  {String} h3 小标题（如：'文献参考'），可选
+     * @param  {String} h4 小标题（如：'文献参考'），可选
      * @param  {[String]} cons 内容源码集
      * @return {[String, [String]]|null|void} [小标题, 内容清单（<li>内容集）]
      */
-    reference( h3, cons ) {
+    reference( h4, cons ) {
         let _box = $.get( '>nav[role=reference]', __content );
 
-        if ( h3 === undefined && cons === undefined ) {
+        if ( h4 === undefined && cons === undefined ) {
             return _box && getBlock2( _box, 'ol' );
         }
         resetState();
-        updateBlock2( h3, cons, _box, 'ol', T.REFERENCE );
+        updateBlock2( h4, cons, _box, 'ol', T.REFERENCE );
     },
 
 
     /**
      * 获取/设置文章声明。
      * 返回值是一个两成员数组，其中：
-     * [0] 名称源码（不含<h3>本身）。
+     * [0] 名称源码（不含<h4>本身）。
      * [1] 内容源码（顶层条目outerHTML合并串）。
      * 如果声明单元本就不存在，返回null。
      * 设置时，假值实参对于的目标会保持原始内容（无修改）。
-     * @param  {String} h3 声明名称
+     * @param  {String} h4 声明名称
      * @param  {String} cons 内容源码（顶层outerHTML）
      * @return {[String2]|null|void} [小标题, 内容源码]
      */
-    footer( h3, cons ) {
+    footer( h4, cons ) {
         let _box = $.get( '>footer', __content );
 
-        if ( h3 === undefined && cons === undefined ) {
+        if ( h4 === undefined && cons === undefined ) {
             return _box && getBlock1( _box );
         }
         resetState();
-        updateBlock1( h3, cons, _box, T.FOOTER );
+        updateBlock1( h4, cons, _box, T.FOOTER );
     },
 
 
@@ -207,9 +207,9 @@ const Api = {
      * 获取文章目录源码。
      * @return {String}
      */
-    toc( h3 = Tips.tocLabel ) {
+    toc( h4 = Tips.tocLabel ) {
         // 对__content为只读
-        return create( T.TOC, {h3}, $.get('article', __content) ).outerHTML;
+        return create( T.TOC, {h4}, $.get('article', __content) ).outerHTML;
     },
 
 
@@ -264,75 +264,75 @@ function arrValue( val ) {
 
 
 /**
- * 获取块单元内容（h3+内容集）。
+ * 获取块单元内容（h4+内容集）。
  * @param  {Element} box 单元根容器
  * @return {[String2]} [小标题, 内容源码]
  */
 function getBlock1( box ) {
-    let _h3 = $.get( 'h3', box );
+    let _h4 = $.get( 'h4', box );
 
     return [
-        _h3 && $.html( _h3 ),
-        $( '>*', box ).not( 'h3' ).prop( 'outerHTML' ).join( '' )
+        _h4 && $.html( _h4 ),
+        $( '>*', box ).not( 'h4' ).prop( 'outerHTML' ).join( '' )
     ];
 }
 
 
 /**
- * 更新块单元（h3+内容集）
- * h3 和 cons 为假值者，不会更新相应的项（保持原值）。
- * @param  {String} h3 小标题
+ * 更新块单元（h4+内容集）
+ * h4 和 cons 为假值者，不会更新相应的项（保持原值）。
+ * @param  {String} h4 小标题
  * @param  {String} cons 内容源码（顶层outerHTML）
  * @param  {Element} box 块元素
  * @param  {Number} type 单元类型值
  * @return {void}
  */
-function updateBlock1( h3, cons, box, type ) {
-    let _h3 = box && $.get( 'h3', box ),
-        $els = box && $( '>*', box ).not( 'h3' );
+function updateBlock1( h4, cons, box, type ) {
+    let _h4 = box && $.get( 'h4', box ),
+        $els = box && $( '>*', box ).not( 'h4' );
 
     topInsert(
         type,
-        create( type, {h3: h3 || _h3 && $.text(_h3)}, cons ? [...$.fragment(cons).children] : $els, true )
+        create( type, {h4: h4 || _h4 && $.text(_h4)}, cons ? [...$.fragment(cons).children] : $els, true )
     );
 }
 
 
 /**
- * 获取块单元内容（h3+列表）
+ * 获取块单元内容（h4+列表）
  * @param  {Element} box 块单元容器
  * @return {[String, [String]]} [小标题, 内容清单（<li>内容集）]
  */
 function getBlock2( box, tag ) {
-    let _h3 = $.get( 'h3', box ),
+    let _h4 = $.get( 'h4', box ),
         _xl = $.get( `>${tag}`, box );
 
     return [
-        _h3 && $.html( _h3 ),
+        _h4 && $.html( _h4 ),
         _xl && $.children( _xl ).map( li => $.html(li) )
     ];
 }
 
 
 /**
- * 更新块单元（h3+列表）
+ * 更新块单元（h4+列表）
  * 如果条目源码集实参为假，则不会改变清单内容。
- * @param  {String} h3 小标题
+ * @param  {String} h4 小标题
  * @param  {[String]} cons 条目源码集
  * @param  {Element} box 块容器
  * @param  {String} tag 清单容器标签（ul|ol）
  * @param  {Number} type 块类型值
  * @return {void}
  */
-function updateBlock2( h3, cons, box, tag, type ) {
-    let _h3 = box && $.get( 'h3', box ),
+function updateBlock2( h4, cons, box, tag, type ) {
+    let _h4 = box && $.get( 'h4', box ),
         _xl = box && $.get( `>${tag}`, box );
 
     if ( cons ) {
         _xl = $.elem( tag );
         $.append( _xl, $(arrValue(cons)).wrap('<li>') );
     }
-    topInsert( type, create(type, {h3: h3 || _h3 && $.text(_h3)}, _xl) );
+    topInsert( type, create(type, {h4: h4 || _h4 && $.text(_h4)}, _xl) );
 }
 
 

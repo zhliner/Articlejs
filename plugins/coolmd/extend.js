@@ -329,7 +329,7 @@ function cellsTr( tr ) {
  * 可由外部设定级别，支持内容包含内联单元。
  * 如果n为零，表示转为普通文本行。
  * 注记：
- * 编辑器支持的区块小标题为<h3>，但在MarkDown中这样的级别明显偏大。
+ * 编辑器支持的区块小标题为<h4>，但在MarkDown中这样的级别明显偏大。
  * 通常合理的设计为第5级，避免对大纲造成干扰。
  * @param  {Element} el 目标元素
  * @param  {Number} n 标题层级数
@@ -399,18 +399,18 @@ function convList( el ) {
 
 /**
  * 小区块转换（H3小标题）。
- * 其中的<h3>小标题级别不能原样保留。
+ * 其中的<h4>小标题级别不能原样保留。
  * @param  {Element} el 目标元素
  * @return {[String]} 行集
  */
 function convH3Block( el ) {
-    let _h3 = $.get( '>h3:first-child', el ),
-        _els = $.not( [...el.children], 'h3' ),
+    let _h4 = $.get( '>h4:first-child', el ),
+        _els = $.not( [...el.children], 'h4' ),
         _buf = [];
 
-    if ( _h3 ) {
+    if ( _h4 ) {
         // 后附一空行
-        _buf.push( miniTitle(_h3), '' );
+        _buf.push( miniTitle(_h4), '' );
     }
     for ( const sub of _els ) {
         // 后附一空行
@@ -431,7 +431,7 @@ function convH3Block( el ) {
  * @return {[String]}
  */
 function convHeader( el ) {
-    let _hx = $.get( 'h3', el ),
+    let _hx = $.get( 'h4', el ),
         _nx = $.next( el );
 
     if ( !_hx && _nx && _nx.tagName === 'SECTION' ) {

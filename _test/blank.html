@@ -42,9 +42,10 @@
                     <ul>
                         <li><strong>h1</strong>: 仅用于文章的主标题，通常也就是页面的主标题。</li>
                         <li><strong>h2</strong>: 各区段（<code>&lt;section&gt;</code>）的标题，作为首个子元素存在。</li>
-                        <li><strong>h3</strong>: 各行块单元的小标题，如：文章提要（<code>&lt;header:abstract&gt;/&lt;h3&gt;, &lt;p&gt;...</code>）、引用块（<code>&lt;blockquote&gt;/&lt;h3&gt;, &lt;p&gt;...</code>）等。另外也作为文章的副标题，和主标题一起存在于一个 <code>&lt;hgroup&gt;</code> 之内（如果需要副标题的话）。</li>
-                        <li><strong>h4</strong>: 级联表里子列表的标题条目项（<code>&lt;li&gt;/&lt;h4&gt;, &lt;ol&gt;</code>）。</li>
-                        <li><strong>h5, h6</strong>: 未使用。</li>
+                        <li><strong>h3</strong>: 文章的副标题，和主标题一起存在于一个 <code>&lt;hgroup&gt;</code> 之内（如果需要副标题的话）。</li>
+                        <li><strong>h4</strong>: 各行块单元的小标题，如：文章提要（<code>&lt;header:abstract&gt;/&lt;h4&gt;, &lt;p&gt;...</code>）、引用块（<code>&lt;blockquote&gt;/&lt;h4&gt;, &lt;p&gt;...</code>）等。</li>
+                        <li><strong>h5</strong>: 级联表里子列表的标题条目项（<code>&lt;li&gt;/&lt;h5&gt;, &lt;ol&gt;</code>）。</li>
+                        <li><strong>h6</strong>: 未使用。</li>
                     </ul>
                 </section>
                 <section role="s2">
@@ -131,9 +132,9 @@
                             <li><code>&lt;<b role="tag">ul</b>&gt;&lt;/<b role="tag">ul</b>&gt;                           <i>&lt;!-- 无序列表：UL /li... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">ol</b>&gt;&lt;/<b role="tag">ol</b>&gt;                           <i>&lt;!-- 有序列表：OL /li... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">ol</b> role=<s>"codelist"</s>&gt;&lt;/<b role="tag">ol</b>&gt;           <i>&lt;!-- 代码表：CODELIST /li/code/b, i, #text --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">ul</b> role=<s>"ulx"</s>&gt;&lt;/<b role="tag">ul</b>&gt;                <i>&lt;!-- 无序级联表：ULX /li/h4, ol|ul/... --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">ol</b> role=<s>"olx"</s>&gt;&lt;/<b role="tag">ol</b>&gt;                <i>&lt;!-- 有序级联表：OLX /li/h4, ul|ol/... --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">ol</b> role=<s>"cascade"</s>&gt;&lt;/<b role="tag">ol</b>&gt;            <i>&lt;!-- 级联编号表：CASCADE /li/h4, ol/... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">ul</b> role=<s>"ulx"</s>&gt;&lt;/<b role="tag">ul</b>&gt;                <i>&lt;!-- 无序级联表：ULX /li/h5, ol|ul/... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">ol</b> role=<s>"olx"</s>&gt;&lt;/<b role="tag">ol</b>&gt;                <i>&lt;!-- 有序级联表：OLX /li/h5, ul|ol/... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">ol</b> role=<s>"cascade"</s>&gt;&lt;/<b role="tag">ol</b>&gt;            <i>&lt;!-- 级联编号表：CASCADE /li/h5, ol/... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">dl</b>&gt;&lt;/<b role="tag">dl</b>&gt;                           <i>&lt;!-- 描述列表：DL /dt, dd... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">table</b>&gt;&lt;/<b role="tag">table</b>&gt;                     <i>&lt;!-- 表格：TABLE /caption, thead, tbody, tfoot/tr/td... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">figure</b>&gt;&lt;/<b role="tag">figure</b>&gt;                   <i>&lt;!-- 插图：FIGURE /figcaption, [span/img, i:explain?]... --&gt;</i></code></li>
