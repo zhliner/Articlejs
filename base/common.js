@@ -13,7 +13,8 @@
 //
 
 import $ from "./tpb/config.js";
-import { beforeFixed, afterFixed, isInlines, isEmpty, isContent } from "./base.js";
+import { isInlines, isSpecial } from "./types.js";
+import { beforeFixed, afterFixed, isEmpty, isContent, getType } from "./base.js";
 import { Scripter } from "../config.js";
 import { Render } from "./tpb/tools/render.js";
 import { Spliter, UmpCaller, UmpString } from "./tpb/tools/spliter.js";
@@ -1054,6 +1055,25 @@ function inlineBox( el ) {
 }
 
 
+/**
+ * 是否为合法内容子单元。
+ * 指可以被包含在内容元素里的单元，包括：
+ * - 文本节点
+ * - 内联元素
+ * - 代码内特用单元（<b><i>）
+ * 注记：
+ * 仅允许<code>内的<b>和<i>，因为普通内容元素内微编辑时，<strong>可能会被浏览器转换为<b>，
+ * 此情况应当消除以保证元素的语义逻辑。
+ * 但副作用是，划选创建的特用单元，微编辑后也会被清除。
+ * @param  {Element} el 目标元素
+ * @return {Boolean}
+ */
+function isConitem( el ) {
+    let _tv = getType( el );
+    return isInlines( _tv ) || ( el.parentElement.tagName === 'CODE' && isSpecial(_tv) );
+}
+
+
 
 //
 // 基本函数集。
@@ -1298,5 +1318,5 @@ export function cleanInline( el ) {
     if ( _buf.length ) {
         $.fill( el, _buf );
     }
-    return isInlines( el ) ? el : el.textContent;
+    return isConitem( el ) ? el : el.textContent;
 }
