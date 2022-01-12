@@ -29,7 +29,7 @@
     Tpb.build(
         document.querySelector('nav>ol'),
         {
-            on: "mouseenter|('auto'); mouseleave|('hidden'); click(~h4)|evo(2) parent fold(2)",
+            on: "mouseenter|('auto'); mouseleave|('hidden'); click(~h5)|evo(2) parent fold(2)",
             to: "|css('overflow-y'); |css('overflow-y')"
         }
     )
@@ -39,20 +39,20 @@
     <main class="content">
         <h1>编辑操作</h1>
         <nav role="toc">
-            <h3>目录</h3>
+            <h4>目录</h4>
             <ol role="cascade">
                 <li><a>全局热键</a></li>
                 <li>
-                    <h4><a>普通模式</a></h4>
+                    <h5><a>普通模式</a></h5>
                     <ol>
                         <li>
-                            <h4><a>焦点元素</a></h4>
+                            <h5><a>焦点元素</a></h5>
                             <ol>
                                 <li><a>焦点移动</a></li>
                                 <li><a>附：顶元素</a></li>
                             </ol></li>
                         <li>
-                            <h4><a>元素选取</a></h4>
+                            <h5><a>元素选取</a></h5>
                             <ol>
                                 <li><a>鼠标点选</a></li>
                                 <li><a>按键选取</a></li>
@@ -62,7 +62,7 @@
                                 <li><a>选取集排序</a></li>
                             </ol></li>
                         <li>
-                            <h4><a>编辑操作</a></h4>
+                            <h5><a>编辑操作</a></h5>
                             <ol>
                                 <li><a>普通编辑</a></li>
                                 <li><a>移动与缩进</a></li>
@@ -74,10 +74,10 @@
                         <li><a>格式刷</a></li>
                     </ol></li>
                 <li>
-                    <h4><a>录入面板</a></h4>
+                    <h5><a>录入面板</a></h5>
                     <ol>
                         <li>
-                            <h4><a>快捷键</a></h4>
+                            <h5><a>快捷键</a></h5>
                             <ol>
                                 <li><a>文本框&lt;textarea&gt;</a></li>
                                 <li><a>表格单元&lt;th|td&gt;</a></li>
@@ -87,7 +87,7 @@
                 <li><a>修订模式</a></li>
                 <li><a>属性框</a></li>
                 <li>
-                    <h4><a>命令行</a></h4>
+                    <h5><a>命令行</a></h5>
                     <ol>
                         <li><a>选取（&gt;）</a></li>
                         <li><a>过滤（|）</a></li>
@@ -96,7 +96,7 @@
                         <li><a>计算（=）</a></li>
                     </ol></li>
                 <li>
-                    <h4><a>其它</a></h4>
+                    <h5><a>其它</a></h5>
                     <ol>
                         <li><a>表格的容错编辑</a></li>
                         <li><a>兼容性依赖</a></li>
@@ -150,7 +150,7 @@
                         <li><strong>创建</strong>：在一个文本行上用鼠标<strong>划选</strong>后，会弹出内联单元创建菜单，单击目标条目或热键即可创建内联单元。</li>
                     </ul>
                     <aside>
-                        <h3>附：快捷辅助键设计原则</h3>
+                        <h4>附：快捷辅助键设计原则</h4>
                         <p>普通模式下大量的操作都可以使用热键（快捷键）完成，这可以极大地提高效率。为便于记忆，热键设定遵循如下原则。</p>
                         <ul>
                             <li><kbd>X</kbd>: 某单个键位，完成某个功能操作。如<kbd>C</kbd>键复制当前选取集并原地插入（<code>after</code>）。</li>
@@ -216,7 +216,7 @@
                             <li><strong>父焦</strong>：<kbd>Shift</kbd> + <kbd>Alt</kbd> + <code>单击</code>。仅将选取焦点移动到单击目标的父元素上，不影响当前选取集。</li>
                         </ul>
                         <aside>
-                            <h3>同态：</h3>
+                            <h4>同态：</h4>
                             <p>焦点元素有选取和非选取两者状态，让目标元素与焦点元素状态相同，可简称为<strong>同态</strong>操作。</p>
                         </aside>
                     </section>
@@ -333,7 +333,7 @@
                             <li><strong>克隆后插入</strong>：<kbd>Shift+B</kbd>。将选取集成员<strong>克隆</strong>并插入到焦点元素之后（<code>after</code>）。焦点元素可以作为数据源，非法元素转换规则同前。</li>
                         </ul>
                         <aside>
-                            <h3>注意：</h3>
+                            <h4>注意：</h4>
                             <p>插入的顺序是按照选取的顺序逐个提取。这样的设计可以提高灵活性，如果需要有序，可以按<kbd>S</kbd>键排序。</p>
                             <p>上面的移动是<strong>跨层级</strong>的，适用任意目标位置。如果位置非法，内容会被<em>自动转换</em>。但这种移动并不那么直观，需要<em>焦点元素</em>来定位。下面有专注于简单移动的操作，比如兄弟元素之间的<em>平级移动</em>。</p>
                         </aside>
@@ -349,8 +349,8 @@
                             <li><strong>章节降级</strong>：<kbd>Alt+→</kbd>。章节或片区右缩进，会在原地创建一个空的片区容器来包含被降级的片区。</li>
                         </ul>
                         <aside>
-                            <h3>注：</h3>
-                            <p>同级兄弟元素间可自由移动，但不能跨越固定性单元，如标题（<code>&lt;h3&gt;</code>）元素。</p>
+                            <h4>注：</h4>
+                            <p>同级兄弟元素间可自由移动，但不能跨越固定性单元，如标题（<code>&lt;h4&gt;</code>）元素。</p>
                             <p>顶层章节的升级会被简单忽略，末层章节（<code>&lt;section role="s5"&gt;</code>）再降级会变成没有 <code>role</code> 定义的普通<strong>深片区。</strong></p>
                         </aside>
                     </section>
@@ -377,7 +377,7 @@
                             <li><kbd>Ctrl+↓</kbd>：向下移动<strong>1</strong>像素。加按<kbd>Shift</kbd>键同上。</li>
                         </ul>
                         <aside>
-                            <h3>注意：</h3>
+                            <h4>注意：</h4>
                             <p>对于没有设置绝对定位的元素，这些组合键操作会被简单忽略。<em>插图</em>单元在内容样式文件中通常有其<em>图片讲解</em>的<code>position: absolute</code>和容器的<code>position：relative</code>定义，因此无需手动设置。</p>
                         </aside>
                     </section>
@@ -390,7 +390,7 @@
                             <li><strong>粘贴</strong>：以换行符切分剪贴板里的<strong>文本</strong>内容，分别添加到选取集元素或其<em>根内容元素</em>内。如果选取集只有一个成员，内容不会切分。粘贴默认为<em>填充覆盖</em>方式，加按<kbd>Shift</kbd>键为<em>末尾追加</em>（<code>append</code>）方式。</li>
                         </ul>
                         <aside>
-                            <h3>注意：</h3>
+                            <h4>注意：</h4>
                             <p>粘贴里的插入<strong>分组</strong>仅与<strong>选取</strong>有关，比如选取了一个<code>&lt;tr&gt;</code>元素，因为它不是内容元素，所以会宽选其内部的单元格为目标，但此时并不会分组，相同的内容会插入到其内所有单元格中。如果需要与单元格一一对应，应当选取单元格本身。</p>
                             <p>提取或插入的分组是按<em>选取顺序</em>对应的，可能你需要先按<kbd>S</kbd>键来排哈序。</p>
                         </aside>
@@ -465,7 +465,7 @@
                         <li><kbd>ESC</kbd>：取消当前修订并退出微编辑。</li>
                     </ul>
                     <aside>
-                        <h3>换行兼容性：</h3>
+                        <h4>换行兼容性：</h4>
                         <p><kbd>Enter</kbd>的行为在不同浏览器之间差异较大，<kbd>Shift+Enter</kbd>则较为一致。</p>
                         <p><code>&lt;pre&gt;</code>元素在微编辑修订后，其中的换行元素<code>&lt;br&gt;</code>会被强制替换为换行字符<code>\n</code>，以保证内容的一致性。</p>
                     </aside>
@@ -503,7 +503,7 @@
                     <h2>选取（<kbd>&gt;</kbd>）</h2>
                     <p>在当前选取集范围内检索目标选择器匹配的元素。支持二阶检索选择器：斜线分隔向上和向下选择器，焦点元素为起点。如果没有已选取的元素，则在全局范围（内容区）内检索。</p>
                     <aside>
-                        <h3>二阶检索</h3>
+                        <h4>二阶检索</h4>
                         <p>这是一种<em>最近路径</em>检索法：首先向上查找与目标元素最近的<strong>共同祖先</strong>容器，然后向下检索目标元素。这可以压缩范围以提高效率，同时还可以回避标识名全局唯一性的约束（小范围内唯一即可）。</p>
                         <p>二阶检索需要存在<strong>起点元素</strong>，即从一个起点元素查找另一个元素，类似于相对路径的逻辑。通常应用在一个元素的事件处理器中（以当前元素为起点）。</p>
                         <p>二阶检索通过<em>二阶选择器</em>来实现，格式：<code style="font-weight: bold;">Up-selector/Down-selector</code></p>

@@ -65,9 +65,9 @@ const customHandles = {
     [ T.LI ]:           processAttr,        // value, types
     [ T.CODELI ]:       processAttr,        // value, types
     [ T.ALI ]:          processAttr,        // value, types
-    [ T.XH4LI ]:        processAttr,        // value, types
-    [ T.XOLH4LI ]:      processAttr,        // value, types
-    [ T.XOLAH4LI ]:     processAttr,        // value, types
+    [ T.XH5LI ]:        processAttr,        // value, types
+    [ T.XOLH5LI ]:      processAttr,        // value, types
+    [ T.XOLAH5LI ]:     processAttr,        // value, types
     [ T.TABLE ]:        processTable,       // border, vth
     [ T.HR ]:           processHr,          // thick, length, space, border
     [ T.BLANK ]:        processCSS,         // CSS: width, height

@@ -89,7 +89,6 @@ const InputOptions = {
     [ T.H1 ]:           'option:h1',
     [ T.H2 ]:           'option:h2',
     [ T.H3 ]:           'option:h3',
-    [ T.H3X ]:          'option:h3x',
     [ T.H4 ]:           'option:h4',
     [ T.H5 ]:           'option:h5',
     [ T.H6 ]:           'option:h6',
@@ -108,10 +107,10 @@ const InputOptions = {
 
     [ T.CODELI ]:       'option:codeli',
     [ T.ALI ]:          'option:ali',
-    [ T.AH4 ]:          'option:ah4',
-    [ T.XH4LI ]:        'option:xh4li',
-    [ T.XOLH4LI ]:      'option:xolh4li',
-    [ T.XOLAH4LI ]:     'option:xolah4li',
+    [ T.AH5 ]:          'option:ah5',
+    [ T.XH5LI ]:        'option:xh5li',
+    [ T.XOLH5LI ]:      'option:xolh5li',
+    [ T.XOLAH5LI ]:     'option:xolah5li',
     [ T.FIGIMGBOX ]:    'option:figimgbox',
 
     [ T.HGROUP ]:       'option:hgroup',
@@ -185,9 +184,9 @@ const Properties = {
     [ T.LI ]:           'property:li',          // value, type
     [ T.CODELI ]:       'property:li',          // value, type
     [ T.ALI ]:          'property:li',          // value, type
-    [ T.XH4LI ]:        'property:li',          // value, type
-    [ T.XOLH4LI ]:      'property:li',          // value, type
-    [ T.XOLAH4LI ]:     'property:li',          // value, type
+    [ T.XH5LI ]:        'property:li',          // value, type
+    [ T.XOLH5LI ]:      'property:li',          // value, type
+    [ T.XOLAH5LI ]:     'property:li',          // value, type
     [ T.TABLE ]:        'property:table',       // cols, rows, border, th0
     [ T.HR ]:           'property:hr',          // thick, length, space, border
     [ T.BLANK ]:        'property:blank',       // width, height

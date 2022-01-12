@@ -30,10 +30,10 @@
             <h3>—— 简单干净的源码，清爽愉悦的阅读</h3>
         </hgroup>
         <header role="abstract">
-            <h3>【提 要】</h3>
+            <h4>【提 要】</h4>
             <p>文章内容由最多五个递进的层级（<strong>章</strong>/<strong>节</strong>/<strong>区</strong>/<strong>段</strong>/<strong>末</strong>）构成，每一个层级中可包含多个平行的片区（<code>&lt;section&gt;</code>）元素。</p>
             <p>片区的标题在封装元素（<code>&lt;section&gt;</code>）之内（最前端），由<code>&lt;h2&gt;</code>元素封装，不同层级的片区标题皆是如此。区分不同层级标题依靠的是封装元素自身（<code>&lt;section&gt;</code>）而不是标题元素本身，这与通常的<code>h1-h6</code>的隐含意义有些矛盾，但这种策略让递进更自由，同时<code>&lt;h1&gt;</code>和<code>&lt;h3&gt;</code>-<code>&lt;h6&gt;</code>也可用于其它更丰富的意义。</p>
-            <p><code>&lt;h1&gt;</code>用于页面的主标题，一篇文章中应当只有一个主标题。<code>&lt;h3&gt;</code>用于页面的副标题，它与主标题一起位于一个标题组（<code>&lt;hgroup&gt;</code>）元素内，副标题可以有多个。<code>&lt;h3&gt;</code>还用于逻辑区块里的小标题，比如引用块（<code>&lt;blockquote&gt;</code>）里可选的小标题，或者批注块（<code>&lt;aside&gt;</code>）、导言（<code>&lt;header&gt;</code>）等里的小标题。<code>&lt;h4&gt;</code>用于一些逻辑上更细碎的“标题”，比如目录或级联表中包含子表的条目（<code>&lt;li&gt;</code>/<code>&lt;h4&gt;</code>）。</p>
+            <p><code>&lt;h1&gt;</code>用于页面的主标题，一篇文章中应当只有一个主标题。<code>&lt;h3&gt;</code>用于页面的副标题，它与主标题一起位于一个标题组（<code>&lt;hgroup&gt;</code>）元素内，副标题可以有多个。<code>&lt;h4&gt;</code>用于逻辑区块里的小标题，比如引用块（<code>&lt;blockquote&gt;</code>）里可选的小标题，或者批注块（<code>&lt;aside&gt;</code>）、导言（<code>&lt;header&gt;</code>）等里的小标题。<code>&lt;h5&gt;</code>用于一些逻辑上更细碎的“标题”，比如目录或级联表中包含子表的条目（<code>&lt;li&gt;</code>/<code>&lt;h5&gt;</code>）。</p>
             <p>如果一个片区内没有子片区逻辑，它就应该只是一个内容片区，包含各种具体的文本块或段落。内容片区可在任意层级存在，只要它是最终的内容即可，并不会受限于<strong>章</strong>/<strong>节</strong>/<strong>区</strong>/<strong>段</strong>/<strong>末</strong>五个递进层次。</p>
             <p>内容片区中的内容块有很多种，比如：引用块（<code>&lt;blockquote&gt;</code>）、详细内容（<code>&lt;details&gt;</code>）、表格（<code>&lt;table&gt;</code>）、插图（<code>&lt;figure&gt;</code>）、列表（<code>&lt;ol&gt;</code>或<code>&lt;ul&gt;</code>），级联表（<code>&lt;ol role="cascade"&gt;/&lt;li&gt;/&lt;ol&gt;</code>），以及最常见的段落（<code>&lt;p&gt;</code>）等。</p>
             <p>最后，内容块其实并不是最终的实体文本，最终的实体文本是纯文本或内联单元，如：重点（<code>&lt;strong&gt;</code>）、强调（<code>&lt;em&gt;</code>）、代码（<code>&lt;code&gt;</code>）、注音（<code>&lt;ruby&gt;</code>）、缩写（<code>&lt;abbr&gt;</code>）、标记（<code>&lt;mark&gt;</code>）、图片（<code>&lt;img&gt;</code>）、视频（<code>&lt;video&gt;</code>）等等。</p>
@@ -42,26 +42,26 @@
         <!-- click(a) 构造章节选择器，定位显示到视口。兼容ID锚跳转（未设置avoid） -->
         <nav role="toc"
             on="click(a)|evo(2) paths('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView">
-            <h3>【目 录】</h3>
+            <h4>【目 录】</h4>
             <!-- click 子表标题（非<a>）折叠切换 -->
             <ol role="cascade"
                 on="mouseenter|('auto');
                     mouseleave|('hidden');
-                    click(~h4)|evo(2) parent fold(2)"
+                    click(~h5)|evo(2) parent fold(2)"
                 to="|css('overflow-y');
                     |css('overflow-y')">
                 <li>
-                    <h4><a href="#层次">层次</a></h4>
+                    <h5><a href="#层次">层次</a></h5>
                     <ol>
                         <li><a href="#标题规划">标题规划</a></li>
                         <li><a href="#层次示意">层次示意</a></li>
                     </ol>
                 </li>
                 <li>
-                    <h4><a href="#组成">组成</a></h4>
+                    <h5><a href="#组成">组成</a></h5>
                     <ol>
                         <li>
-                            <h4><a href="#内容块">内容块</a></h4>
+                            <h5><a href="#内容块">内容块</a></h5>
                             <ol>
                                 <li><a href="#结构类">结构类</a></li>
                                 <li><a href="#文本类">文本类</a></li>
@@ -74,10 +74,10 @@
                     </ol>
                 </li>
                 <li>
-                    <h4><a href="#单元结构">单元结构</a></h4>
+                    <h5><a href="#单元结构">单元结构</a></h5>
                     <ol>
                         <li>
-                            <h4><a href="#定制结构">定制结构</a></h4>
+                            <h5><a href="#定制结构">定制结构</a></h5>
                             <ol>
                                 <li><a href="#提要">提要</a></li>
                                 <li><a href="#目录">目录</a></li>
@@ -95,7 +95,7 @@
                             </ol>
                         </li>
                         <li data-pbo="">
-                            <h4><a href="#原生结构">原生结构</a></h4>
+                            <h5><a href="#原生结构">原生结构</a></h5>
                             <ol>
                                 <li><a href="#标题">标题</a></li>
                                 <li><a href="#文章">文章</a></li>
@@ -121,11 +121,11 @@
                     </ol>
                 </li>
                 <li>
-                    <h4><a href="#代码着色">代码着色</a></h4>
+                    <h5><a href="#代码着色">代码着色</a></h5>
                     <ol>
                         <li><a href="#封装规则">封装规则</a></li>
                         <li>
-                            <h4><a href="#示例">示例</a></h4>
+                            <h5><a href="#示例">示例</a></h5>
                             <ol>
                                 <li><a href="#源码1（代码块）">源码1（代码块）</a></li>
                                 <li><a href="#效果1">效果</a></li>
@@ -136,16 +136,16 @@
                     </ol>
                 </li>
                 <li>
-                    <h4><a>附录</a></h4>
+                    <h5><a>附录</a></h5>
                     <ol>
                         <li>
-                            <h4><a>插图</a></h4>
+                            <h5><a>插图</a></h5>
                             <ol>
                                 <li><a>实例</a></li>
                             </ol>
                         </li>
                         <li>
-                            <h4><a>描述列表</a></h4>
+                            <h5><a>描述列表</a></h5>
                             <ol>
                                 <li><a>实例</a></li>
                             </ol>
@@ -168,9 +168,10 @@
                     <ul>
                         <li><strong>h1</strong>: 仅用于文章的主标题，通常也就是页面的主标题。</li>
                         <li><strong>h2</strong>: 各区段（<code>&lt;section&gt;</code>）的标题，作为首个子元素存在。</li>
-                        <li><strong>h3</strong>: 各行块单元的小标题，如：文章提要（<code>&lt;header:abstract&gt;/&lt;h3&gt;, &lt;p&gt;...</code>）、引用块（<code>&lt;blockquote&gt;/&lt;h3&gt;, &lt;p&gt;...</code>）等。另外也作为文章的副标题，和主标题一起存在于一个 <code>&lt;hgroup&gt;</code> 之内（如果需要副标题的话）。</li>
-                        <li><strong>h4</strong>: 级联表里子列表的标题条目项（<code>&lt;li&gt;/&lt;h4&gt;, &lt;ol&gt;</code>）。</li>
-                        <li><strong>h5, h6</strong>: 未使用。</li>
+                        <li><strong>h3</strong>: 文章的副标题，和主标题一起存在于一个 <code>&lt;hgroup&gt;</code> 之内（如果需要副标题的话）。</li>
+                        <li><strong>h4</strong>: 各行块单元的小标题，如：文章提要（<code>&lt;header:abstract&gt;/&lt;h4&gt;, &lt;p&gt;...</code>）、引用块（<code>&lt;blockquote&gt;/&lt;h4&gt;, &lt;p&gt;...</code>）等。</li>
+                        <li><strong>h5</strong>: 级联表里子列表的标题条目项（<code>&lt;li&gt;/&lt;h5&gt;, &lt;ol&gt;</code>）。</li>
+                        <li><strong>h6</strong>: 未使用。</li>
                     </ul>
                 </section>
                 <section role="s2">
@@ -220,7 +221,7 @@
 &lt;<b role="tag">footer</b>&gt;&lt;/<b role="tag">footer</b>&gt;                           <i>&lt;!-- 声明 --&gt;</i>
 </code></pre>
                     <aside>
-                        <h3>附：Markdown解析</h3>
+                        <h4>附：Markdown解析</h4>
                         <ul>
                             <li>每一级标题之后的内容即为该标题关联的片区（<code>&lt;section&gt;</code>）。</li>
                             <li>如果在内容之中包含层级更低的子标题，首个子标题之前的内容被视为导言部分（<code>&lt;header&gt;</code>）。</li>
@@ -243,12 +244,12 @@
                         <p>内部不能直接包含文本或内联元素，有固定的子级结构。</p>
                         <ol role="codelist" data-lang="html">
                             <li><code>&lt;<b role="tag">hgroup</b>&gt;&lt;/<b role="tag">hgroup</b>&gt;                   <i>&lt;!-- 主/副标题组：HGROUP /h1, h3 --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">header</b> role=<s>"abstract"</s>&gt;&lt;/<b role="tag">header</b>&gt;   <i>&lt;!-- 提要：ABSTRACT /h3, p... --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">nav</b> role=<s>"toc"</s>&gt;&lt;/<b role="tag">nav</b>&gt;              <i>&lt;!-- 目录：TOC /h3, ol:cascade/li/a（可多级） --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">nav</b> role=<s>"reference"</s>&gt;&lt;/<b role="tag">nav</b>&gt;        <i>&lt;!-- 文献参考：REFERENCE /h3, ol --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">aside</b> role=<s>"seealso"</s>&gt;&lt;/<b role="tag">aside</b>&gt;      <i>&lt;!-- 另参见：SEEALSO /h3, ul --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">header</b>&gt;&lt;/<b role="tag">header</b>&gt;                   <i>&lt;!-- 导言：HEADER /h3, p... --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">footer</b>&gt;&lt;/<b role="tag">footer</b>&gt;                   <i>&lt;!-- 结语/小结/页脚：FOOTER /h3, p... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">header</b> role=<s>"abstract"</s>&gt;&lt;/<b role="tag">header</b>&gt;   <i>&lt;!-- 提要：ABSTRACT /h4, p... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">nav</b> role=<s>"toc"</s>&gt;&lt;/<b role="tag">nav</b>&gt;              <i>&lt;!-- 目录：TOC /h4, ol:cascade/li/a（可多级） --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">nav</b> role=<s>"reference"</s>&gt;&lt;/<b role="tag">nav</b>&gt;        <i>&lt;!-- 文献参考：REFERENCE /h4, ol --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">aside</b> role=<s>"seealso"</s>&gt;&lt;/<b role="tag">aside</b>&gt;      <i>&lt;!-- 另参见：SEEALSO /h4, ul --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">header</b>&gt;&lt;/<b role="tag">header</b>&gt;                   <i>&lt;!-- 导言：HEADER /h4, p... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">footer</b>&gt;&lt;/<b role="tag">footer</b>&gt;                   <i>&lt;!-- 结语/小结/页脚：FOOTER /h4, p... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">article</b>&gt;&lt;/<b role="tag">article</b>&gt;                 <i>&lt;!-- 文章区：ARTICLE /header, s1, footer, hr --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">section</b> role=<s>"s1"</s>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 章：S1 /h2, header, s2, footer --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">section</b> role=<s>"s2"</s>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 节：S2 /h2, header, s3, footer --&gt;</i></code></li>
@@ -259,14 +260,14 @@
                             <li><code>&lt;<b role="tag">ul</b>&gt;&lt;/<b role="tag">ul</b>&gt;                           <i>&lt;!-- 无序列表：UL /li... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">ol</b>&gt;&lt;/<b role="tag">ol</b>&gt;                           <i>&lt;!-- 有序列表：OL /li... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">ol</b> role=<s>"codelist"</s>&gt;&lt;/<b role="tag">ol</b>&gt;           <i>&lt;!-- 代码表：CODELIST /li/code/b, i, #text --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">ul</b> role=<s>"ulx"</s>&gt;&lt;/<b role="tag">ul</b>&gt;                <i>&lt;!-- 无序级联表：ULX /li/h4, ol|ul/... --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">ol</b> role=<s>"olx"</s>&gt;&lt;/<b role="tag">ol</b>&gt;                <i>&lt;!-- 有序级联表：OLX /li/h4, ul|ol/... --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">ol</b> role=<s>"cascade"</s>&gt;&lt;/<b role="tag">ol</b>&gt;            <i>&lt;!-- 级联编号表：CASCADE /li/h4, ol/... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">ul</b> role=<s>"ulx"</s>&gt;&lt;/<b role="tag">ul</b>&gt;                <i>&lt;!-- 无序级联表：ULX /li/h5, ol|ul/... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">ol</b> role=<s>"olx"</s>&gt;&lt;/<b role="tag">ol</b>&gt;                <i>&lt;!-- 有序级联表：OLX /li/h5, ul|ol/... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">ol</b> role=<s>"cascade"</s>&gt;&lt;/<b role="tag">ol</b>&gt;            <i>&lt;!-- 级联编号表：CASCADE /li/h5, ol/... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">dl</b>&gt;&lt;/<b role="tag">dl</b>&gt;                           <i>&lt;!-- 描述列表：DL /dt, dd... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">table</b>&gt;&lt;/<b role="tag">table</b>&gt;                     <i>&lt;!-- 表格：TABLE /caption, thead, tbody, tfoot/tr/td... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">figure</b>&gt;&lt;/<b role="tag">figure</b>&gt;                   <i>&lt;!-- 插图：FIGURE /figcaption, [span/img, i:explain?]... --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">blockquote</b>&gt;&lt;/<b role="tag">blockquote</b>&gt;           <i>&lt;!-- 引用块：BLOCKQUOTE /h3, p... --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">aside</b>&gt;&lt;/<b role="tag">aside</b>&gt;                     <i>&lt;!-- 批注块：ASIDE /h3, p... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">blockquote</b>&gt;&lt;/<b role="tag">blockquote</b>&gt;           <i>&lt;!-- 引用块：BLOCKQUOTE /h4, p... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">aside</b>&gt;&lt;/<b role="tag">aside</b>&gt;                     <i>&lt;!-- 批注块：ASIDE /h4, p... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">details</b>&gt;&lt;/<b role="tag">details</b>&gt;                 <i>&lt;!-- 详细内容：DETAILS /sumary, p... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">pre</b> role=<s>"codeblock"</s>&gt;&lt;/<b role="tag">pre</b>&gt;        <i>&lt;!-- 代码块：CODEBLOCK /code... --&gt;</i></code></li>
                         </ol>
@@ -535,7 +536,7 @@
                         <h2 id="提要">提 要</h2>
                         <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">header</b> role=<s>"abstract"</s>&gt;
-    &lt;<b role="tag">h3</b>&gt;提要&lt;<b role="tag">h3</b>&gt;
+    &lt;<b role="tag">h4</b>&gt;提要&lt;<b role="tag">h4</b>&gt;
     &lt;<b role="tag">p</b>&gt;&lt;/<b role="tag">p</b>&gt; ...
 &lt;/<b role="tag">header</b>&gt;
 </code></pre>
@@ -544,9 +545,9 @@
                         <h2 id="目录">目录</h2>
                         <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">nav</b> role=<s>"toc"</s>&gt;
-    &lt;<b role="tag">h3</b>&gt;&lt;/<b role="tag">h3</b>&gt;
+    &lt;<b role="tag">h4</b>&gt;&lt;/<b role="tag">h4</b>&gt;
     &lt;<b role="tag">ol</b> role=<s>"cascade"</s>&gt;
-        &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">h4</b>&gt;&lt;<b role="tag">a</b> href=<s>"#..."</s>&gt;&lt;!-- [#text] --&gt;&lt;/<b role="tag">a</b>&gt;&lt;/<b role="tag">h4</b>&gt;&lt;/<b role="tag">li</b>&gt;
+        &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">h5</b>&gt;&lt;<b role="tag">a</b> href=<s>"#..."</s>&gt;&lt;!-- [#text] --&gt;&lt;/<b role="tag">a</b>&gt;&lt;/<b role="tag">h5</b>&gt;&lt;/<b role="tag">li</b>&gt;
     &lt;/<b role="tag">ol</b>&gt;
 &lt;/<b role="tag">nav</b>&gt;
 </code></pre>
@@ -568,7 +569,7 @@
                         <p>用有序列表来表达，体现引用出现在原文中的先后位置。</p>
                         <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">nav</b> role=<s>"reference"</s>&gt;
-    &lt;<b role="tag">h3</b>&gt;文献参考&lt;/<b role="tag">h3</b>&gt;
+    &lt;<b role="tag">h4</b>&gt;文献参考&lt;/<b role="tag">h4</b>&gt;
     &lt;<b role="tag">ol</b>&gt;
         &lt;<b role="tag">li</b>&gt;&lt;/<b role="tag">li</b>&gt;...
     &lt;/<b role="tag">ol</b>&gt;
@@ -580,7 +581,7 @@
                         <p>构造为一个无序列表，体现出不区分先后或主次顺序的并列关系。</p>
                         <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">aside</b> role=<s>"seealso"</s>&gt;
-    &lt;<b role="tag">h3</b>&gt;另参见&lt;/<b role="tag">h3</b>&gt;
+    &lt;<b role="tag">h4</b>&gt;另参见&lt;/<b role="tag">h4</b>&gt;
     &lt;<b role="tag">ul</b>&gt;
         &lt;<b role="tag">li</b>&gt;&lt;/<b role="tag">li</b>&gt;...
     &lt;/<b role="tag">ul</b>&gt;
@@ -594,7 +595,7 @@
 <code data-lang="html">&lt;<b role="tag">ul</b> role=<s>"ulx"</s>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;/<b role="tag">li</b>&gt;
     &lt;<b role="tag">li</b>&gt;
-        &lt;<b role="tag">h4</b>&gt;&lt;/<b role="tag">h4</b>&gt; <i>&lt;!-- 级联小标题 --&gt;</i>
+        &lt;<b role="tag">h5</b>&gt;&lt;/<b role="tag">h5</b>&gt; <i>&lt;!-- 级联小标题 --&gt;</i>
         &lt;<b role="tag">ol</b>&gt;      <i>&lt;!-- 也可为&lt;ul&gt; --&gt;</i>
             &lt;<b role="tag">li</b>&gt;&lt;/<b role="tag">li</b>&gt;
         &lt;/<b role="tag">ol</b>&gt;
@@ -609,7 +610,7 @@
 <code data-lang="html">&lt;<b role="tag">ol</b> role=<s>"olx"</s>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;/<b role="tag">li</b>&gt;
     &lt;<b role="tag">li</b>&gt;
-        &lt;<b role="tag">h4</b>&gt;&lt;/<b role="tag">h4</b>&gt; <i>&lt;!-- 级联小标题 --&gt;</i>
+        &lt;<b role="tag">h5</b>&gt;&lt;/<b role="tag">h5</b>&gt; <i>&lt;!-- 级联小标题 --&gt;</i>
         &lt;<b role="tag">ul</b>&gt;      <i>&lt;!-- 也可为&lt;ol&gt; --&gt;</i>
             &lt;<b role="tag">li</b>&gt;&lt;/<b role="tag">li</b>&gt;
         &lt;/<b role="tag">ul</b>&gt;
@@ -619,12 +620,12 @@
                     </section>
                     <section role="s3">
                         <h2 id="级联编号表">级联编号表</h2>
-                        <p>仅由有序列（<code>&lt;ol&gt;</code>）表构成，除了最终的层级，列表项（<code>&lt;li&gt;</code>）中仅有两个子元素：小标题（<code>&lt;h4&gt;</code>）和子列表（<code>&lt;ol&gt;</code>）。</p>
+                        <p>仅由有序列（<code>&lt;ol&gt;</code>）表构成，除了最终的层级，列表项（<code>&lt;li&gt;</code>）中仅有两个子元素：小标题（<code>&lt;h5&gt;</code>）和子列表（<code>&lt;ol&gt;</code>）。</p>
                         <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">ol</b> role=<s>"cascade"</s>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;/<b role="tag">li</b>&gt;
     &lt;<b role="tag">li</b>&gt; <i>&lt;!-- 由CSS表达序号逻辑 --&gt;</i>
-        &lt;<b role="tag">h4</b>&gt;&lt;/<b role="tag">h4</b>&gt;
+        &lt;<b role="tag">h5</b>&gt;&lt;/<b role="tag">h5</b>&gt;
         &lt;<b role="tag">ol</b>&gt;
             &lt;<b role="tag">li</b>&gt;&lt;/<b role="tag">li</b>&gt;
         &lt;/<b role="tag">ol</b>&gt;
@@ -651,7 +652,7 @@
 &lt;/<b role="tag">ol</b>&gt;
 </code></pre>
                     <aside>
-                        <h3>注意：</h3>
+                        <h4>注意：</h4>
                         <p>行级配置指定在 <code>&lt;code&gt;</code> 元素上（而不是 <code>&lt;li&gt;</code>），使得与其它代码单元（代码块/代码段）行为一致。</p>
                     </aside>
                     </section>
@@ -727,7 +728,7 @@
                         <p>在文章的顶层（<code>&lt;article&gt;</code>）也可以有一个导言，它作为 <code>&lt;article&gt;</code> 内的首个子元素存在（文章的标题被提取出来放到了 <code>&lt;article&gt;</code> 的外面——整个内容的最前端）。</p>
                         <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">header</b>&gt;
-    &lt;<b role="tag">h3</b>&gt;&lt;/<b role="tag">h3</b>&gt; <i>&lt;!-- 可选 --&gt;</i>
+    &lt;<b role="tag">h4</b>&gt;&lt;/<b role="tag">h4</b>&gt; <i>&lt;!-- 可选 --&gt;</i>
     &lt;<b role="tag">p</b>&gt;&lt;/<b role="tag">p</b>&gt; ...
 &lt;/<b role="tag">header</b>&gt;
 </code></pre>
@@ -737,7 +738,7 @@
                         <p>在章节片区内的末尾，通常称为 <strong>小结</strong>。在文章根元素（<code>&lt;article&gt;</code>）内也可以包含，通常是一个总结（或 <strong>结语</strong>）。如果出现在文章根容器之上的顶层，可能会是一个 <strong>声明</strong>。</p>
                         <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">footer</b>&gt;
-    &lt;<b role="tag">h3</b>&gt;&lt;/<b role="tag">h3</b>&gt; <i>&lt;!-- 可选 --&gt;</i>
+    &lt;<b role="tag">h4</b>&gt;&lt;/<b role="tag">h4</b>&gt; <i>&lt;!-- 可选 --&gt;</i>
     &lt;<b role="tag">p</b>&gt;&lt;/<b role="tag">p</b>&gt; ...
 &lt;/<b role="tag">footer</b>&gt;
 </code></pre>
@@ -828,7 +829,7 @@
                         <h2 id="引用块">引用块</h2>
                         <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">blockquote</b>&gt;
-    &lt;<b role="tag">h3</b>&gt;&lt;/<b role="tag">h3</b>&gt; <i>&lt;!-- 可选 --&gt;</i>
+    &lt;<b role="tag">h4</b>&gt;&lt;/<b role="tag">h4</b>&gt; <i>&lt;!-- 可选 --&gt;</i>
     &lt;<b role="tag">p</b>&gt;&lt;/<b role="tag">p</b>&gt; ...
 &lt;/<b role="tag">blockquote</b>&gt;
 </code></pre>
@@ -837,7 +838,7 @@
                         <h2 id="批注块">批注块</h2>
                         <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">aside</b>&gt;
-    &lt;<b role="tag">h3</b>&gt;&lt;/<b role="tag">h3</b>&gt; <i>&lt;!-- 可选 --&gt;</i>
+    &lt;<b role="tag">h4</b>&gt;&lt;/<b role="tag">h4</b>&gt; <i>&lt;!-- 可选 --&gt;</i>
     &lt;<b role="tag">p</b>&gt;&lt;/<b role="tag">p</b>&gt; ...
 &lt;/<b role="tag">aside</b>&gt;
 </code></pre>
@@ -1021,7 +1022,7 @@
                         </tbody>
                     </table>
                     <aside>
-                        <h3>注记：</h3>
+                        <h4>注记：</h4>
                         <ul>
                             <li>用 <code>&lt;b&gt;</code> 封装着色文本可减少书写，在没有样式渲染时，默认的粗体显示也较为友好。</li>
                             <li>用 <code>&lt;i&gt;</code> 封装注释也有类似的效果，斜体的“附加说明”感受较为明确。</li>

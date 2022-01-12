@@ -110,7 +110,6 @@ const Tags = {
     [ T.H1 ]:           'h1',
     [ T.H2 ]:           'h2',
     [ T.H3 ]:           'h3',
-    [ T.H3X ]:          'h3',
     [ T.H4 ]:           'h4',
     [ T.H5 ]:           'h5',
     [ T.H6 ]:           'h6',
@@ -129,10 +128,10 @@ const Tags = {
     // 定制结构（无role）。
     [ T.CODELI ]:       'li',
     [ T.ALI ]:          'li',
-    [ T.AH4 ]:          'h4',
-    [ T.XH4LI ]:        'li',
-    [ T.XOLH4LI ]:      'li',
-    [ T.XOLAH4LI ]:     'li',
+    [ T.AH5 ]:          'h5',
+    [ T.XH5LI ]:        'li',
+    [ T.XOLH5LI ]:      'li',
+    [ T.XOLAH5LI ]:     'li',
     [ T.TOCCASCADE ]:   'ol\\cascade',
     [ T.FIGIMGBOX ]:    'span',
 
@@ -405,47 +404,47 @@ const Children = {
 
     /**
      * 级联表标题项。
-     * 如果没有传递 h4，取<li>容器内容创建。
-     * 如果传递了 h4，原<li>内容会被清空丢弃。
+     * 如果没有传递 h5，取<li>容器内容创建。
+     * 如果传递了 h5，原<li>内容会被清空丢弃。
      * 注：数据非子列表时默认创建<ul>。
      * @param {Element|null} ref 参考子元素
      * @param {Element} li 列表项元素
-     * @param {Element|String|[Node]} h4 标题元素或其内容
+     * @param {Element|String|[Node]} h5 标题元素或其内容
      * @param {Element} data 子列表，可选
      */
-    [ T.XH4LI ]: function( ref, li, {h4}, data ) {
+    [ T.XH5LI ]: function( ref, li, {h5}, data ) {
         if ( !data ) {
             return result( null, data, true );
         }
-        let _h4 = $.empty( li ),
+        let _h5 = $.empty( li ),
             [_ul, _end] = appendChild(
                 ref,
                 li,
                 data,
                 () => elem( T.UL )
             );
-        return result( insertHeading( li, T.H4, h4 || _h4 ), _ul, _end );
+        return result( insertHeading( li, T.H5, h5 || _h5 ), _ul, _end );
     },
 
 
     /**
      * 级联编号表标题项。
-     * 如果没有传递 h4，取<li>容器内容创建。
-     * 如果传递了 h4，原<li>内容会被清空丢弃。
+     * 如果没有传递 h5，取<li>容器内容创建。
+     * 如果传递了 h5，原<li>内容会被清空丢弃。
      * @param {Element|null} ref 参考子元素
      * @param {Element} li 列表项元素
-     * @param {Element|String|[Node]} h4 标题元素或其内容，可选
+     * @param {Element|String|[Node]} h5 标题元素或其内容，可选
      * @param {Element} data 子列表，可选
      */
-    [ T.XOLH4LI ]: function( ref, li, {h4}, data ) {
-        let _h4 = $.empty( li ),
+    [ T.XOLH5LI ]: function( ref, li, {h5}, data ) {
+        let _h5 = $.empty( li ),
             [_ol, _end] = appendChild(
                 ref,
                 li,
                 data,
                 () => elem( T.OL )
             );
-        return result( insertHeading(li, T.H4, h4 || _h4), _ol, _end );
+        return result( insertHeading(li, T.H5, h5 || _h5), _ol, _end );
     },
 
 
@@ -455,17 +454,17 @@ const Children = {
      * 因为标题不在正常的递进构建流程里。
      * @param {Element|null} ref 参考子元素
      * @param {Element} li 列表项容器
-     * @param {Element} h4a 链接标题元素（<h4/a>）
+     * @param {Element} h5a 链接标题元素（<h5/a>）
      * @param {Element} data 子列表（<ol>），可选
      */
-    [ T.XOLAH4LI ]: function( ref, li, {h4a}, data ) {
+    [ T.XOLAH5LI ]: function( ref, li, {h5a}, data ) {
         let [_ol, _end] = appendChild(
             ref,
             li,
             data,
             () => elem( T.OL )
         );
-        return result( h4a && insertHeading(li, T.AH4, h4a), _ol, _end );
+        return result( h5a && insertHeading(li, T.AH5, h5a), _ol, _end );
     },
 
 
@@ -527,7 +526,7 @@ const Children = {
                 ref,
                 hgroup,
                 h3,
-                () => elem( T.H3X )
+                () => elem( T.H3 )
             );
         cleanOptions( opts, 'h1' );
 
@@ -540,17 +539,17 @@ const Children = {
      * 注记：下阶专用函数构建目录内容。
      * @param {Element|null} ref 参考子元素
      * @param {Element} toc 目标根元素
-     * @param {String} h3 目录显示标签
+     * @param {String} h4 目录显示标签
      * @param {Element} ol 编号级联表
      */
-    [ T.TOC ]: function( ref, toc, {h3}, ol ) {
+    [ T.TOC ]: function( ref, toc, {h4}, ol ) {
         let [_ol, _end] = appendChild(
             ref,
             toc,
             ol,
             () => elem( T.TOCCASCADE )
         );
-        return result( h3 && insertHeading(toc, T.H3, h3), _ol, _end );
+        return result( h4 && insertHeading(toc, T.H4, h4), _ol, _end );
     },
 
 
@@ -558,17 +557,17 @@ const Children = {
      * 文献参考清单插入。
      * @param {Element|null} ref 参考子元素
      * @param {Element} box 列表根容器（<nav>）
-     * @param {String} h3 小标题
+     * @param {String} h4 小标题
      * @param {Element} ol 清单元素
      */
-    [ T.REFERENCE ]: function( ref, box, {h3}, ol ) {
+    [ T.REFERENCE ]: function( ref, box, {h4}, ol ) {
         let [_el, _end] = appendChild(
             ref,
             box,
             ol,
             () => elem( T.OL )
         );
-        return result( h3 && insertHeading(box, T.H3, h3), _el, _end );
+        return result( h4 && insertHeading(box, T.H4, h4), _el, _end );
     },
 
 
@@ -576,17 +575,17 @@ const Children = {
      * 另参见清单插入。
      * @param {Element|null} ref 参考子元素
      * @param {Element} box 列表根容器（<aside>）
-     * @param {String} h3 小标题
+     * @param {String} h4 小标题
      * @param {Element} ul 清单元素
      */
-    [ T.SEEALSO ]: function( ref, box, {h3}, ul ) {
+    [ T.SEEALSO ]: function( ref, box, {h4}, ul ) {
         let [_el, _end] = appendChild(
             ref,
             box,
             ul,
             () => elem( T.UL )
         );
-        return result( h3 && insertHeading(box, T.H3, h3), _el, _end );
+        return result( h4 && insertHeading(box, T.H4, h4), _el, _end );
     },
 
 
@@ -786,7 +785,7 @@ const Children = {
 [
     [ T.CODELI,     T.CODE ],
     [ T.ALI,        T.A ],
-    [ T.AH4,        T.A ],
+    [ T.AH5,        T.A ],
 ]
 .forEach(function( its ) {
     /**
@@ -814,7 +813,7 @@ const Children = {
 
 //
 // 小行块创建。
-// 结构：[ <h3>, <p>... ]
+// 结构：[ <h4>, <p>... ]
 // 标题在最前，智能补足（不存在则创建，否则忽略）。
 // 注记：一次只处理一个段落数据。
 //-----------------------------------------------
@@ -830,20 +829,20 @@ const Children = {
      * 标题项为可选。
      * @param {Element|null} ref 参考子元素（插入点）
      * @param {Element} box 容器元素
-     * @param {Element|String|[Node]} opts.h3 小标题元素或其内容，可选
+     * @param {Element|String|[Node]} opts.h4 小标题元素或其内容，可选
      * @param {Element} data 子单元数据
      */
     Children[ it ] = function( ref, box, opts, data ) {
-        let {h3} = opts,
+        let {h4} = opts,
             [_el, _end] = appendChild(
             ref,
             box,
             data,
             () => elem( T.P )
         );
-        cleanOptions( opts, 'h3' );
+        cleanOptions( opts, 'h4' );
 
-        return result( h3 && insertHeading(box, T.H3, h3), _el, _end );
+        return result( h4 && insertHeading(box, T.H4, h4), _el, _end );
     };
 });
 
@@ -970,7 +969,6 @@ const Children = {
     T.H1,
     T.H2,
     T.H3,
-    T.H3X,
     T.H4,
     T.H5,
     T.H6,
@@ -1153,9 +1151,9 @@ const Builder = {
     [ T.LI,             ['value'] ],
     [ T.CODELI,         ['value'] ],
     [ T.ALI,            ['value'] ],
-    [ T.XH4LI,          ['value'] ],
-    [ T.XOLH4LI,        ['value'] ],
-    [ T.XOLAH4LI,       ['value'] ],
+    [ T.XH5LI,          ['value'] ],
+    [ T.XOLH5LI,        ['value'] ],
+    [ T.XOLAH5LI,       ['value'] ],
     [ T.BLOCKQUOTE,     ['cite'] ],
     [ T.DETAILS,        ['open'] ],
     [ T.A,              ['href', 'target', 'title'] ],
@@ -1232,7 +1230,7 @@ const Builder = {
     // T.THEAD,
     // T.TBODY,
     // T.TFOOT,
-    // T.AH4,
+    // T.AH5,
     // T.TOCCASCADE,
     // T.FIGIMGBOX,
     // T.HGROUP,
@@ -1332,8 +1330,8 @@ const ConvInlines = {
 //
 const ConvBlocks = {
 
-    [ T.BLOCKQUOTE ]: h3Getter,
-    [ T.ASIDE ]:      h3Getter,
+    [ T.BLOCKQUOTE ]: h4Getter,
+    [ T.ASIDE ]:      h4Getter,
 
     // 详细内容。
     [ T.DETAILS ]: function( el, opts = {} ) {
@@ -1341,7 +1339,7 @@ const ConvBlocks = {
             _subs = $.children( el );
 
         if ( _hx ) {
-            opts.h3 = _hx.textContent;
+            opts.h4 = _hx.textContent;
             _subs.splice( _subs.indexOf(_hx), 1 );
         }
         // 内容区取消了单击展开能力，故强制。
@@ -1780,10 +1778,10 @@ function tocItem( sec ) {
 
 /**
  * 创建目录子片区标题项。
- * 结构：li/[h4/a], ol（含一个空<ol>）。
+ * 结构：li/[h5/a], ol（含一个空<ol>）。
  * @param  {Element} h2 片区标题
  * @param  {[Element]} ses 跟随子片区集
- * @return {Element} 列表标题项<li/h4/a>
+ * @return {Element} 列表标题项<li/h5/a>
  */
 function tocH4li( h2 ) {
     let _a = build(
@@ -1791,7 +1789,7 @@ function tocH4li( h2 ) {
         { href: h2.id ? `#${h2.id}` : null },
         h2.innerText
     );
-    return build( elem(T.XOLAH4LI), { h4a: [_a] }, elem(T.OL) );
+    return build( elem(T.XOLAH5LI), { h5a: [_a] }, elem(T.OL) );
 }
 
 
@@ -1991,20 +1989,20 @@ function datetimeGetter( el, opts = {} ) {
 
 
 /**
- * 含h3小标题单元取值。
+ * 含h4小标题单元取值。
  * 内容子元素提取时取克隆版本。
  * @param  {Element} box 小区块单元根
  * @param  {Object} opts 属性配置空间
  * @return {[Object, [Node]]}
  */
-function h3Getter( box, opts = {} ) {
-    let _h3 = $.get( 'h3', box ),
+function h4Getter( box, opts = {} ) {
+    let _h4 = $.get( 'h4', box ),
         _subs = $.children( box );
 
-    if ( _h3 ) {
-        opts.h3 = _h3.textContent;
-        opts.summary = _h3.textContent;
-        _subs.splice( _subs.indexOf(_h3), 1 );
+    if ( _h4 ) {
+        opts.h4 = _h4.textContent;
+        opts.summary = _h4.textContent;
+        _subs.splice( _subs.indexOf(_h4), 1 );
     }
     opts.open = true;
 
@@ -2142,9 +2140,9 @@ function build( el, opts, data, more ) {
  *      figcaption: {Value}     插图标题
  *      summary     {Value}     详细简介
  *      h1:         {Value}     页面主标题
- *      h3:         {Value}     行块小标题
- *      h4:         {Value}     级联表小标题
- *      h4a:        {Element}   级联表标题链接
+ *      h4:         {Value}     行块小标题
+ *      h5:         {Value}     级联表小标题
+ *      h5a:        {Element}   级联表标题链接
  *      explain:    {Value}     图片讲解
  *      h2:         {Value}     片区（<section>）标题
  *      header:     {Element}   导言元素

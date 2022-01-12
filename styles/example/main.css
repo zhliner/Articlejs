@@ -53,7 +53,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 }
 
 /* 级联表 */
-.content li > h4 {
+.content li > h5 {
     margin: 2px 0;
 }
 .content li > ul,
@@ -90,10 +90,10 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     font-size: 1.6em;
 }
 
-.content h3 {
+.content h4 {
     font-size: 1.1em;
 }
-.content h4 {
+.content h5 {
     font-size: 1.0em;
 }
 
@@ -108,9 +108,9 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 .content aside > * {
     margin: 0.6em auto;
 }
-.content blockquote > h3,
-.content details > h3,
-.content aside > h3 {
+.content blockquote > h4,
+.content details > h4,
+.content aside > h4 {
     margin: 0.4em auto;
 }
 
@@ -124,7 +124,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 
 /* 提要
- * header:abstract/h3, p+
+ * header:abstract/h4, p+
  *----------------------------------------------------------------------------
  */
 .content header[role=abstract] {
@@ -137,7 +137,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     text-shadow: 0.3px 0.3px 5px #cfe5ed;
     box-shadow: 0px 1px 3px #e3a24f;
 }
-.content header[role=abstract] > h3 {
+.content header[role=abstract] > h4 {
     font-size: 1.17em;
     margin: 10px;
     text-align: center;
@@ -149,7 +149,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 
 /* 多级编号表
- * ol:cascade/li/h4, ol/...
+ * ol:cascade/li/h5, ol/...
  *----------------------------------------------------------------------------
  */
 .content ol[role=cascade],
@@ -159,7 +159,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     list-style-type: none;
 }
 
-.content ol[role=cascade] h4 {
+.content ol[role=cascade] h5 {
     margin: 0;
     font-weight: normal;
 }
@@ -249,7 +249,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     overflow-y: auto;
 }
 
-.content nav[role=toc] h3 {
+.content nav[role=toc] h4 {
     font-size: 1.17em;
     margin: 7px 4px 0;
     padding-bottom: 10px;
@@ -267,7 +267,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     color: #333;
 }
 .content nav[role=toc] li,
-.content nav[role=toc] h4,
+.content nav[role=toc] h5,
 .content nav[role=toc] a {
     line-height: 150%;
 }
@@ -289,13 +289,13 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     background-color: #e8f2f2;
     border-radius: 4px 2em 0 0;
 }
-.content nav[role=toc] li > h4::after {
+.content nav[role=toc] li > h5::after {
     content: '－';
     float: right;
     margin-right: 1em;
     color: green;
 }
-.content nav[role=toc] li[data-pbo=folded] > h4::after {
+.content nav[role=toc] li[data-pbo=folded] > h5::after {
     content: '＋';
     color: #e9a279;
 }
@@ -465,7 +465,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 
 /* 引用块
- * blockquote/h3, p+
+ * blockquote/h4, p+
  *----------------------------------------------------------------------------
  */
 .content blockquote {
@@ -478,7 +478,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 
 /* 批注块
- * aside/h3, p+
+ * aside/h4, p+
  *----------------------------------------------------------------------------
  */
 .content aside {
@@ -505,7 +505,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 
 /* 导言
- * header/h3, p+
+ * header/h4, p+
  *----------------------------------------------------------------------------
  */
 .content header {
@@ -513,7 +513,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 
 /* 尾注
- * footer/h3, p+
+ * footer/h4, p+
  *----------------------------------------------------------------------------
  */
 .content footer {

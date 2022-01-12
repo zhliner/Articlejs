@@ -89,9 +89,9 @@ const CustomStruct = {
      * 多种列表项判断。
      * - CODELI: 代码表条目（li/code）：唯一子元素
      * - ALI: 目录表普通条目（li/a）：唯一子元素
-     * - XH4LI: 级联表项标题（li/h4, ul）
-     * - XOLH4LI: 级联表有序标题项（li/h4, ol）
-     * - XOLAH4LI: 级联表有序链接标题项（li/[h4/a], ol）
+     * - XH5LI: 级联表项标题（li/h5, ul）
+     * - XOLH5LI: 级联表有序标题项（li/h5, ol）
+     * - XOLAH5LI: 级联表有序链接标题项（li/[h5/a], ol）
      * @param  {Element} el 当前元素
      * @return {Number} 单元值
      */
@@ -102,32 +102,20 @@ const CustomStruct = {
             return _liChild( _sub, el.parentElement ) || T.LI;
         }
         // 已无需借助于父容器。
-        return el.childElementCount === 2 && _sub.tagName === 'H4' ? _liXList(_sub) : T.LI;
-    },
-
-
-    /**
-     * 副标题&块标题。
-     * - H3X: 标题组<hgroup>内的副标题。
-     * - H3:  普通小区块标题。
-     * @param  {Element} el 当前元素
-     * @return {Number} 单元值
-     */
-    H3( el ) {
-        return el.parentElement.tagName === 'HGROUP' ? T.H3X : T.H3;
+        return el.childElementCount === 2 && _sub.tagName === 'H5' ? _liXList(_sub) : T.LI;
     },
 
 
     /**
      * 列表项小标题。
-     * - AH4: 链接列表项标题（h4/a）：唯一子元素
-     * - H4: 普通列表项标题（h4）
-     * 注：AH4 通常用于目录内的父条目（li/h4/a）。
+     * - AH5: 链接列表项标题（h5/a）：唯一子元素
+     * - H5:  普通列表项标题（h5）
+     * 注：AH5 通常用于目录内的父条目（li/h5/a）。
      * @param  {Element} el 当前元素
      * @return {Number} 单元值
      */
-    H4( el ) {
-        return _onlyChild( el, 'A' ) ? T.AH4 : T.H4;
+    H5( el ) {
+        return _onlyChild( el, 'A' ) ? T.AH5 : T.H5;
     },
 
 
@@ -185,9 +173,9 @@ const StructVerify = {
      * 按约束严格性排序。
      * - CODELI: 代码表条目（li/code）：唯一子元素
      * - ALI: 目录表普通条目（li/a）：唯一子元素
-     * - XOLAH4LI: 级联表有序链接标题项（li/[h4/a], ol）
-     * - XOLH4LI: 级联表有序标题项（li/h4, ol）
-     * - XH4LI: 无序级联表项标题（li/h4, ul）
+     * - XOLAH5LI: 级联表有序链接标题项（li/[h5/a], ol）
+     * - XOLH5LI: 级联表有序标题项（li/h5, ol）
+     * - XH5LI: 无序级联表项标题（li/h5, ul）
      * - LI: 普通列表项（li/*）
      * @param  {Element} el 当前元素
      * @return {Boolean} 是否达标
@@ -204,53 +192,31 @@ const StructVerify = {
         },
 
         {
-            type: T.XOLAH4LI,
+            type: T.XOLAH5LI,
             check: function( el ) {
                 let _sub = el.firstElementChild;
-                return el.childElementCount === 2 && _sub.tagName === 'H4' && _liXList(_sub) === T.XOLAH4LI;
+                return el.childElementCount === 2 && _sub.tagName === 'H5' && _liXList(_sub) === T.XOLAH5LI;
             }
         },
 
         {
-            type: T.XOLH4LI,
+            type: T.XOLH5LI,
             check: function( el ) {
                 let _sub = el.firstElementChild;
-                return el.childElementCount === 2 && _sub.tagName === 'H4' && _liXList(_sub) === T.XOLH4LI;
+                return el.childElementCount === 2 && _sub.tagName === 'H5' && _liXList(_sub) === T.XOLH5LI;
             }
         },
 
         {
-            type: T.XH4LI,
+            type: T.XH5LI,
             check: function( el ) {
                 let _sub = el.firstElementChild;
-                return el.childElementCount === 2 && _sub.tagName === 'H4' && _liXList(_sub) === T.XH4LI;
+                return el.childElementCount === 2 && _sub.tagName === 'H5' && _liXList(_sub) === T.XH5LI;
             }
         },
 
         {
             type: T.LI,
-            check: () => true
-        }
-    ],
-
-
-    /**
-     * 副标题&块标题。
-     * 类型本身受目标父容器约束，没有重叠，可简单返回true。
-     * - H3X: 标题组<hgroup>内的副标题。
-     * - H3:  普通小区块标题。
-     * @param  {Element} el 当前元素
-     * @param  {Element} box 将要进入的父容器
-     * @return {Boolean} 是否合法
-     */
-    H3: [
-        {
-            type: T.H3X,
-            check: () => true
-        },
-
-        {
-            type: T.H3,
             check: () => true
         }
     ],
@@ -524,17 +490,17 @@ function _liChild( el, box ) {
  * 注记：
  * 容错混合有文本节点的情况，因为混合文本本来就非法。
  * 这可以在结构检查中被发现。
- * @param  {Element} h4 小标题元素
+ * @param  {Element} h5 小标题元素
  * @return {Number}
  */
-function _liXList( h4 ) {
-    let _nxt = h4.nextElementSibling;
+function _liXList( h5 ) {
+    let _nxt = h5.nextElementSibling;
 
     switch ( _nxt.tagName ) {
         case 'UL':
-            return T.XH4LI;
+            return T.XH5LI;
         case 'OL':
-            return _onlyChild(h4, 'A') ? T.XOLAH4LI : T.XOLH4LI;
+            return _onlyChild(h5, 'A') ? T.XOLAH5LI : T.XOLH5LI;
     }
     return T.LI;
 }

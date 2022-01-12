@@ -804,6 +804,22 @@
     </aside>
 </div>
 
+<!-- 副标题 -->
+<div class="_body _H3" obt-src="obts/list2.json" tpl-name="input:h3"
+    on="node|ev('detail')"
+    by="New2.h3"
+    to="form/|trigger('insert')">
+    <div class="_main">
+        <textarea name="h3" placeholder="副标题内容：空行分项"></textarea>
+    </div>
+    <aside>
+        <pre tpl-node="input:option1, input:insert2">
+            [选项1]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
 <!-- 片区标题 -->
 <div class="_body _H2" obt-src="obts/list2.json" tpl-name="input:h2"
     on="node|ev('detail')"
@@ -822,13 +838,13 @@
 </div>
 
 <!-- 小标题 -->
-<div class="_body _H3" obt-src="obts/list2.json" tpl-name="input:h3"
+<div class="_body _H4" obt-src="obts/list2.json" tpl-name="input:h4"
     on="node|ev('detail')"
-    by="New2.h3"
+    by="New2.h4"
     to="form/|trigger('insfix')">
     <div class="_main">
         <!-- 多选时各别更新 -->
-        <textarea name="h3" placeholder="小标题内容：空行分项"></textarea>
+        <textarea name="h4" placeholder="小标题内容：空行分项"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:update">
@@ -838,29 +854,13 @@
     </aside>
 </div>
 
-<!-- 副标题 -->
-<div class="_body _H3x" obt-src="obts/list2.json" tpl-name="input:h3x"
-    on="node|ev('detail')"
-    by="New2.h3x"
-    to="form/|trigger('insert')">
-    <div class="_main">
-        <textarea name="h3" placeholder="副标题内容：空行分项"></textarea>
-    </div>
-    <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
 <!-- 列表项标题 -->
-<div class="_body _H4" obt-src="obts/list2.json" tpl-name="input:h4"
+<div class="_body _H4" obt-src="obts/list2.json" tpl-name="input:h5"
     on="node|ev('detail')"
-    by="New2.h4"
+    by="New2.h5"
     to="form/|trigger('insfix')">
     <div class="_main">
-        <textarea name="h4" placeholder="列表项标题：多选时空行分项，各别更新"></textarea>
+        <textarea name="h5" placeholder="列表项标题：多选时空行分项，各别更新"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:update">
@@ -871,21 +871,6 @@
 </div>
 
 <!-- 其它标题 -->
-<div class="_body _H5" obt-src="obts/create.json" tpl-name="input:h5"
-    on="node|ev('detail')"
-    by="New.h5"
-    to="form/|trigger('insert')">
-    <div class="_main">
-        <textarea name="h5" placeholder="H5标题"></textarea>
-    </div>
-    <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
 <div class="_body _H6" obt-src="obts/create.json" tpl-name="input:h6"
     on="node|ev('detail')"
     by="New.h6"
@@ -1141,9 +1126,9 @@
     </aside>
 </div>
 
-<div class="_body _Ah4" obt-src="obts/alink.json" tpl-name="input:ah4"
+<div class="_body _Ah4" obt-src="obts/alink.json" tpl-name="input:ah5"
     on="node|ev('detail')"
-    by="New.ah4"
+    by="New.ah5"
     to="form/|trigger('insfix')">
     <div class="_main _list">
         <hr tpl-node="inlines:a" />
@@ -1153,9 +1138,9 @@
     </aside>
 </div>
 
-<div class="_body _Xh4li" obt-src="obts/sublist.json" tpl-name="input:xh4li"
+<div class="_body _Xh4li" obt-src="obts/sublist.json" tpl-name="input:xh5li"
     on="node|ev('detail') wrap('<li>') wrapAll('<ul>') item(0) $('/[name=h4]') val obj('h4')"
-    by="New.xh4li(_1)"
+    by="New.xh5li(_1)"
     to="form/|trigger('insert')">
     <div class="_main">
         <header>
@@ -1171,9 +1156,9 @@
     </aside>
 </div>
 
-<div class="_body _Xolh4li" obt-src="obts/sublist.json" tpl-name="input:xolh4li"
+<div class="_body _Xolh4li" obt-src="obts/sublist.json" tpl-name="input:xolh5li"
     on="node|ev('detail') wrap('<li>') wrapAll('<ol>') item(0) $('/[name=h4]') val obj('h4')"
-    by="New.xolh4li(_1)"
+    by="New.xolh5li(_1)"
     to="form/|trigger('insert')">
     <div class="_main">
         <header>
@@ -1189,15 +1174,15 @@
     </aside>
 </div>
 
-<div class="_body _Xolah4li" tpl-name="input:xolah4li"
+<div class="_body _Xolah4li" tpl-name="input:xolah5li"
     on="create|$('/[name=text]') val dup pass $('form/') valo('href title target') clean('', null);
         xlist|$('/textarea') val splitx(true) mdline wrap('<li>') wrapAll('<ol>') ev('detail') wrap('<h4>') obj('h4a')"
     by="New.a(_1);
-        New.xolah4li(_1)"
+        New.xolah5li(_1)"
     to="|trigger('xlist');
         form/|trigger('insert')">
     <div class="_main _list">
-        <hr tpl-source="~prop:xolah4li" />
+        <hr tpl-source="~prop:xolah5li" />
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">

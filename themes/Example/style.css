@@ -531,19 +531,19 @@ menu li:not([role=menubar]):hover a {
 menu li[role=menubar] {
     position: relative;
 }
-menu li[role=menubar] h4 {
+menu li[role=menubar] h5 {
     display: contents;
     font-size: 1em;
     grid-column: 1 / 3;
 }
-menu li > h4::after {
+menu li > h5::after {
     /* ⋙﹥▶» */
     content: '»';
     text-align: right;
     color: #bbb;
     font-family: monospace;
 }
-menu li:hover > h4::after {
+menu li:hover > h5::after {
     color: #a3a3a3;
 }
 menu li[role=menubar]:hover {
@@ -626,7 +626,7 @@ menu._cells code {
 /* [ 顶层 ]
  ****************************************************************************/
 
-#outline > nav > h3,
+#outline > nav > h4,
 #help > nav {
     height: 44px;
     box-sizing: border-box;
@@ -639,7 +639,7 @@ menu._cells code {
     padding: 0;
     list-style-type: none;
 }
-#outline ol[role=cascade] h4 {
+#outline ol[role=cascade] h5 {
     margin: 0;
     font-weight: normal;
 }
@@ -708,7 +708,7 @@ menu._cells code {
     height: calc(100% - 70px);
     overflow-y: auto;
 }
-#outline nav[role=toc] h3 {
+#outline nav[role=toc] h4 {
     font-size: 1.1em;
     padding: 12px 1em 10px;
     border-bottom: 1px #bbb inset;
@@ -718,7 +718,7 @@ menu._cells code {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
 }
-#outline nav[role=toc] h3 > b {
+#outline nav[role=toc] h4 > b {
     float: right;
     font-family: monospace;
     padding: 2px 8px;
@@ -728,7 +728,7 @@ menu._cells code {
     margin-right: -3px;
     color: green;
 }
-#outline nav[role=toc] h3 > b:hover {
+#outline nav[role=toc] h4 > b:hover {
     background-color: #b3ebb8;
     border-radius: 16px;
 }
@@ -742,7 +742,7 @@ menu._cells code {
     color: #333;
 }
 #outline nav[role=toc] li,
-#outline nav[role=toc] h4,
+#outline nav[role=toc] h5,
 #outline nav[role=toc] a {
     line-height: 150%;
 }
@@ -761,13 +761,13 @@ menu._cells code {
     background-color: #e8f2f2;
     border-radius: 4px 2em 0 0;
 }
-#outline nav[role=toc] li > h4::after {
+#outline nav[role=toc] li > h5::after {
     content: '－';
     float: right;
     margin-right: 1em;
     color: green;
 }
-#outline nav[role=toc] li[data-pbo~=folded] > h4::after {
+#outline nav[role=toc] li[data-pbo~=folded] > h5::after {
     content: '＋';
     color: #e9a279;
 }

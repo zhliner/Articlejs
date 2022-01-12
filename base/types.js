@@ -129,32 +129,31 @@ export const
     H1              = 400,  // 主标题
     H2              = 401,  // 片区标题
     H3              = 402,  // 小区块标题
-    H3X             = 403,  // 副标题
-    H4              = 404,  // 列表项标题条目
-    H5              = 405,  // <h5>标题
-    H6              = 406,  // <h6>标题
-    SUMMARY         = 407,  // 内容摘要
-    FIGCAPTION      = 408,  // 插图标题
-    CAPTION         = 409,  // 表格标题
-    LI              = 410,  // 列表项（通用）
-    DT              = 411,  // 描述列表条目
-    DD              = 412,  // 描述列表数据
-    TH              = 413,  // 表头单元格
-    TD              = 414,  // 单元格
-    TR              = 415,  // 表格行
-    THEAD           = 416,  // 表头
-    TBODY           = 417,  // 表体
-    TFOOT           = 418,  // 表脚
+    H4              = 403,  // 列表项标题条目
+    H5              = 404,  // <h5>标题
+    H6              = 405,  // <h6>标题
+    SUMMARY         = 406,  // 内容摘要
+    FIGCAPTION      = 407,  // 插图标题
+    CAPTION         = 408,  // 表格标题
+    LI              = 409,  // 列表项（通用）
+    DT              = 410,  // 描述列表条目
+    DD              = 411,  // 描述列表数据
+    TH              = 412,  // 表头单元格
+    TD              = 413,  // 单元格
+    TR              = 414,  // 表格行
+    THEAD           = 415,  // 表头
+    TBODY           = 416,  // 表体
+    TFOOT           = 417,  // 表脚
     // 定制结构类
     // 注记：无需LICODE设计，容器非CONTENT即可。
-    CODELI          = 419,  // 代码表条目（li/code） {value}
-    ALI             = 420,  // 链接列表项（li/a）
-    AH4             = 421,  // 链接小标题（h4/a）
-    XH4LI           = 422,  // 级联表标题项（li/h4, ul）
-    XOLH4LI         = 423,  // 级联表有序标题项（li/h4, ol）
-    XOLAH4LI        = 424,  // 级联表有序链接标题项（li/[h4/a], ol）
-    TOCCASCADE      = 425,  // 目录级联表（ol:cascade/[li/a]）
-    FIGIMGBOX       = 426,  // 插图内容块（span/img, i:explain）
+    CODELI          = 418,  // 代码表条目（li/code） {value}
+    ALI             = 419,  // 链接列表项（li/a）
+    AH5             = 420,  // 链接小标题（h5/a）
+    XH5LI           = 421,  // 级联表标题项（li/h5, ul）
+    XOLH5LI         = 422,  // 级联表有序标题项（li/h5, ol）
+    XOLAH5LI        = 423,  // 级联表有序链接标题项（li/[h5/a], ol）
+    TOCCASCADE      = 424,  // 目录级联表（ol:cascade/[li/a]）
+    FIGIMGBOX       = 425,  // 插图内容块（span/img, i:explain）
     //
     // 行块结构元素
     /////////////////////////////////////////////
@@ -166,7 +165,7 @@ export const
     S4              = 504,  // 段 （section:s4/h2, header?, s5 | {content}, footer?）
     S5              = 505,  // 末 （section:s5/h2, header?, {content}, footer?）
     ABSTRACT        = 506,  // 提要 （header:abstract/h3, p...）
-    TOC             = 507,  // 目录 （nav:toc/h3, ol:cascade/li/(h4/a), ol/[li/a]+）
+    TOC             = 507,  // 目录 （nav:toc/h3, ol:cascade/li/(h5/a), ol/[li/a]+）
     REFERENCE       = 508,  // 文献参考 （nav:reference/h3, ol）
     SEEALSO         = 509,  // 另参见 （aside:seealso/h3, ul）
     HEADER          = 510,  // 导言 （header/h3, p...）
@@ -176,9 +175,9 @@ export const
     UL              = 514,  // 无序列表 （ul/li）
     OL              = 515,  // 有序列表 （ol/li）
     CODELIST        = 516,  // 代码表 （ol:codelist/li/code/#text, b, i） {data-lang, data-tab, start}
-    ULX             = 517,  // 无序级联表 （ul/li/h4, ul|ol/...）
-    OLX             = 518,  // 有序级联表 （ol/li/h4, ol|ul/...）
-    CASCADE         = 519,  // 级联编号表 （ol:cascade/li/h4, ol/li/...）
+    ULX             = 517,  // 无序级联表 （ul/li/h5, ul|ol/...）
+    OLX             = 518,  // 有序级联表 （ol/li/h5, ol|ul/...）
+    CASCADE         = 519,  // 级联编号表 （ol:cascade/li/h5, ol/li/...）
     DL              = 520,  // 描述列表 （dl/dt, dd+）
     TABLE           = 521,  // 表格 （table/thead, tbody, tfoot/tr/th, td）
     FIGURE          = 522,  // 插图 （figure/figcaption, span/img, i:explain）
@@ -274,10 +273,9 @@ const Properties = {
     /////////////////////////////////////////////
     [ H1 ]:             STRUCT | SINGLE | FIXED1 | CONTENT,
     [ H2 ]:             STRUCT | SINGLE | FIXED1 | CONTENT,
-    [ H3 ]:             STRUCT | STRUCTX | FIXED1 | CONTENT,
-    [ H3X ]:            STRUCT | STRUCTX | CONTENT,
-    [ H4 ]:             STRUCT | SINGLE | FIXED1 | FIXED2 | CONTENT,
-    [ H5 ]:             STRUCT | STRUCTX | CONTENT,
+    [ H3 ]:             STRUCT | STRUCTX | CONTENT,
+    [ H4 ]:             STRUCT | SINGLE | FIXED1 | CONTENT,
+    [ H5 ]:             STRUCT | SINGLE | FIXED1 | FIXED2 | CONTENT,
     [ H6 ]:             STRUCT | STRUCTX | CONTENT,
     [ SUMMARY ]:        STRUCT | SINGLE | FIXED1 | CONTENT,
     [ FIGCAPTION ]:     STRUCT | SINGLE | STRUCTX | CONTENT, // 可移动
@@ -294,10 +292,10 @@ const Properties = {
 
     [ CODELI ]:         STRUCT | STRUCTX | SEALED,
     [ ALI ]:            STRUCT | STRUCTX | CONTENT, // 宽容
-    [ AH4 ]:            STRUCT | SINGLE | FIXED1 | FIXED2 | CONTENT,
-    [ XH4LI ]:          STRUCT | STRUCTX | SEALED,
-    [ XOLH4LI ]:        STRUCT | STRUCTX | SEALED,
-    [ XOLAH4LI ]:       STRUCT | STRUCTX | SEALED,
+    [ AH5 ]:            STRUCT | SINGLE | FIXED1 | FIXED2 | CONTENT,
+    [ XH5LI ]:          STRUCT | STRUCTX | SEALED,
+    [ XOLH5LI ]:        STRUCT | STRUCTX | SEALED,
+    [ XOLAH5LI ]:       STRUCT | STRUCTX | SEALED,
     [ TOCCASCADE ]:     STRUCT | FIXED1 | FIXED2 | SEALED,
     // 插图内允许多个<span>容器。
     [ FIGIMGBOX ]:      STRUCT | STRUCTX,  // SEALED,
@@ -504,7 +502,6 @@ export const ChildTypes = {
     [ H1 ]:             [ $TEXT, A, ..._NOMEDIA, SVG, IMG, I ],
     [ H2 ]:             [ $TEXT, A, ..._NOMEDIA, SVG, IMG, I ],
     [ H3 ]:             [ $TEXT, A, ..._NOMEDIA, SVG, IMG, I ],
-    [ H3X ]:            [ $TEXT, A, ..._NOMEDIA, SVG, IMG, I ],
     [ H4 ]:             [ $TEXT, A, ..._NOMEDIA, SVG, IMG, I ],
     [ H5 ]:             [ $TEXT, A, ..._NOMEDIA, SVG, IMG, I ],
     [ H6 ]:             [ $TEXT, A, ..._NOMEDIA, SVG, IMG, I ],
@@ -523,22 +520,22 @@ export const ChildTypes = {
 
     [ CODELI ]:         [ CODE ],
     [ ALI ]:            [ A ],
-    [ AH4 ]:            [ A ],
-    [ XH4LI ]:          [ H4, UL ],
-    [ XOLH4LI ]:        [ H4, OL ],
-    [ XOLAH4LI ]:       [ AH4, OL ],
-    [ TOCCASCADE ]:     [ ALI, XOLAH4LI ],
+    [ AH5 ]:            [ A ],
+    [ XH5LI ]:          [ H4, UL ],
+    [ XOLH5LI ]:        [ H4, OL ],
+    [ XOLAH5LI ]:       [ AH5, OL ],
+    [ TOCCASCADE ]:     [ ALI, XOLAH5LI ],
     [ FIGIMGBOX ]:      [ IMG, SVG, EXPLAIN ],
     //
     // 行块结构元素
     /////////////////////////////////////////////
-    [ HGROUP ]:         [ H1, H3X ],
-    [ ABSTRACT ]:       [ H3, P, ..._BLOLIMIT ],
-    [ TOC ]:            [ H3, TOCCASCADE ],
-    [ REFERENCE ]:      [ H3, OL ],
-    [ SEEALSO ]:        [ H3, UL ],
-    [ HEADER ]:         [ H3, P, TIPS, NOTE, ..._BLOLIMIT, ULX, OLX ],
-    [ FOOTER ]:         [ H3, P, TIPS, NOTE, ..._BLOLIMIT, ADDRESS ],
+    [ HGROUP ]:         [ H1, H3 ],
+    [ ABSTRACT ]:       [ H4, P, ..._BLOLIMIT ],
+    [ TOC ]:            [ H4, TOCCASCADE ],
+    [ REFERENCE ]:      [ H4, OL ],
+    [ SEEALSO ]:        [ H4, UL ],
+    [ HEADER ]:         [ H4, P, TIPS, NOTE, ..._BLOLIMIT, ULX, OLX ],
+    [ FOOTER ]:         [ H4, P, TIPS, NOTE, ..._BLOLIMIT, ADDRESS ],
 
     // ARTICLE
     // S1-5, SECTION 另配置
@@ -546,14 +543,14 @@ export const ChildTypes = {
     [ UL ]:             [ LI, ALI ],
     [ OL ]:             [ LI, ALI ],
     [ CODELIST ]:       [ CODELI ],
-    [ ULX ]:            [ LI, ALI, XH4LI, XOLH4LI ],
-    [ OLX ]:            [ LI, ALI, XH4LI, XOLH4LI ],
-    [ CASCADE ]:        [ LI, ALI, XOLH4LI, XOLAH4LI ],
+    [ ULX ]:            [ LI, ALI, XH5LI, XOLH5LI ],
+    [ OLX ]:            [ LI, ALI, XH5LI, XOLH5LI ],
+    [ CASCADE ]:        [ LI, ALI, XOLH5LI, XOLAH5LI ],
     [ DL ]:             [ DT, DD ],
     [ TABLE ]:          [ CAPTION, THEAD, TBODY, TFOOT ],
     [ FIGURE ]:         [ FIGCAPTION, FIGIMGBOX ],
-    [ BLOCKQUOTE ]:     [ H3, P, ..._BLOLIMIT, TABLE ],
-    [ ASIDE ]:          [ H3, P, ..._BLOLIMIT, TABLE ],
+    [ BLOCKQUOTE ]:     [ H4, P, ..._BLOLIMIT, TABLE ],
+    [ ASIDE ]:          [ H4, P, ..._BLOLIMIT, TABLE ],
     [ DETAILS ]:        [ SUMMARY, P, ..._BLOLIMIT, TABLE ],
     [ CODEBLOCK ]:      [ CODE ],
     // 单体单元

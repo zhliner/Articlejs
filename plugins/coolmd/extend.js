@@ -19,7 +19,7 @@
 //      > 插图（<figure>）
 //      > 表格（<table>）
 //      > 定义列表（<dl/dt,dd>）
-//      > 导言（<header>，无小标题时）
+//      > 导言（<header>，有小标题时）
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -53,28 +53,30 @@ const
 //
 let
     // 小标题级别
-    __miniLevel = 5,
+    __miniLevel = 4,
 
     // 一个缩进的空格序列。
     __indentSpace = '    ';
 
 
 //
-// 行块标签操作映射。
+// 行块转换映射。
 // 不同的标签对应各自的转换处理器。
-// 如果没有处理器，则仅取其纯文本内容（而非outerHTML输出）。
 // { tag|role:String: Function }
+// 接口：function(el:Element): String|Block
 //
 const __blockFunc =
 {
     // 内容行
+    // function(el:Element): String
+    //-----------------------------------------------------
     P:          conLine,
     ADDRESS:    conLine,
     DD:         conLine,
-    TR:         cellsTr,
     TH:         conLine,
     TD:         conLine,
     LI:         convLi,
+    TR:         cellsTr,
 
     // 标题系列
     H1:         el => `# ${el.textContent}`,
@@ -89,8 +91,12 @@ const __blockFunc =
     SUMMARY:    miniTitle,
     FIGCAPTION: miniTitle,
     CAPTION:    miniTitle,
+    HR:         () => '------',
+
 
     // 结构块
+    // function(el:Element): Block
+    //-----------------------------------------------------
     HGROUP:     blockNormal,
     HEADER:     convHeader,
     FOOTER:     convH3Block,
@@ -107,7 +113,6 @@ const __blockFunc =
     BLOCKQUOTE: convH3Block,
     ASIDE:      convH3Block,
     DETAILS:    smallBlock,
-    HR:         () => '------',
 
     // 代码区块
     // key: role
@@ -117,14 +122,14 @@ const __blockFunc =
 
 
 //
-// 内联标签操作映射
-// 注：仅支持编辑器支持的部分。
+// 内联单元转换映射
 // 如果没有处理器，仅取其纯文本内容。
-// { String: Function }
+// { tag:String: Function }
+// 接口：function(el:Element): String
 //
 const __inlineFunc =
 {
-    // MarkDown标准支持
+    // MD标准支持
     CODE:   convCode,
     EM:     el => `*${el.textContent}*`,
     I:      el => `*${el.textContent}*`,
@@ -133,7 +138,9 @@ const __inlineFunc =
     A:      el => `[${el.textContent}](${el.href}${el.title ? ` "${el.title}"` : ''})`,
     IMG:    el => `![${el.alt}](${el.src}${el.title ? ` "${el.title}"` : ''})`,
 
-    // 支持合法的特性名
+    // 合法特性名
+    // 注：不支持内联样式延续。
+
     // {cite}
     Q:      el => `<q${el.cite ? ` cite="${el.cite}"` : ''}>${el.textContent}</q>`,
     // {title}
@@ -147,8 +154,7 @@ const __inlineFunc =
     // {datetime}
     TIME:   el => `<time${el.datetime ? ` datetime="${el.datetime}"` : ''}>${el.textContent}</time>`,
 
-    // 无特性仅内容
-    // 注：不支持内联样式延续。
+    // 纯内容
     CITE:   el => `<cite>${el.textContent}</cite>`,
     SMALL:  el => `<small>${el.textContent}</small>`,
     SUB:    el => `<sub>${el.textContent}</sub>`,
@@ -165,24 +171,122 @@ const __inlineFunc =
 
 
 
-// 定制转换
+//
+// 块单元转换。
+// 定义两个共用的接口：conv, done。
+//
+class Block {
+    /**
+     * @param {Element} el 块单元根
+     */
+    constructor( el ) {
+        this._el = el;
+    }
+
+
+    /**
+     * 单元转换。
+     * 仅限于内容行单元，子区块自行负责。
+     * @return {[String|Block]} 子单元集
+     */
+    conv() {
+        return [ ...this._el.children ]
+            .map( sub => convert(sub, __blockFunc) );
+    }
+
+
+    /**
+     * 转换完成。
+     * 将子单元合并返回，如果子单元是区块实例，则递进合并。
+     * 子单元实例需遵循.done()接口。
+     * @param  {[String|Block]} list 子单元转换集
+     * @return {String}
+     */
+    done( list ) {
+        return list
+            .map( it => typeof it === 'string' ? it : it.done() )
+            .join( '\n\n' );
+    }
+}
+
+
+//
+// 小区块转换。
+// 使用MD引用块语法。
+// 嵌套小区块的前置标识（>）与嵌套层级数相同。
+//
+class SmallBlock extends Block {
+    /**
+     * @param {Element} el 区块根元素
+     * @param {Number} lev 区块层级，顶层小区块为1
+     */
+    constructor( el, lev ) {
+        super( el );
+        this._lev = lev;
+    }
+
+
+    /**
+     * 转换补充。
+     * 仅限于内容行单元，子区块忽略（自负责）。
+     * @return {[String|Block]} 子单元集
+     */
+    conv() {
+        let _buf = super.conv(),
+            _fix = ''.padStart( this._lev, '>' );
+
+        _buf.forEach( (v, i) =>
+            typeof v === 'string' && ( _buf[i] = `${_fix} ${v}` )
+        );
+        return _buf;
+    }
+
+
+    /**
+     * 完成覆盖。
+     * 小区块内空行连接，空行需前置标识符（>）。
+     * @param  {[String|Block]} list 子单元转换集
+     * @return {String}
+     */
+    done( list ) {
+        return list
+            .map( it => typeof it === 'string' ? it : it.done() )
+            .join( '\n>\n' )
+    }
+}
+
+
+
+// 转换集
 //////////////////////////////////////////////////////////////////////////////
 
 
 /**
  * 内联代码转换。
- * 只保留顶层元素，内部嵌套的子单元忽略。
+ * 格式：`xxx`、``xxx`yyzz``
  * @param  {Element} el 目标元素
  * @return {String}
  */
 function convCode( el ) {
-    let _txt = el.textContent,
-        _chx = '`';
+    let _chx = '`';
 
-    if ( /`.*`/.test(_txt) ) {
+    if ( /[^`]`[^`]/.test(el.textContent) ) {
         _chx = '``';
     }
-    return `${_chx}${_txt}${_chx}`;
+    return `${_chx}${el.textContent}${_chx}`;
+}
+
+
+/**
+ * 内容行转换。
+ * 适用可直接包含文本内容的元素。
+ * @param  {Element} el 目标元素
+ * @return {String}
+ */
+function conLine( el ) {
+    return $.contents( el, null, false, true )
+        .map( sub => sub.nodeType === 3 ? sub.textContent : convert(sub, __inlineFunc) )
+        .join( '' );
 }
 
 
@@ -203,6 +307,20 @@ function convLi( el, n ) {
         `${n || $.siblingNth(el)}. `;
 
     return isCascadeLi(el) ? cascadeLi(el) : conLine( el, _pfix );
+}
+
+
+/**
+ * 表格行转换。
+ * - 单元格之间以一个特殊序列 §§ 分隔。
+ * - 首尾单元格外围则只有单个 § 包围。
+ * @param  {Element} tr 表格行元素
+ * @return {String} 一行文本
+ */
+function cellsTr( tr ) {
+    return __cellStart +
+        [...tr.children].map( conLine ).join( __tableCell ) +
+        __cellEnd;
 }
 
 
@@ -459,66 +577,11 @@ function convCodelist( el ) {
  * @param  {Object} cobj 处理器集
  * @return {String|[String]}
  */
-function convNormal( el, cobj ) {
+function convert( el, cobj ) {
     let _rk = $.attr( el, 'role' ),
         _fn = cobj[ _rk ] || cobj[ el.tagName ];
 
     return _fn ? _fn( el ) : el.textContent.trim();
-}
-
-
-/**
- * 内容行元素转换。
- * 比如<p>、<li>、<dd>、<td>等可直接包含文本内容的元素。
- * @param  {Element} el 目标元素
- * @param  {String} prefix 前导字符，可选
- * @return {String}
- */
-function conLine( el, prefix = '' ) {
-    let _tts = [];
-
-    for ( const sub of $.contents(el, null, false, true) ) {
-        if ( sub.nodeType === 3 ) {
-            _tts.push( sub.textContent )
-            continue;
-        }
-        _tts.push( convNormal(sub, __inlineFunc) );
-    }
-    return prefix + _tts.join( '' );
-}
-
-
-/**
- * 表格行转换。
- * - 单元格之间以一个特殊序列 §§ 分隔。
- * - 首尾单元格外围则只有单个 § 包围。
- * @param  {Element} tr 表格行元素
- * @return {String} 一行文本
- */
-function cellsTr( tr ) {
-    return __cellStart +
-        [...tr.children].map( conLine ).join( __tableCell ) +
-        __cellEnd;
-}
-
-
-/**
- * 级联表项转换。
- * @param  {Element} li 列表项
- * @return {[String]} 行集
- */
-function cascadeLi( li ) {
-    let _h4 = $.get( '>h4', li ),
-        _buf = [];
-
-    if ( _h4 ) {
-        _buf.push( miniTitle(_h4), '' );
-    } else {
-        _buf.push( cascadeHx(li), '' );
-    }
-    _buf.push( ...convList(li.lastElementChild) );
-
-    return _buf;
 }
 
 
@@ -543,6 +606,26 @@ function isCascadeLi( li ) {
 function cascadeHx( li, n = __miniLevel+1 ) {
     let _tts = $.not( $.contents(li), 'ul,ol' );
     return `${''.padStart(n, '#')} ${_tts.join('')}`;
+}
+
+
+/**
+ * 级联表项转换。
+ * @param  {Element} li 列表项
+ * @return {[String]} 行集
+ */
+function cascadeLi( li ) {
+    let _h4 = $.get( '>h5', li ),
+        _buf = [];
+
+    if ( _h4 ) {
+        _buf.push( miniTitle(_h4), '' );
+    } else {
+        _buf.push( cascadeHx(li), '' );
+    }
+    _buf.push( ...convList(li.lastElementChild) );
+
+    return _buf;
 }
 
 
@@ -591,7 +674,6 @@ function mdblock( evo, nl ) {
     return [..._frg.children]
         .map( el => convNormal(el, __blockFunc) )
         .map( vs => $.isArray(vs) ? vs.join('\n') : vs )
-        .map( v => window.console.info(v, '&&&&&&') || v )
         .join( nl || __spaceSection );
 }
 

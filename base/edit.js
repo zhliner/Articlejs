@@ -3948,19 +3948,14 @@ const fixItemslr = {
     },
 
     // 小区块标题
-    [ T.H3 ]: {
-        self: '>h3',
-        prev: null
-    },
-
-    // 子列表标题
     [ T.H4 ]: {
         self: '>h4',
         prev: null
     },
 
-    [ T.AH4 ]: {
-        self: '>h4',
+    // 子列表标题
+    [ T.AH5 ]: {
+        self: '>h5',
         prev: null
     },
 
