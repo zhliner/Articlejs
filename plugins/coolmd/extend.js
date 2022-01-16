@@ -7,11 +7,9 @@
 //////////////////////////////////////////////////////////////////////////////
 //
 //  插件 OnBy 扩展
-//  导出的对象中需包含 On 和 By 两个成员。
+//  规范的文章格式（Coolj）转换为 MarkDown 文档格式。
 //
-//  规范文章格式（Coolj）转换为 MarkDown 文档格式。
-//
-//  除了列表和代码块/表外，所有的小区块都以引用块格式（>）封装：
+//  除了列表、表格和代码块/表外，所有的小区块都以引用块格式（>）封装：
 //      > 引用块（<blockquote>）
 //      > 结语（<footer>）
 //      > 详细块（<details>）
@@ -20,6 +18,10 @@
 //      > 表格（<table>）
 //      > 定义列表（<dl/dt,dd>）
 //      > 导言（<header>，有小标题时）
+//  注意：
+//  如果选取的目标仅为小区块内部条目，则不会按引用块封装。
+//
+//  导出的对象中需包含 On 和 By 两个成员。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -36,22 +38,16 @@ const
     By = Object.create( PlugBy ),
 
     // 单元格分隔序列
-    __tableCell = ' §§ ',   // 单元格之间
-    __cellStart = '§ ',     // 首个单元格开头
-    __cellEnd   = ' §',     // 最后单元格末尾
+    __tableCell = ' ][ ',   // 单元格之间
+    __cellStart = '[ ',     // 首个单元格开头
+    __cellEnd   = ' ]',     // 最后单元格末尾
 
-    // 代码包围字符串
+    // 代码块包围标识串
     __codeRound = "```",
 
     // 片区间隔（双空行）。
-    __spaceSection = '\n\n\n';
+    __spaceSection = '\n\n\n',
 
-
-//
-// 全局变量：
-// 可以由外部配置修改。
-//
-let
     // 小标题级别
     __miniLevel = 4,
 
@@ -87,10 +83,11 @@ const __blockFunc =
     H6:         el => `###### ${el.textContent}`,
 
     // 其它标题
-    DT:         miniTitle,
-    SUMMARY:    miniTitle,
-    FIGCAPTION: miniTitle,
-    CAPTION:    miniTitle,
+    SUMMARY:    heading,
+    FIGCAPTION: heading,
+    CAPTION:    heading,
+    DT:         __blockFunc.H5,
+
     HR:         () => '------',
 
 
@@ -99,20 +96,20 @@ const __blockFunc =
     //-----------------------------------------------------
     HGROUP:     blockNormal,
     HEADER:     convHeader,
-    FOOTER:     convH3Block,
+    FOOTER:     (el, lev) => new SmallBlock( el, lev ),
     ARTICLE:    blockNormal,
-    SECTION:    convSection,
-    UL:         convList,
-    OL:         convList,
-    DL:         convDl,
-    TABLE:      convTable,
-    TBODY:      convTable,
-    THEAD:      convTable,
-    TFOOT:      convTable,
-    FIGURE:     convFigure,
-    BLOCKQUOTE: convH3Block,
-    ASIDE:      convH3Block,
-    DETAILS:    smallBlock,
+    SECTION:    el => new Section( el ),
+    UL:         (el, lev, ind) => new List( el, lev, ind ),
+    OL:         (el, lev, ind) => new List( el, lev, ind ),
+    DL:         (el, lev) => new DlBlock( el, lev ),
+    TABLE:      (el, lev) => new Table( el, lev ),
+    TBODY:      (el, lev) => new Table( el, lev ),
+    THEAD:      (el, lev) => new Table( el, lev ),
+    TFOOT:      (el, lev) => new Table( el, lev ),
+    FIGURE:     (el, lev) => new FigureBlock( el, lev ),
+    BLOCKQUOTE: (el, lev) => new SmallBlock( el, lev ),
+    ASIDE:      (el, lev) => new SmallBlock( el, lev ),
+    DETAILS:    (el, lev) => new SmallBlock( el, lev ),
 
     // 代码区块
     // key: role
@@ -178,9 +175,11 @@ const __inlineFunc =
 class Block {
     /**
      * @param {Element} el 块单元根
+     * @param {...Value} rest 额外参数，可选
      */
-    constructor( el ) {
+    constructor( el, ...rest ) {
         this._el = el;
+        this._vs = rest;
     }
 
 
@@ -191,7 +190,7 @@ class Block {
      */
     conv() {
         return [ ...this._el.children ]
-            .map( sub => convert(sub, __blockFunc) );
+            .map( sub => convert(sub, __blockFunc, ...this._vs) );
     }
 
 
@@ -199,19 +198,20 @@ class Block {
      * 转换完成。
      * 将子单元合并返回，如果子单元是区块实例，则递进合并。
      * 子单元实例需遵循.done()接口。
+     * 默认一个空行连接。
      * @param  {[String|Block]} list 子单元转换集
      * @return {String}
      */
     done( list ) {
         return list
-            .map( it => typeof it === 'string' ? it : it.done() )
+            .map( it => typeof it === 'string' ? it : it.done(it.conv()) )
             .join( '\n\n' );
     }
 }
 
 
 //
-// 小区块转换。
+// 通用小区块。
 // 使用MD引用块语法。
 // 嵌套小区块的前置标识（>）与嵌套层级数相同。
 //
@@ -221,8 +221,8 @@ class SmallBlock extends Block {
      * @param {Number} lev 区块层级，顶层小区块为1
      */
     constructor( el, lev ) {
-        super( el );
-        this._lev = lev;
+        super( el, lev+1 );
+        this._bch = ''.padStart( lev, '>' );
     }
 
 
@@ -232,11 +232,10 @@ class SmallBlock extends Block {
      * @return {[String|Block]} 子单元集
      */
     conv() {
-        let _buf = super.conv(),
-            _fix = ''.padStart( this._lev, '>' );
+        let _buf = super.conv();
 
         _buf.forEach( (v, i) =>
-            typeof v === 'string' && ( _buf[i] = `${_fix} ${v}` )
+            typeof v === 'string' && ( _buf[i] = `${this._bch} ${v}` )
         );
         return _buf;
     }
@@ -250,8 +249,290 @@ class SmallBlock extends Block {
      */
     done( list ) {
         return list
-            .map( it => typeof it === 'string' ? it : it.done() )
-            .join( '\n>\n' )
+            .map( it => typeof it === 'string' ? it : it.done(it.conv()) )
+            .join( `\n${this._bch}\n` );
+    }
+}
+
+
+//
+// 定义列表区块。
+// <dt>与之前的<dd>...序列之间隔一空行。
+//
+class DlBlock extends Block {
+    /**
+     * @param {Element} el 根容器
+     * @param {Number} lev 区块层级，顶层小区块为1
+     */
+    constructor( el, lev ) {
+        // 子单元无递进包含逻辑，
+        // 故无需向上传递lev实参。后同。
+        super( el );
+
+        this._bch = ''.padStart( lev, '>' );
+    }
+
+
+    /**
+     * 转换覆盖。
+     * 返回集成员已经前置可能有的小区块标识前缀。
+     * @return {[String]} 行集
+     */
+    conv() {
+        let _buf = [];
+
+        for ( const sub of this._el.children ) {
+            // 非首个<dt>之前插入一个空行
+            if ( sub.tagName === 'DT' && _buf.length > 0 ) {
+                _buf.push( this._bch );
+            }
+            _buf.push( `${this._bch} ${convert(sub, __blockFunc)}` );
+        }
+        return _buf;
+    }
+
+
+    /**
+     * 转换完成。
+     * @param  {[String]} list 列表行集
+     * @return {String}
+     */
+    done( list ) {
+        return list.join( `\n` );
+    }
+}
+
+
+//
+// 插图区块。
+// 插图标题（<figcaption>）与图片行之间相隔一个空行。
+// 插图标题转换到头部（可能原在底部）。
+//
+class FigureBlock extends Block {
+    /**
+     * @param {Element} el 根容器
+     * @param {Number} lev 区块层级，顶层小区块为1
+     */
+    constructor( el, lev ) {
+        super( el );
+        this._bch = ''.padStart( lev, '>' );
+    }
+
+
+    /**
+     * 转换覆盖。
+     * 返回集成员已经前置小区块标识前缀。
+     * @return {[String]} 行集
+     */
+    conv() {
+        let _cap = $.get( 'figcaption', this._el ),
+            _els = _cap ? $.siblings(_cap) : [...this._el.children],
+            _buf = [];
+
+        if ( _cap ) {
+            _buf.push( `${this._bch} ${__blockFunc.FIGCAPTION(_cap)}` );
+            _buf.push( this._bch );
+        }
+        for ( const el of _els ) {
+            _buf.push( `${this._bch} ${conLine(el)}` );
+        }
+        return _buf;
+    }
+
+
+    /**
+     * 转换完成。
+     * @param  {[String]} list 列表行集
+     * @return {String}
+     */
+    done( list ) {
+        return list.join( `\n` );
+    }
+}
+
+
+//
+// 章节区块。
+// 绝对顶层，无法被小区块包含。
+// 内部可能包含子章节。
+// 需要对标题重构层级。
+//
+class Section extends Block {
+    /**
+     * @param {Element} el 根容器
+     */
+    constructor( el ) {
+        super( el );
+        this._lev = +( $.attr(el, 'role') || '_5' ).slice(-1) + 1;
+    }
+
+
+    /**
+     * 转换覆盖。
+     * 返回集内的字符串为标题项和可能的简单段落，
+     * 其它成员都应当是一个Block实例。
+     * @return {[String|Block]} 标题项和子单元实例
+     */
+    conv() {
+        let _hx = $.get( 'h2', this._el ),
+            _buf = [ heading(_hx, this._lev) ];
+
+        for ( const sub of $.siblings(_hx) ) {
+            _buf.push( convert(sub, __blockFunc) );
+        }
+        return _buf;
+    }
+
+
+    /**
+     * 完成覆盖。
+     * 内容片区时，各子单元以一个空行连接。
+     * 子章节片区时，各子章节以二个空行连接。
+     * @param  {[String|Block]} list 子单元转换集
+     * @return {String}
+     */
+    done( list ) {
+        let _buf = [];
+
+        for ( const [i, it] of list.entries() ) {
+            // 无导言时，
+            // 首个子章节与标题之间依然只间隔一行。
+            if ( (it instanceof Section) && i > 1 ) {
+                _buf.push( '\n' );
+            }
+            _buf.push(
+                typeof it === 'string' ? it : it.done( it.conv() )
+            );
+        }
+        return _buf.join( '\n\n' );
+    }
+}
+
+
+//
+// 列表区块。
+// 使用有序（<ol>）和无序（<ul>）列表。
+//
+class List extends Block {
+    /**
+     * @param {Element} el 列表元素
+     * @param {Number} lev 所在区块层级，无所在区块时为0
+     * @param {String} ind 前置缩进（子表时）
+     */
+    constructor( el, lev = 0, ind = '' ) {
+        super( el, lev, ind + __indentSpace );
+
+        this._bch = ''.padStart( lev, '>' );
+        this._ind = ind;
+        this._chx = el.tagName === 'UL' && '- ';
+    }
+
+
+    /**
+     * 转换覆盖。
+     * 包含子表的列表项会返回一个二成员数组，其中：
+     * [0]  子表标题（String）。
+     * [1]  子表转换实例（List）
+     * 所以结果集需要扁平化展开。
+     * @return {[String|Block]} 子单元集
+     */
+    conv() {
+        let _buf = super.conv().flat();
+
+        for ( const [i, v] of _buf.entries() ) {
+            if ( typeof v !== 'string' ) {
+                continue;
+            }
+            let _pf = this._ind + ( this._chx || `${i+1}. ` );
+
+            _buf[i] = (this._bch ? `${this._bch} ${_pf}` : _pf) + v;
+        }
+        return _buf;
+    }
+
+
+    /**
+     * 完成覆盖。
+     * 列表项间换行分隔。
+     * 如果处于小区块内，前置标识（>）已经添加。
+     * 注：可能存在子表（级联表）。
+     * @param  {[String|Block]} list 子单元转换集
+     * @return {String}
+     */
+    done( list ) {
+        return list
+            .map( it => typeof it === 'string' ? it : it.done(it.conv()) )
+            .join( `\n` );
+    }
+}
+
+
+//
+// 表格区块。
+// 各表格行之间仅以换行分隔符（没有空行）。
+// 与列表List类似，视为顶层实体（不以引用块封装）。
+// 注记：
+// 继承Block仅为接口相同的意思，会被全覆盖。
+//
+class Table extends Block {
+    /**
+     * @param {Element} el 根容器（<table>|<tbody>...）
+     * @param {Number} lev 所在区块层级，未在小区块内时为0
+     */
+    constructor( el, lev = 0 ) {
+        super( el );
+        this._bch = ''.padStart( lev, '>' );
+    }
+
+
+    /**
+     * 表格行转换。
+     * 需考虑表格是否存在于小区块内。
+     * 注：
+     * 不考虑单元格内再嵌入的小区块逻辑。
+     * @return {[String]} 表格行集
+     */
+    conv() {
+        let _buf = this._caption();
+
+        for ( const tr of this._el.rows ) {
+            let _row = cellsTr( tr );
+            _buf.push( this._bch ? `${this._bch} ${_row}` : _row );
+        }
+        return _buf;
+    }
+
+
+    /**
+     * 转换完成。
+     * 表格行之间仅以换行分隔。
+     * 如果存在表标题，标题与行集间隔一空行。
+     * @param  {[String]} list 表格行集
+     * @return {String}
+     */
+    done( list ) {
+        if ( !this._el.caption ) {
+            return list.join( `\n` );
+        }
+        let _cap = list.shift();
+
+        return _cap + `\n${this._bch}\n` + list.join( '\n' );
+    }
+
+
+    /**
+     * 处理表格标题。
+     * 返回的集合用于后续表格行的存储。
+     * 没有表标题时返回一个空集，可适用<table>和<tbody>等单元。
+     * @return {[String]}
+     */
+    _caption() {
+        let _cap = this._el.caption;
+        if ( !_cap ) return [];
+
+        let _txt = __blockFunc.H5( _cap );
+
+        return this._bch ? [ `${this._bch} ${_txt}` ] : [ _txt ];
     }
 }
 
@@ -292,21 +573,16 @@ function conLine( el ) {
 
 /**
  * 列表项转换。
- * 在用户单独转换列表项时，视为顶层列表，
- * 此时父容器为一个文档片段，此时判断UL为假，故会按有序列表转换。
- * 如果是级联表项，返回一个行集。
- * 注记：
- * 自行判断前缀字符，因为用户可能选取单独的列表项转换。
- * @param  {Element} el 目标元素
- * @param  {Number} n 当前第几个条目，可选
- * @return {String|[String]}
+ * @param  {Element} li 列表项
+ * @param  {Number} lev 所在小区块层级
+ * @param  {String} ind 前置缩进串
+ * @return {String|[String, ListBlock]} 条目文本或子表（标题和子表实例）
  */
-function convLi( el, n ) {
-    let _pfix = el.parentNode.tagName === 'UL' ?
-        '- ' :
-        `${n || $.siblingNth(el)}. `;
-
-    return isCascadeLi(el) ? cascadeLi(el) : conLine( el, _pfix );
+function convLi( el, lev, ind ) {
+    if ( !el.parentElement ) {
+        return aloneLi( el );
+    }
+    return isCascadeLi( el ) ? cascadeLi( el, lev, ind ) : conLine( el );
 }
 
 
@@ -325,92 +601,34 @@ function cellsTr( tr ) {
 
 
 /**
- * 其它小标题。
- * 可由外部设定级别，支持内容包含内联单元。
- * 如果n为零，表示转为普通文本行。
- * 注记：
- * 编辑器支持的区块小标题为<h4>，但在MarkDown中这样的级别明显偏大。
- * 通常合理的设计为第5级，避免对大纲造成干扰。
+ * 标题转换器。
+ * 可用于任意级别标题转换。
+ * 默认4级，适用内含标题的小区块（如<details>）。
+ * 包容标题内的内联小单元。
  * @param  {Element} el 目标元素
  * @param  {Number} n 标题层级数
  * @return {String}
  */
-function miniTitle( el, n = __miniLevel ) {
+function heading( el, n = __miniLevel ) {
     let _tt = conLine( el );
     return n ? `${''.padStart(n, '#')} ${_tt}` : _tt;
 }
 
 
 /**
- * 片区转换。
- * 内部的<h2>标题转换为合适层级。
- * 对于无role定义的深片区，内部的<h2>转为第6级。
- * 注记：
- * 片区只存在于顶层，故返回一个合并了的字符串。
- * @param  {Element} el 片区元素
- * @return {String}
- */
-function convSection( el ) {
-    let _hx = $.get( 'h2', el ),
-        _sx = $.attr( el, 'role' ) || '_5',
-        _els = $.not( [...el.children], 'h2' ),
-        _buf = [];
-
-    if ( _hx ) {
-        _buf.push( miniTitle(_hx, +_sx.slice(-1)+1) );
-    }
-    for ( const sub of _els ) {
-        _buf.push( convNormal(sub, __blockFunc) );
-    }
-    // 段落间隔
-    return _buf.flat().join( '\n\n' );
-}
-
-
-/**
- * 列表转换。
- * 支持有序和无需列表，以及由这两种列表组成的级联表。
- * 注：级联表用缩进表示。
- * @param  {Element} el 列表元素
- * @return {[String]} 行集
- */
-function convList( el ) {
-    let _ind = '',
-        _n = 1,
-        _buf = [];
-
-    if ( el.parentNode.tagName === 'LI' ) {
-        _ind = __indentSpace;
-    }
-    for ( const li of el.children ) {
-        let _dd = convLi( li, _n++ ),
-            _hx = _dd;
-
-        if ( $.isArray(_dd) ) {
-            _hx = _dd.shift();
-        } else {
-            _dd = [];
-        }
-        _buf.push( _hx, ..._dd.map(d => _ind+d) );
-    }
-    return _buf;
-}
-
-
-/**
- * 小区块转换（H3小标题）。
+ * 小区块转换（H4小标题）。
  * 其中的<h4>小标题级别不能原样保留。
  * @param  {Element} el 目标元素
  * @return {[String]} 行集
  */
-function convH3Block( el ) {
+function convH4Block( el ) {
     let _h4 = $.get( '>h4:first-child', el ),
         _els = $.not( [...el.children], 'h4' ),
         _buf = [];
 
     if ( _h4 ) {
         // 后附一空行
-        _buf.push( miniTitle(_h4), '' );
+        _buf.push( heading(_h4), '' );
     }
     for ( const sub of _els ) {
         // 后附一空行
@@ -437,7 +655,7 @@ function convHeader( el ) {
     if ( !_hx && _nx && _nx.tagName === 'SECTION' ) {
         return blockNormal( el );
     }
-    return convH3Block( el );
+    return convH4Block( el );
 }
 
 
@@ -494,7 +712,7 @@ function convFigure( el ) {
         _buf = [];
 
     if ( _cap ) {
-        _buf.push( miniTitle(_cap), '' );
+        _buf.push( heading(_cap), '' );
     }
     for ( const sub of _els ) {
         // 后附一空行
@@ -516,7 +734,7 @@ function convTable( el ) {
         _buf = [];
 
     if ( _cap ) {
-        _buf.push( miniTitle(_cap), '' );
+        _buf.push( heading(_cap), '' );
     }
     for ( const tr of _trs ) {
         _buf.push( cellsTr(tr) );
@@ -575,19 +793,37 @@ function convCodelist( el ) {
  * 如果不存在目标处理器，则取其纯文本返回。
  * @param  {Element} el 目标元素
  * @param  {Object} cobj 处理器集
+ * @param  {...Value} rest 附加参数，可选
  * @return {String|[String]}
  */
-function convert( el, cobj ) {
+function convert( el, cobj, ...rest ) {
     let _rk = $.attr( el, 'role' ),
         _fn = cobj[ _rk ] || cobj[ el.tagName ];
 
-    return _fn ? _fn( el ) : el.textContent.trim();
+    return _fn ? _fn( el, ...rest ) : el.textContent.trim();
+}
+
+
+/**
+ * 独立列表项转换。
+ * 在用户单独转换列表项时适用。
+ * 此时父容器为一个文档片段，视为顶层有序列表。
+ * 包含子表时返回一个二成员数组。
+ * 注记：
+ * 有序列表可以提供更多的信息，是一种用户友好。
+ * 列表项结果包含前置标识符，因为没有父容器来添加它。
+ * @param  {Element} el 目标元素
+ * @return {String|[String, ListBlock]}
+ */
+function aloneLi( el ) {
+    let _pfix = `${$.siblingNth(el)}. `;
+    return isCascadeLi( el ) ? cascadeLi( el, 0, '' ) : _pfix + conLine(el);
 }
 
 
 /**
  * 是否为级联表项。
- * 容错标题内容无<h4>封装。
+ * 容错标题内容无<h5>封装。
  * @param  {Element} li 列表项
  * @return {Boolean}
  */
@@ -599,33 +835,33 @@ function isCascadeLi( li ) {
 
 /**
  * 提取级联表项标题文本。
- * 在无<h4>明确封装时使用。
+ * 在无<h5>明确封装时，使用除子表之外的全部文本。
  * @param  {Element} li 列表项元素
  * @return {Number}
  */
-function cascadeHx( li, n = __miniLevel+1 ) {
+function cascadeHx( li ) {
     let _tts = $.not( $.contents(li), 'ul,ol' );
-    return `${''.padStart(n, '#')} ${_tts.join('')}`;
+    return `##### ${ _tts.join('').trim() }`;
 }
 
 
 /**
  * 级联表项转换。
  * @param  {Element} li 列表项
- * @return {[String]} 行集
+ * @param  {Number} lev 所在小区块层级
+ * @param  {String} ind 前置缩进串
+ * @return {[String, ListBlock]} 标题项和子表实例
  */
-function cascadeLi( li ) {
-    let _h4 = $.get( '>h5', li ),
-        _buf = [];
+function cascadeLi( li, lev, ind ) {
+    let _h5 = $.get( '>h5', li ),
+        _ttl;
 
-    if ( _h4 ) {
-        _buf.push( miniTitle(_h4), '' );
+    if ( _h5 ) {
+        _ttl = __blockFunc.H5( _h5 );
     } else {
-        _buf.push( cascadeHx(li), '' );
+        _ttl = cascadeHx( li );
     }
-    _buf.push( ...convList(li.lastElementChild) );
-
-    return _buf;
+    return [ _ttl, new ListBlock(li.lastElementChild, lev, ind + __indentSpace) ];
 }
 
 
