@@ -1813,9 +1813,9 @@ function moveAppend( $els, to, ref, empty ) {
     if ( !$els.every(canDelete) ) {
         return help( 'has_cannot_del', deleteBadit($els) );
     }
-    let _op1 = clearSets(),
-        _op2 = empty && new DOMEdit( () => $.empty(to) ),
-        _new = appendData( ref, to, $els.clone(true, true, true) );
+    let _new = appendData( ref, to, $els.clone(true, true, true) ),
+        _op1 = clearSets(),
+        _op2 = empty && new DOMEdit( () => $.empty(to) );
 
     return [
         new HotEdit(),
@@ -2648,7 +2648,7 @@ function hasSibling( eset ) {
         _cnt += _box.childElementCount;
 
         if ( _set.add(_box).size === i ) {
-            return error('repeat sibling:', el), true;
+            return error('repeat sibling', el), true;
         }
     }
     return _cnt === eset.size;
@@ -2707,7 +2707,7 @@ function sectionUp( sec ) {
         _sxn = $.attr( sec, 'role' );
 
     if ( _sxn === 's1' ) {
-        return error( Tips.sectionNotUp );
+        return error( Tips.sectionNotUp, sec );
     }
     $.after( _pel, sectionUpTree(sec) || sec );
 }
@@ -3617,13 +3617,16 @@ function cleanCall( handle ) {
 
 
 /**
- * 控制台错误提示。
+ * 输出错误提示。
  * @param  {String} msg 输出消息
  * @param  {Value} data 关联数据
  * @return {void}
  */
 function error( msg, data ) {
     window.console.error( msg, data || '' );
+
+    $.trigger( linkElem(errContainer, data), 'on' );
+    $.trigger( $.get('a', errContainer), 'setv', [null, msg, msg] );
 }
 
 

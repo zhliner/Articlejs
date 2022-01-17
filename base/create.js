@@ -1678,7 +1678,7 @@ function appendNode( box, node ) {
 /**
  * 章节层级适配。
  * 如果插入内容是不同层级的章节，递进修改适配。
- * 子内容非章节时简单忽略。
+ * 子内容非章节时抛出异常。
  * @param  {Element} ref 参考子元素
  * @param  {Element} box 容器元素（含<article>）
  * @param  {Element|Value} sec 子章节内容
@@ -1686,7 +1686,7 @@ function appendNode( box, node ) {
  */
 function sectionFitted( ref, box, sec ) {
     if ( sec.tagName !== 'SECTION' ) {
-        return;
+        throw new Error( `<${sec.tagName}> not a SECTION` );
     }
     let _n1 = box.tagName === 'ARTICLE' ? 0 : sectionLevel(box),
         _n2 = sectionLevel( sec );
@@ -1714,8 +1714,8 @@ function sectionsFitted( sec, n ) {
 
 
 /**
- * 检查选择章节内条目创建器。
- * 视当前章节容器的状态而定：
+ * 章节内条目创建器。
+ * 检查并视章节容器的状态而定：
  * - 0 如果仅包含通用项（h2, header, footer, hr），按纯内容件处理。
  * - 1 如果仅包含纯内容件，创建默认内容件（<p>）。
  * - 2 如果已包含规范的子章节，仅能创建子章节。
