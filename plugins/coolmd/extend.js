@@ -139,8 +139,8 @@ const __inlineFunc =
     I:      el => `*${el.textContent}*`,
     STRONG: el => `**${el.textContent}**`,
     B:      el => `**${el.textContent}**`,
-    A:      el => `[${el.textContent}](${el.href}${el.title ? ` "${el.title}"` : ''})`,
-    IMG:    el => `![${el.alt}](${el.src}${el.title ? ` "${el.title}"` : ''})`,
+    A:      el => `[${el.textContent}](${$.attr(el, 'href')}${el.title ? ` "${el.title}"` : ''})`,
+    IMG:    el => `![${el.alt}](${$.attr(el, 'src')}${el.title ? ` "${el.title}"` : ''})`,
 
     // 合法特性名
     // 注：不支持内联样式延续。
@@ -666,13 +666,15 @@ function convCode( el ) {
 /**
  * 内容行转换。
  * 适用可直接包含文本内容的元素。
+ * 连续的空白会被压缩为一个空格（换行会被消除-友好）。
  * @param  {Element} el 目标元素
  * @return {String}
  */
 function conLine( el ) {
     return $.contents( el, null, false, true )
         .map( sub => sub.nodeType === 3 ? sub.textContent : convert(sub, __inlineFunc) )
-        .join( '' );
+        .join( '' )
+        .replace( /\s+/g, ' ' );
 }
 
 
