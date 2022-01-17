@@ -52,7 +52,9 @@ const
     __indentSpace = '    ';
 
 
-// 章节间隔空行数
+//
+// 顶层章节间隔空行数
+//
 let __secSpace = 2;
 
 
@@ -224,11 +226,11 @@ class Block {
 class SmallBlock extends Block {
     /**
      * @param {Element} el 区块根元素
-     * @param {Number} lev 区块层级，顶层小区块为1
+     * @param {Number} lev 上级区块层级
      */
-    constructor( el, lev = 1 ) {
-        lev = Math.max( lev, 1 );
-        super( el, lev+1 );
+    constructor( el, lev = 0 ) {
+        lev = lev + 1;
+        super( el, lev );
         this._bch = ''.padStart( lev, '>' );
     }
 
@@ -326,14 +328,14 @@ class Header extends Block {
 class DlBlock extends Block {
     /**
      * @param {Element} el 根容器
-     * @param {Number} lev 区块层级，顶层小区块为1
+     * @param {Number} lev 上级区块层级
      */
-    constructor( el, lev = 1 ) {
+    constructor( el, lev = 0 ) {
         // 子单元无递进包含逻辑，
         // 故无需向上传递lev实参。后同。
         super( el );
 
-        lev = Math.max( lev, 1 );
+        lev = lev + 1;
         this._bch = ''.padStart( lev, '>' );
     }
 
@@ -376,12 +378,12 @@ class DlBlock extends Block {
 class FigureBlock extends Block {
     /**
      * @param {Element} el 根容器
-     * @param {Number} lev 区块层级，顶层小区块为1
+     * @param {Number} lev 上级区块层级
      */
-    constructor( el, lev = 1 ) {
+    constructor( el, lev = 0 ) {
         super( el );
 
-        lev = Math.max( lev, 1 );
+        lev = lev + 1;
         this._bch = ''.padStart( lev, '>' );
     }
 
@@ -486,7 +488,7 @@ class Section extends Block {
 class List extends Block {
     /**
      * @param {Element} el 列表元素
-     * @param {Number} lev 所在区块层级，无所在区块时为0
+     * @param {Number} lev 上级区块层级
      * @param {String} ind 前置缩进（子表时）
      */
     constructor( el, lev = 0, ind = '' ) {
@@ -548,7 +550,7 @@ class List extends Block {
 class Table extends Block {
     /**
      * @param {Element} el 根容器（<table>|<tbody>...）
-     * @param {Number} lev 所在区块层级，未在小区块内时为0
+     * @param {Number} lev 上级区块层级
      */
     constructor( el, lev = 0 ) {
         super( el );
@@ -731,7 +733,7 @@ function convCodeblock( el, lev = 0 ) {
         _lang = $.attr( _cels[0], '-lang' );
 
     return codeBlock(
-        _cels.map( e => e.textContent.split('\n') ).flat(),
+        _cels.map( e => e.textContent.trim().split('\n') ).flat(),
         _lang,
         ''.padStart( lev, '>' )
     );
@@ -749,7 +751,7 @@ function convCodeblock( el, lev = 0 ) {
  */
 function convCodelist( el, lev = 0 ) {
     let _lang = $.attr( el, '-lang' ) || '',
-        _rows = $.children( el ).map( li => li.textContent );
+        _rows = $.children( el ).map( li => li.textContent.trimEnd() );
 
     return codeBlock( _rows, _lang, ''.padStart(lev, '>') );
 }
@@ -858,8 +860,8 @@ function cascadeLi( li, lev, ind ) {
  * @return {String} 封装后的代码
  */
 function codeBlock( codes, lang = '', prefix = '' ) {
-    let _beg = `${__codeRound}${lang}\n`,
-        _end = `\n${__codeRound}`,
+    let _beg = `${__codeRound}${lang}`,
+        _end = `${__codeRound}`,
         _buf = [ _beg, ...codes, _end ];
 
     // 每行尾空白清理。

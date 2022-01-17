@@ -1849,9 +1849,9 @@ function cloneAppend( els, to, ref, empty ) {
     if ( !canAppend(to) ) {
         return help( 'cannot_append', to );
     }
-    let _op1 = clearSets(),
-        _op2 = empty && new DOMEdit( () => $.empty(to) ),
-        _new = appendData( ref, to, els );
+    let _new = appendData( ref, to, els ),
+        _op1 = clearSets(),
+        _op2 = empty && new DOMEdit( () => $.empty(to) );
 
     return [
         new HotEdit(),
@@ -1896,12 +1896,19 @@ function appendContent( to, els ) {
  * @return {[Element]}
  */
 function appendData( ref, box, data ) {
-    return cleanCall( () =>
-        data.map( nd => children(ref, box, {}, nd) )
-            .flat()
-            .map( nd => nd && $.remove(nd) )
-            .filter( nd => nd )
-    );
+    // 创建可能出现非法情况
+    // 输出错误提示并终止执行流。
+    try {
+        return cleanCall( () =>
+            data.map( nd => children(ref, box, {}, nd) )
+                .flat()
+                .map( nd => nd && $.remove(nd) )
+                .filter( nd => nd )
+        );
+    }
+    catch ( err ) {
+        throw error( err, box );
+    }
 }
 
 
@@ -2630,16 +2637,16 @@ function closestParent( el ) {
 
 
 /**
- * 获取首个互为兄弟的元素。
- * 如果在集合中找到为其它成员兄弟的元素，返回该元素。
- * 空集或所有成员都是其父元素内唯一子元素时，返回 true。
- * 如果集合成员都是平级单一选取元素时，返回 false。
+ * 单选兄弟元素有效性检查。
+ * 如果存在互为兄弟的元素，抛出异常终止流程。
+ * 空集或所有成员都是其父元素内唯一子元素时，抛出异常终止流程。
+ * 注：只有在集合成员都是平级单一选取元素时才正常通过。
  * 注记：
- * 用于虚焦点平级操作前的合法性检测，返回真值即不可继续。
+ * 用于虚焦点平级操作前的合法性检测。
  * @param  {Set} eset 元素集
- * @return {Boolean}
+ * @return {void}
  */
-function hasSibling( eset ) {
+function siblingInvalid( eset ) {
     let _set = new Set(),
         _cnt = 0;
 
@@ -2648,10 +2655,12 @@ function hasSibling( eset ) {
         _cnt += _box.childElementCount;
 
         if ( _set.add(_box).size === i ) {
-            return error('repeat sibling', el), true;
+            throw error( 'repeat sibling', el );
         }
     }
-    return _cnt === eset.size;
+    if ( _cnt === eset.size ) {
+        throw error( 'no more sibling' );
+    }
 }
 
 
@@ -2707,6 +2716,7 @@ function sectionUp( sec ) {
         _sxn = $.attr( sec, 'role' );
 
     if ( _sxn === 's1' ) {
+        // 出错提示但简单略过。
         return error( Tips.sectionNotUp, sec );
     }
     $.after( _pel, sectionUpTree(sec) || sec );
@@ -3618,15 +3628,16 @@ function cleanCall( handle ) {
 
 /**
  * 输出错误提示。
+ * 依然抛出原有错误以阻止流程继续。
  * @param  {String} msg 输出消息
  * @param  {Value} data 关联数据
  * @return {void}
  */
 function error( msg, data ) {
-    window.console.error( msg, data || '' );
-
     $.trigger( linkElem(errContainer, data), 'on' );
     $.trigger( $.get('a', errContainer), 'setv', [null, msg, msg] );
+
+    return new Error( msg );
 }
 
 
@@ -4944,9 +4955,7 @@ export const Edit = {
      * 下同。
      */
     siblingsVF() {
-        if ( hasSibling(__ESet) ) {
-            return;
-        }
+        siblingInvalid( __ESet );
         historyPush( new ESEdit(elementAdds, __ESet, el => $.siblings(el)) )
     },
 
@@ -4955,9 +4964,7 @@ export const Edit = {
      * 兄弟同类选取。
      */
     tagsameVF() {
-        if ( hasSibling(__ESet) ) {
-            return;
-        }
+        siblingInvalid( __ESet );
         historyPush( new ESEdit(elementAdds, __ESet, el => $.find(`>${el.tagName}`, el.parentElement)) );
     },
 
@@ -4966,9 +4973,7 @@ export const Edit = {
      * 前向扩选。
      */
     previousVF( n ) {
-        if ( hasSibling(__ESet) ) {
-            return;
-        }
+        siblingInvalid( __ESet );
         n = isNaN(n) ? 1 : n;
 
         historyPush( new ESEdit(elementAdds, __ESet, el => $.prevAll(el, (_, i) => i <= n)) );
@@ -4979,9 +4984,7 @@ export const Edit = {
      * 后向扩选。
      */
     nextVF( n ) {
-        if ( hasSibling(__ESet) ) {
-            return;
-        }
+        siblingInvalid( __ESet );
         n = isNaN(n) ? 1 : n;
 
         historyPush( new ESEdit(elementAdds, __ESet, el => $.nextAll(el, (_, i) => i <= n)) );
