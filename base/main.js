@@ -23,6 +23,8 @@ import { ESCStack } from "./common.js";
 import { Edit, init, Kit } from "./edit.js";
 import Api from "./api.js";
 
+export { PlugOn, PlugBy } from "./plugins.js"
+
 window.GHK = new HotKey().config( cfg.Global );
 window.SHK = new HotKey().config( cfg.Slave );
 window.DHK = new HotKey().config( cfg.Modal );

@@ -15,7 +15,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { PlugOn, PlugBy } from "../../base/plugins.js";
+import { PlugOn, PlugBy } from "../../base/main.js";
 
 const
     On = Object.create( PlugOn ),

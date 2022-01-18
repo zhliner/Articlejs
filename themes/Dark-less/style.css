@@ -1827,6 +1827,9 @@ menu._cells code {
     border: 1px #ba9c42 solid;
     border-radius: 50%;
     min-width: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     /* 溢出时保持 */
     height: 60px;
 }
@@ -2100,4 +2103,20 @@ menu._cells code {
 }
 .Modal ._export fieldset > legend {
     margin-left: 10px;
+}
+
+
+/* 插件结果 */
+.Modal ._page ._plugx {
+    display: flex;
+    flex-direction: column;
+    height: 94%;
+}
+.Modal ._plugx > label {
+    margin: 4px;
+    font-weight: bold;
+}
+.Modal ._plugx > textarea {
+    flex: 1 1 auto;
+    color: #eee;
 }
