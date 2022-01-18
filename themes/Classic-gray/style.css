@@ -1815,8 +1815,8 @@ menu._cells code {
     border-radius: 1.2em;
 }
 .Modal ._plugins button > img {
-    max-width: 48px;
-    max-height: 48px;
+    width: 36px;
+    height: 36px;
 }
 
 
