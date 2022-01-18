@@ -1,5 +1,5 @@
-//! $ID: extend.js 2022.01.05 Cooljed.Plugins $
-// ++++++++++++++++++++++++++++++++++++++++++++++++
+//! $ID: coolmd/extend.js 2022.01.05 Cooljed.Plugins $
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  Project: Coolj-ED v0.2.0
 //  E-Mail:  zhliner@gmail.com
 //  Copyright (c) 2022 铁皮工作室  GPL/GNU v3 License
@@ -9,7 +9,7 @@
 //  插件 OnBy 扩展
 //  规范的文章格式（Coolj）转换为 MarkDown 文档格式。
 //
-//  除了列表、表格和代码块/表外，所有的小区块都以引用块格式（>）封装：
+//  除了列表、表格和代码块/表外，其它小区块都以引用块格式（>）封装：
 //      > 引用块（<blockquote>）
 //      > 结语（<footer>）
 //      > 详细块（<details>）
@@ -20,14 +20,15 @@
 //      > 导言（<header>，有小标题时）
 //  注意：
 //  如果选取的目标仅为小区块内部条目，则不会按引用块封装。
+//  列表、表格和代码块/表也可以存在于小区块内，此时会有 > 封装。
 //
-//  导出的对象中需包含 On 和 By 两个成员。
+//  仅扩展 On 集合，因此导出的对象中仅包含 On。
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { PlugOn, PlugBy } from "../../base/plugins.js";
+import { PlugOn } from "../../base/plugins.js";
 import { customGetter } from "../../base/tpb/tpb.esm.js";
 
 
@@ -35,9 +36,9 @@ const
     $ = window.$,
 
     On = Object.create( PlugOn ),
-    By = Object.create( PlugBy ),
 
     // 单元格分隔序列
+    // 注：这并不是MD标准格式。
     __tableCell = ' ][ ',   // 单元格之间
     __cellStart = '[ ',     // 首个单元格开头
     __cellEnd   = ' ]',     // 最后单元格末尾
@@ -901,4 +902,4 @@ function mdblock( evo, n ) {
 customGetter( On, 'mdblock', mdblock, 1 );
 
 
-export { On, By };
+export { On };

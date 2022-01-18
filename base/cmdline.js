@@ -31,14 +31,11 @@
 //  以当前选取集为总集，过滤出目标元素集。
 //  支持选择器、数组范围/下标、以及过滤函数的筛选形式。
 //      String      选择器。
+//      (String)    不匹配选择器，类似 $.not(...)
 //      [n : m]     数组下标范围（空格可选）。
 //      [a,b,c]     数组下标定点。
-//      {function}  过滤函数。如箭头函数（可参考 tQuery.filter）。
-//                  如果花括号内以句点（.）开始，视为Collector成员函数。
-//  注意：
-//  Collector成员函数主要针对 .fiter|.has|.not 等专用过滤。返回值会被重新选取。
-//  也可以使用其它函数（如 find、get 等），但不应当是会改变DOM节点的操作。
-//
+//      {function}  过滤表达式，参数名固定。接口：function(v, i, c): Boolean
+//                  注：同Tpb:To.Query语法，表达式无需return语句。
 //
 //  - 搜索（/）
 //  搜索词以当前选取集内文本节点为上下文，不支持跨节点词汇的搜索。注：节点被视为意义域。
@@ -75,6 +72,10 @@ import { pluginsInit, pluginsInsert, pluginsDelete } from "./plugins.js";
 
 
 const
+    // 不匹配选择器：(selector)。
+    // 取值：[1]
+    __reExclude = /^\(([^]*?)\)$/,
+
     // 数值定位匹配
     // [x:y] 或 [m,n,...]
     // 取值：[1]
@@ -85,7 +86,6 @@ const
     __reRange = /\s*:\s*/,
 
     // 表达式匹配
-    // {expression|.func}
     // 取值：[1]
     __reFilter = /^\{(.*)\}$/,
 
@@ -227,10 +227,15 @@ class Filter {
     /**
      * 创建过滤函数。
      * 接口：function( all:Collector ): Collector|[Element]
+     * 注记：
+     * 参考Tpb:To.Query部分的实现。
      * @param  {String} fmt 格式串
      * @return {Function} 取值函数
      */
     _handle( fmt ) {
+        if ( __reExclude.test(fmt) ) {
+            return this._exclude( fmt.match(__reExclude)[1] );
+        }
         if ( __reNumber.test(fmt) ) {
             return this._number( fmt.match(__reNumber)[1] );
         }
@@ -239,6 +244,16 @@ class Filter {
         }
         // 选择器模式。
         return all => all.filter( fmt );
+    }
+
+
+    /**
+     * 匹配排除过滤。
+     * @param  {String} slr 选择器
+     * @return {Function}
+     */
+    _exclude( slr ) {
+        return all => all.filter( el => !$.is(el, slr) );
     }
 
 
@@ -280,12 +295,9 @@ class Filter {
      * @return {Function}
      */
     _filter( fmt ) {
-        if ( fmt[0] === '.' ) {
-            return new Function( __chrSels, `return $$${fmt}` );
-        }
-        // fmt 为一个完整的函数表达式。
-        let _fn = new Function( `return (${fmt});` )();
-
+        let _fn = new Function(
+                'v', 'i', 'c', `return ${fmt};`
+            );
         return all => all.filter( _fn );
     }
 }
@@ -342,7 +354,8 @@ class Search {
         /*eslint no-constant-condition: ["error", { "checkLoops": false }]*/
         while ( true ) {
             [i, len] = this._search(node.textContent, word, i);
-            if ( i < 0 ) {
+            // 防止空串结果死循环
+            if ( i < 0 || len === 0 ) {
                 break;
             }
             _buf.push( this._range(node, i, len) );

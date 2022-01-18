@@ -125,6 +125,9 @@ const
         // 本地暂存
         localStoreDone: '保存完毕！',
 
+        // 排序完成
+        sortCompleted: '排序完成！',
+
         // section:s1
         sectionNotUp: '顶层章节不可再提升。',
 
@@ -263,6 +266,7 @@ const Sys = {
     evnFollow:  'update',       // 内容区选中变化跟随激发
     insType:    'edtype',       // 编辑类型更新（普通插入|微编辑）
     covert:     'tips',         // 不可见元素提示
+    info:       'info',         // 状态栏提示通知
     shnav:      'reset',        // 脚本历史分页导航重置
     plugInit:   'init',         // 插件表初始化
     plugIns:    'install',      // 插件安装

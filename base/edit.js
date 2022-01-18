@@ -1414,6 +1414,9 @@ let
     // 出错信息容器
     errContainer = null,
 
+    // 提示信息框
+    infoElement = null,
+
     // 大纲视图容器
     // 用于目录适时更新。
     outlineElem = null,
@@ -3627,6 +3630,16 @@ function cleanCall( handle ) {
 
 
 /**
+ * 状态栏提示。
+ * 较大延迟避开选取集重置信息覆盖。
+ * @param {String} msg 提示信息
+ */
+function statusInfo( msg ) {
+    setTimeout( () => $.trigger(infoElement, Sys.info, msg), 10 );
+}
+
+
+/**
  * 输出错误提示。
  * 依然抛出原有错误以阻止流程继续。
  * @param  {String} msg 输出消息
@@ -4432,12 +4445,13 @@ function _tableNoit( ref, els ) {
  * @param {String} modal 模态框根容器
  * @param {String} contab 主面板内容标签容器
  */
-export function init( content, covert, pslave, pathbox, errbox, outline, midtool, modal, contab ) {
+export function init( content, covert, pslave, pathbox, errbox, infobox, outline, midtool, modal, contab ) {
     contentElem   = $.get( content );
     covertShow    = $.get( covert );
     slavePanel    = $.get( pslave );
     pathContainer = $.get( pathbox );
     errContainer  = $.get( errbox );
+    infoElement   = $.get( infobox );
     outlineElem   = $.get( outline );
     midtoolElem   = $.get( midtool );
     modalDialog   = $.get( modal );
@@ -4545,7 +4559,7 @@ export const Edit = {
         let _hot = __EHot.get(),
             _nxt = __ESet.next( _hot );
 
-        if ( _nxt ) setFocus( _nxt );
+        if ( _nxt && _nxt !== _hot ) setFocus( _nxt );
     },
 
 
@@ -4556,7 +4570,7 @@ export const Edit = {
         let _hot = __EHot.get(),
             _nxt = __ESet.prev( _hot );
 
-        if ( _nxt ) setFocus( _nxt );
+        if ( _nxt && _nxt !== _hot ) setFocus( _nxt );
     },
 
 
@@ -5060,7 +5074,7 @@ export const Edit = {
 
 
     /**
-     * 正序（DOM树）。
+     * 正序。
      * 焦点设置到首个成员。
      */
     selectSort() {
@@ -5069,7 +5083,7 @@ export const Edit = {
         if ( _els.length < 2 ) {
             return;
         }
-        historyPush( new ESEdit(newSafeAdds, _els), new HotEdit(_els[0]) );
+        historyPush( new ESEdit(newSafeAdds, _els), new HotEdit(_els[0]) ) || statusInfo( Tips.sortCompleted );
     },
 
 
@@ -5083,7 +5097,7 @@ export const Edit = {
         if ( _els.length < 2 ) {
             return;
         }
-        historyPush( new ESEdit(newSafeAdds, _els), new HotEdit(_els[0]) );
+        historyPush( new ESEdit(newSafeAdds, _els), new HotEdit(_els[0]) ) || statusInfo( Tips.sortCompleted );
     },
 
 

@@ -276,12 +276,12 @@
                         <p>虚焦点是把选取集内的<strong>每一个成员都视为焦点元素</strong>，然后执行特定的操作。支持虚焦点的操作并不多，并且只有<strong>选取</strong>而没有<em>同态</em>的逻辑。因为每一个成员都变成了焦点，所以这里有一些限制：</p>
                         <ol>
                             <li>仅适用部分简单的选取，比如<kbd>E</kbd>选取同级同类元素，复杂的叔伯元素选取（<kbd>Shift+E</kbd>）则不适用。</li>
-                            <li>平级操作时（<kbd>E</kbd>）选取集内的成员不能互为兄弟元素，每个成员只能是其父元素内的唯一选取。纵向操作（<kbd>W</kbd>）则无此约束。</li>
+                            <li>平级操作时（如<kbd>E</kbd>）选取集内的成员不能互为兄弟元素，每个成员只能是其父元素内的唯一选取。纵向操作（<kbd>W</kbd>）则无此约束。</li>
                         </ol>
                         <p>通常，支持虚焦点的操作会辅以<kbd>Alt</kbd>键。可用操作共<strong>8</strong>个：</p>
                         <ul>
-                            <li><strong>平级类</strong>：<kbd>A</kbd>、<kbd>E</kbd>、<kbd>Ctrl+Shift+↑</kbd>、<kbd>Ctrl+Shift+↓</kbd>。每个成员在其父元素内为单选，因为操作之后即失去了唯一性，所以这是<em>一次性</em>的。</li>
-                            <li><strong>纵深类</strong>：<kbd>W</kbd>、<kbd>Ctrl+Shift+→</kbd>、<kbd>Ctrl+Shift+←</kbd>、<kbd>Ctrl+Shift+T</kbd>。向下选取时元素各自独立，向上改选时共同的父级元素会被自动去重。</li>
+                            <li><strong>平级类</strong>：<kbd>A</kbd>、<kbd>E</kbd>、<kbd>Ctrl+Shift+↑</kbd>、<kbd>Ctrl+Shift+↓</kbd>，其中的 <kbd>Ctrl</kbd> 改为 <kbd>Alt</kbd>。每个成员在其父元素内为单选，因为操作之后即失去了唯一性，所以这是<em>一次性</em>的。</li>
+                            <li><strong>纵深类</strong>：<kbd>W</kbd>、<kbd>Ctrl+Shift+→</kbd>、<kbd>Ctrl+Shift+←</kbd>、<kbd>Ctrl+Shift+T</kbd>，其中的 <kbd>Ctrl</kbd>改为 <kbd>Alt</kbd>。向下选取时元素各自独立，向上改选时共同的父级元素会被自动去重。</li>
                         </ul>
                         <p>如果操作使用了虚焦点，<em>平级类</em>会保留原来的实际焦点不变，但<em>纵深类</em>则会将焦点移到整个选取集的<strong>首个</strong>成员上。</p>
                     </section>

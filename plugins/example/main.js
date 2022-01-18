@@ -38,7 +38,10 @@ onmessage = function( ev ) {
     let _o = ev.data,
         _tmp = {
             node:   null,
-            result: `HTML ${_o.HTML.length} items, TEXT ${_o.TEXT.length} items.`,
+            result: {
+                HTML: `has ${_o.HTML.length} items and ${_o.HTML.join('').length} bytes`,
+                TEXT: `has ${_o.TEXT.length} items and ${_o.TEXT.join('').length} bytes`,
+            },
             title:  'HELLO TEST'
         };
     postMessage( _tmp );

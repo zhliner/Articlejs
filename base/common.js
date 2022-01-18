@@ -55,6 +55,10 @@ export class ESet extends Set {
     constructor( mark ) {
         super();
         this._cls = mark;
+
+        // 焦点移动支持
+        this._n2 = null;
+        this._p2 = null;
     }
 
 
@@ -82,6 +86,10 @@ export class ESet extends Set {
         super.delete(
             $.removeClass( el, this._cls )
         )
+        // 清理游标
+        if ( el === this._n2 ) this._n2 = null;
+        if ( el === this._p2 ) this._p2 = null;
+
         return el;
     }
 
@@ -91,10 +99,7 @@ export class ESet extends Set {
      * @return {this}
      */
     clear() {
-        for ( const el of this ) {
-            $.removeClass( el, this._cls );
-        }
-        return super.clear(), this;
+        return this.removes( this );
     }
 
 
@@ -109,37 +114,43 @@ export class ESet extends Set {
 
     /**
      * 返回el的下一个成员。
-     * 如果未找到则返回首个成员。
-     * 如果已经抵达末尾则返回首个（循环）。
+     * 如果未找到或抵达末尾则返回首个成员。
+     * 支持巡视游标，即便当前元素取消选取，依然可以延续巡视。
+     * 提示：
+     * 巡游按选取顺序移动，这可能看起来有点乱，
+     * 如果想按DOM节点顺序来，可以简单的执行一下排序（s按键）。
      * @param  {Element} el 起点元素
      * @return {Element|undefined}
      */
     next( el ) {
         let _els = [ ...this ],
-            _i = _els.indexOf( el );
+            _cur = this._next( _els, el ),
+            _tmp = this._n2;
 
-        if ( _i < 0 ) {
-            return _els[0];
-        }
-        return _els[ _i+1 ] || _els[0];
+        this._n2 = this._next( _els, _cur || _tmp || _els[0] );
+
+        return _cur || _tmp || _els[0];
     }
 
 
     /**
      * 返回el的前一个成员。
-     * 如果未找到则返回最后一个成员。
-     * 如果已经抵达头部则返回最后一个（循环）。
+     * 如果未找到或抵达头部则返回最后一个成员。
+     * 同上支持巡视游标。
+     * 注意：
+     * 如果正向巡视时取消当前元素选取，此时初始逆向巡视会从集合末尾开始。
+     * 如果已逆向巡视过，则切换后可原地延续。
      * @param  {Element} el 起点元素
      * @return {Element|undefined}
      */
     prev( el ) {
         let _els = [ ...this ],
-            _i = _els.indexOf( el );
+            _cur = this._prev( _els, el ),
+            _tmp = this._p2;
 
-        if ( _i < 0 ) {
-            return _els[ _els.length-1 ];
-        }
-        return _els[ _i-1 ] || _els[ _els.length-1 ];
+        this._p2 = this._prev( _els, _cur || _tmp || _els[_els.length-1] );
+
+        return _cur || _tmp || _els[_els.length-1];
     }
 
 
@@ -169,10 +180,38 @@ export class ESet extends Set {
      */
     removes( els ) {
         els.forEach(
-            el => this.delete(el)
+            el => this.delete( el )
         );
         return this;
     }
+
+
+    //-- 私有辅助 ------------------------------------------------------------
+
+
+    /**
+     * 获取el下一个成员。
+     * @param  {[Element]} els 目标元素集
+     * @param  {Element} el 起点元素
+     * @return {Element|null}
+     */
+    _next( els, el ) {
+        let _i = els.indexOf( el );
+        return _i < 0 ? null : els[ _i+1 ];
+    }
+
+
+    /**
+     * 获取el的前一个成员。
+     * @param  {[Element]} els 目标元素集
+     * @param  {Element} el 起点元素
+     * @return {Element|null}
+     */
+    _prev( els, el ) {
+        let _i = els.indexOf( el );
+        return _i < 0 ? null : els[ _i-1 ];
+    }
+
 }
 
 
