@@ -13,8 +13,8 @@
 //
 
 import $ from "./tpb/config.js";
-import { isInlines, isSpecial } from "./types.js";
-import { beforeFixed, afterFixed, isEmpty, isContent, getType } from "./base.js";
+import * as T from "./types.js";
+import { beforeFixed, afterFixed, isEmpty, isContent, isInlines, getType } from "./base.js";
 import { Scripter } from "../config.js";
 import { Render } from "./tpb/tools/render.js";
 import { Spliter, UmpCaller, UmpString } from "./tpb/tools/spliter.js";
@@ -1070,7 +1070,28 @@ function inlineBox( el ) {
  */
 function isConitem( el ) {
     let _tv = getType( el );
-    return isInlines( _tv ) || ( el.parentElement.tagName === 'CODE' && isSpecial(_tv) );
+    return T.isInlines( _tv ) || ( el.parentElement.tagName === 'CODE' && T.isSpecial(_tv) );
+}
+
+
+/**
+ * 文本节点清理。
+ * 连续的空白压缩为单个空格。
+ * - 如果node是首个节点，清理后移除头部空格。
+ * - 如果node已经是最后一个节点，清理后移除末尾空白。
+ * @param  {Text} node 文本节点
+ * @return {String|''}
+ */
+function cleanText( node ) {
+    let _txt = node.textContent.replace( /\s\s+/g, ' ' );
+
+    if ( !node.nextSibling ) {
+        _txt = _txt.trimEnd();
+    }
+    if ( !node.previousSibling ) {
+        _txt = _txt.trimStart();
+    }
+    return _txt;
 }
 
 
@@ -1273,7 +1294,9 @@ export function niceHtml( node, tabs, prefix = '' ) {
         return _nl + ( keepHTML(node) || stringElement(node, tabs, prefix) )
     }
     if ( _n === 3 ) {
-        return node.textContent.trim() && $.html( node.textContent );
+        // 自动清理空白。
+        // 注：代码类单元不会至此。
+        return node.textContent.trim() && $.html( cleanText(node) );
     }
     if ( _n === 8 ) {
         return _nl + `<!--${node.data}-->`;
