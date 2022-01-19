@@ -32,6 +32,15 @@ import { PlugOn } from "../../base/main.js";
 import { customGetter } from "../../base/tpb/tpb.esm.js";
 
 
+//
+// 代码元素汉字空格优化。
+// 如果<code>两侧紧邻汉字（非标点），额外添加一个空格。
+// 目的：MD文档视觉友好。
+// 如果不需要支持，在此修改为false即可。
+//
+const codeHans = true;
+
+
 const
     $ = window.$,
 
@@ -76,6 +85,7 @@ const __blockFunc =
     TH:         conLine,
     TD:         conLine,
     TR:         cellsTr,
+    PRE:        convPre,
 
     // 标题系列
     H1:         el => `# ${el.textContent}`,
@@ -579,32 +589,29 @@ class Table extends Block {
 
     /**
      * 转换完成。
-     * 表格行之间仅以换行分隔。
-     * 如果存在表标题，标题与行集间隔一空行。
+     * 表格标题与表格行，以及表格行之间仅以换行分隔。
+     * 注记：
+     * 表格被划归为顶层区块（如列表），不以引用块标识符封装（除非在小区块内），
+     * 因此标题与行紧密相邻，以与普通的章节标题相区分。
      * @param  {[String]} list 表格行集
      * @return {String}
      */
     done( list ) {
-        if ( !this._el.caption ) {
-            return list.join( `\n` );
-        }
-        let _cap = list.shift();
-
-        return _cap + `\n${this._bch}\n` + list.join( '\n' );
+        return list.join( '\n' );
     }
 
 
     /**
      * 处理表格标题。
-     * 返回的集合用于后续表格行的存储。
-     * 没有表标题时返回一个空集，可适用<table>和<tbody>等单元。
+     * 返回的集合用于后续表格行的存储，没有表标题时返回一个空集。
+     * 可适用<table>和<tbody>等单元。
      * @return {[String]}
      */
     _caption() {
         let _cap = this._el.caption;
         if ( !_cap ) return [];
 
-        let _txt = __blockFunc.H5( _cap );
+        let _txt = __blockFunc.CAPTION( _cap );
 
         return this._bch ? [ `${this._bch} ${_txt}` ] : [ _txt ];
     }
@@ -621,8 +628,7 @@ class Article extends Block {
      */
     constructor( el ) {
         super( el );
-        // 顶层章节间隔3个空行，
-        // 顶层普通内容件间隔1个空行。
+        // 顶层章节间隔空行数可外部调整。
         this._space = $.get('>section', el) ? ''.padStart(__secSpace+1, '\n') : '\n\n';
     }
 
@@ -660,7 +666,7 @@ function convCode( el ) {
     if ( /[^`]`[^`]/.test(el.textContent) ) {
         _chx = '``';
     }
-    return `${_chx}${el.textContent}${_chx}`;
+    return codeHans ? convCodeHans(el, _chx) : `${_chx}${el.textContent}${_chx}`;
 }
 
 
@@ -757,6 +763,17 @@ function convCodelist( el, lev = 0 ) {
         _rows = $.children( el ).map( li => li.textContent.trimEnd() );
 
     return codeBlock( _rows, _lang, ''.padStart(lev, '>') );
+}
+
+
+/**
+ * 预排版转换。
+ * @param  {Element} el 根元素
+ * @param  {Number} lev 所在小区块层级，可选
+ * @return {String}
+ */
+function convPre( el, lev ) {
+    return codeBlock( el.textContent.trim().split('\n'), '', ''.padStart(lev, '>') );
 }
 
 
@@ -869,6 +886,50 @@ function codeBlock( codes, lang = '', prefix = '' ) {
 
     // 每行尾空白清理。
     return ( prefix ? _buf.map( c => `${prefix} ${c}`.trimEnd() ) : _buf ).join( '\n' );
+}
+
+
+/**
+ * 支持汉字优化的代码转换。
+ * 紧邻汉字的一侧添加一个空格。
+ * @param  {Element} el 代码元素
+ * @param  {String} chx 封装字符
+ * @return {String}
+ */
+function convCodeHans( el, chx ) {
+    let _prev = (el.previousSibling || '').textContent || '',
+        _next = (el.nextSibling || '').textContent || '';
+
+    return codeHans2( chx, el.textContent, _prev, _next );
+}
+
+
+/**
+ * 汉字包围代码处理。
+ * 如果代码元素的前后紧邻汉字，则添加额外的空格。
+ * @param  {String} chx 封装字符
+ * @param  {String} txt 代码文本
+ * @param  {String} beg 前段文本
+ * @param  {String} end 后段文本
+ * @return {String} MD格式代码串（可能两端外附一个空格）
+ */
+function codeHans2( chx, txt, beg, end ) {
+    let _ch1 = isHans( beg[beg.length-1] ) ? ' ' : '',
+        _ch2 = isHans( end[0] ) ? ' ' : '';
+
+    return _ch1 + chx + txt + chx + _ch2;
+}
+
+
+/**
+ * 是否为汉字。
+ * 仅检查汉字基本集[20902]范围。
+ * @param  {String} ch 目标字符
+ * @return {Boolean}
+ */
+function isHans( ch ) {
+    let _n = ch && ch.charCodeAt( 0 );
+    return _n && _n >= 0x4E00 && _n <= 0x9FA5
 }
 
 

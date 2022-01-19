@@ -3547,18 +3547,6 @@ function arraySize( list, zero = __chrZero ) {
 
 
 /**
- * 提取元素集内的非空文本节点。
- * @param  {Collector} $els 元素集
- * @return {[[Text]]} 文本节点集数组
- */
-function textNodes( $els ) {
-    return $els.textNodes().map(
-        nds => nds.filter( nd => nd.textContent.trim() )
-    );
-}
-
-
-/**
  * 确定获取数组。
  * 如果已经是数组则原样返回。
  * @param  {Value|[Value]} val 任意值
@@ -3723,9 +3711,7 @@ function cmdxFilter( oper, str ) {
  * @return {[Instance]} 操作实例集
  */
 function cmdxSearch( oper, str ) {
-    let _tts = targetElements()
-            .map( el => $.textNodes(el, true) )
-            .flat(),
+    let _tts = targetElements().textNodes(true, true).flat(),
         _rngs = _tts.length && oper.exec( str, _tts );
 
     if ( !_rngs.length ) {
@@ -3771,10 +3757,10 @@ function cmdxCalcuate( oper, str ) {
 /**
  * 获取目标元素集。
  * 如果当前选取集为空，目标为内容区全部子元素。
- * @return {[Element]}
+ * @return {Collector}
  */
 function targetElements() {
-    return __ESet.size ? [...__ESet] : [...contentElem.children];
+    return __ESet.size ? $( __ESet ) : $( contentElem.children );
 }
 
 
@@ -5249,7 +5235,7 @@ export const Edit = {
         if ( !__ESet.size ) {
             return;
         }
-        let _nds = textNodes( $(__ESet) ).flat(),
+        let _nds = $(__ESet).textNodes(true, true).flat(),
             _fun = txt => txt.toUpperCase();
 
         _nds.length &&
@@ -5265,7 +5251,8 @@ export const Edit = {
         if ( !__ESet.size ) {
             return;
         }
-        let _nds = textNodes( $(__ESet) ).map( nds => nds[0] ),
+        let _nds = $(__ESet).textNodes( true, true )
+            .map( nds => nds[0] ),
             // 任意位置首个匹配替换。
             // 这样更灵活性，可忽略非字母包围等。
             _fun = txt => txt.replace( /[a-z]/, ch => ch.toUpperCase() );
@@ -5279,7 +5266,7 @@ export const Edit = {
         if ( !__ESet.size ) {
             return;
         }
-        let _nds = textNodes( $(__ESet) ).flat(),
+        let _nds = $(__ESet).textNodes(true, true).flat(),
             _fun = txt => txt.toLowerCase();
 
         _nds.length &&
