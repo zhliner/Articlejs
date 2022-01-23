@@ -15,12 +15,11 @@
 //      > 详细块（<details>）
 //      > 批注块（<aside>）
 //      > 插图（<figure>）
-//      > 表格（<table>）
 //      > 定义列表（<dl/dt,dd>）
 //      > 导言（<header>，有小标题时）
 //  注意：
 //  如果选取的目标仅为小区块内部条目，则不会按引用块封装。
-//  列表、表格和代码块/表也可以存在于小区块内，此时会有 > 封装。
+//  列表、表格和代码块/表也可以存在于小区块内，此时会有前置>标识。
 //
 //  仅扩展 On 集合，因此导出的对象中仅包含 On。
 //
@@ -96,12 +95,14 @@ const __blockFunc =
     H6:         el => `###### ${el.textContent}`,
 
     // 其它标题
-    SUMMARY:    heading,
-    FIGCAPTION: heading,
-    CAPTION:    heading,
+    SUMMARY:    el => heading( el, __miniLevel ),
+    FIGCAPTION: el => heading( el, __miniLevel ),
     DT:         el => __blockFunc.H5( el ),
-    HGROUP:     convHGroup,
 
+    // 前置一个缩进以与其它标题相区分
+    CAPTION:    el => __indentSpace + heading( el, __miniLevel ),
+
+    HGROUP:     convHGroup,
     HR:         () => '------',
 
     // 列表项，可能含子表
@@ -223,7 +224,6 @@ class Block {
     done( list ) {
         return list
             .map( it => typeof it === 'string' ? it : it.done(it.conv()) )
-            .map( ss => ss.trim() )
             .join( '\n\n' );
     }
 }
@@ -270,7 +270,7 @@ class SmallBlock extends Block {
     done( list ) {
         return list
             .map( it => typeof it === 'string' ? it : it.done(it.conv()) )
-            .map( ss => ss.trim() )
+            .map( ss => ss.trimEnd() )
             .join( `\n${this._bch}\n` );
     }
 }
@@ -326,7 +326,7 @@ class Header extends Block {
     done( list ) {
         return list
             .map( it => typeof it === 'string' ? it : it.done(it.conv()) )
-            .map( ss => ss.trim() )
+            .map( ss => ss.trimEnd() )
             .join( `\n${this._bch}\n` );
     }
 }
@@ -486,7 +486,7 @@ class Section extends Block {
     _merge( list ) {
         return list
             .map( it => typeof it === 'string' ? it : it.done(it.conv()) )
-            .map( ss => ss.trim() )
+            .map( ss => ss.trimEnd() )
             .join( this._space );
     }
 }
@@ -557,6 +557,8 @@ class List extends Block {
 // 与列表List类似，视为顶层实体（不以引用块封装）。
 // 注记：
 // 继承Block仅为接口相同的意思，会被全覆盖。
+// <caption>转换后会前置一个缩进数量的空格序列，并且与<tr>部分并不间隔空行，
+// 这是为了它便于与章节标题（第四层）相区分。
 //
 class Table extends Block {
     /**
@@ -643,7 +645,7 @@ class Article extends Block {
     done( list ) {
         return list
             .map( it => typeof it === 'string' ? it : it.done(it.conv()) )
-            .map( ss => ss.trim() )
+            .map( ss => ss.trimEnd() )
             .join( this._space );
     }
 }
@@ -723,7 +725,7 @@ function cellsTr( tr ) {
  * @param  {Number} n 标题层级数
  * @return {String}
  */
-function heading( el, n = __miniLevel ) {
+function heading( el, n ) {
     let _tt = conLine( el );
     return n ? `${''.padStart(n, '#')} ${_tt}` : _tt;
 }
@@ -742,7 +744,7 @@ function convCodeblock( el, lev = 0 ) {
         _lang = $.attr( _cels[0], '-lang' );
 
     return codeBlock(
-        _cels.map( e => e.textContent.trim().split('\n') ).flat(),
+        _cels.map( e => e.textContent.trimEnd().split('\n') ).flat(),
         _lang,
         ''.padStart( lev, '>' )
     );
@@ -773,7 +775,7 @@ function convCodelist( el, lev = 0 ) {
  * @return {String}
  */
 function convPre( el, lev ) {
-    return codeBlock( el.textContent.trim().split('\n'), '', ''.padStart(lev, '>') );
+    return codeBlock( el.textContent.trimEnd().split('\n'), '', ''.padStart(lev, '>') );
 }
 
 
@@ -954,7 +956,7 @@ function mdblock( evo, n ) {
     return [..._frg.children]
         .map( el => convert(el, __blockFunc) )
         .map( it => typeof it === 'string' ? it : it.done(it.conv()) )
-        .map( ss => ss.trim() )
+        .map( ss => ss.trimEnd() )
         .join( '\n\n' );
 }
 
