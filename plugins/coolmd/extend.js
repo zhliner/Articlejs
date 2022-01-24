@@ -45,11 +45,15 @@ const
 
     On = Object.create( PlugOn ),
 
-    // 单元格分隔序列
-    // 注：这并不是MD标准格式。
-    __tableCell = ' ][ ',   // 单元格之间
-    __cellStart = '[ ',     // 首个单元格开头
-    __cellEnd   = ' ]',     // 最后单元格末尾
+    // 单元格封装符（定制）
+    // 注记：
+    // 用方括号封装单元格在视觉上感觉清晰，
+    // 且可借用已有的引用链接的着色方案，列上有交替着色友好。
+    // 另外，方括号和前置的等号可表现“框线”的意象。
+    __cellStart = '[',  // 单元格开头
+    __cellEnd   = ']',  // 单元格结尾
+    __thFlag    = ':',  // <th>标识，跟随<th>标识
+    __tableFlag = '=',  // 表区块标识（拟双横线）
 
     // 代码块包围标识串
     __codeRound = "```",
@@ -99,8 +103,8 @@ const __blockFunc =
     FIGCAPTION: el => heading( el, __miniLevel ),
     DT:         el => __blockFunc.H5( el ),
 
-    // 前置一个缩进以与其它标题相区分
-    CAPTION:    el => __indentSpace + heading( el, __miniLevel ),
+    // 前置表区块标识
+    CAPTION:    el => __tableFlag + ' ' + heading( el, __miniLevel ),
 
     HGROUP:     convHGroup,
     HR:         () => '------',
@@ -552,75 +556,6 @@ class List extends Block {
 
 
 //
-// 表格区块。
-// 各表格行之间仅以换行分隔符（没有空行）。
-// 与列表List类似，视为顶层实体（不以引用块封装）。
-// 注记：
-// 继承Block仅为接口相同的意思，会被全覆盖。
-// <caption>转换后会前置一个缩进数量的空格序列，并且与<tr>部分并不间隔空行，
-// 这是为了它便于与章节标题（第四层）相区分。
-//
-class Table extends Block {
-    /**
-     * @param {Element} el 根容器（<table>|<tbody>...）
-     * @param {Number} lev 上级区块层级
-     */
-    constructor( el, lev = 0 ) {
-        super( el );
-        this._bch = ''.padStart( lev, '>' );
-    }
-
-
-    /**
-     * 表格行转换。
-     * 需考虑表格是否存在于小区块内。
-     * 注：
-     * 不考虑单元格内再嵌入的小区块逻辑。
-     * @return {[String]} 表格行集
-     */
-    conv() {
-        let _buf = this._caption();
-
-        for ( const tr of this._el.rows ) {
-            let _row = cellsTr( tr );
-            _buf.push( this._bch ? `${this._bch} ${_row}` : _row );
-        }
-        return _buf;
-    }
-
-
-    /**
-     * 转换完成。
-     * 表格标题与表格行，以及表格行之间仅以换行分隔。
-     * 注记：
-     * 表格被划归为顶层区块（如列表），不以引用块标识符封装（除非在小区块内），
-     * 因此标题与行紧密相邻，以与普通的章节标题相区分。
-     * @param  {[String]} list 表格行集
-     * @return {String}
-     */
-    done( list ) {
-        return list.join( '\n' );
-    }
-
-
-    /**
-     * 处理表格标题。
-     * 返回的集合用于后续表格行的存储，没有表标题时返回一个空集。
-     * 可适用<table>和<tbody>等单元。
-     * @return {[String]}
-     */
-    _caption() {
-        let _cap = this._el.caption;
-        if ( !_cap ) return [];
-
-        let _txt = __blockFunc.CAPTION( _cap );
-
-        return this._bch ? [ `${this._bch} ${_txt}` ] : [ _txt ];
-    }
-}
-
-
-//
 // 文章区块。
 // 内部可能为章节序列或直接的内容件。
 //
@@ -647,6 +582,172 @@ class Article extends Block {
             .map( it => typeof it === 'string' ? it : it.done(it.conv()) )
             .map( ss => ss.trimEnd() )
             .join( this._space );
+    }
+}
+
+
+//
+// 表格区块。
+// 各表格行之间以换行符分隔（没有空行），每<tr>占据一行。
+// 与列表List类似，表格视为顶层实体，但也可以存在于小区块内（前置>）。
+// 单元格以方括号包围封装，为与链接引用明确区分，每行前置一个表格标识符（=）。
+// 格式：
+// <caption>
+//      = #### 表格标题
+//      第4级标题，前置一个表格块标识符=。
+// <thead/th>
+//      =[: 单元格1 :][ 单元格2 ][ 单元格3 ] ...
+//      =[------------------------------------]
+//      方括号内填充一个空格，各单元格无缝串接。
+//      方括号内前置的冒号（:）表示<th>，仅支持首列<th>使用此标记。
+//      首列<th>方括号内后置的冒号表示后续单元格同类。但仅在表头内有效。
+//      表头行之后跟随一条横线，也封装在方括号内（无空格填充）。
+//      注：横线至少长3个短横线。
+// <tbody/td>
+//      =[ 单元格1 ][ 单元格2 ][ 单元格3 ] ...
+//      =[ 单元格1 ][ 单元格2 ][ 单元格3 ] ...
+//      简单的方括号封装<td>，各行以换行符分隔（上下紧邻）。
+// <tbody/th>
+//      =[: 单元格1 ][ 单元格2 ][ 单元格3 ] ...
+//      首列<th>单元格在方括号内前置一个冒号。
+//      不支持非首列的<th>存在。
+// <tfoot/tr>
+//      =[---------------------------------]
+//      =[ 单元格1 ][ 单元格2 ][ 单元格3 ] ... 或
+//      =[: 单元格1 ][ 单元格2 ][ 单元格3 ] ...
+//      与表体行之间相隔一横线，单元格封装与<tbody>内同。
+//
+// 注记：
+// 表标题与后面的表格行部分通常并不间隔空行。
+// 表头行（<thead/tr>）可以仅由首个单元格判断出来，因此跟随的横线是可选的。
+// 表脚部分必须前置一个横线，因为<tfoot>与<tbody>内的规则相同。
+//
+// 继承Block仅为接口相同的意思，会被全覆盖。
+//
+class Table extends Block {
+    /**
+     * @param {Element} el 根容器（<table>|<tbody>...）
+     * @param {Number} lev 上级区块层级
+     */
+    constructor( el, lev = 0 ) {
+        super( el );
+        this._bch = ''.padStart( lev, '>' );
+    }
+
+
+    /**
+     * 表格行转换。
+     * 需考虑表格是否存在于小区块内。
+     * 如果目标只是表格内的区域元素，则没有所在小区块。
+     * 注记：
+     * 单元格内不应当嵌入小区块（不支持）。
+     * @return {[String]} 表格行集
+     */
+    conv() {
+        let _el = this._el;
+
+        if ( _el.tagName !== 'TABLE' ) {
+            return this._tSect( _el );
+        }
+        let _buf = this._caption( _el );
+
+        if ( _el.tHead ) {
+            this._thead( _el.tHead, _buf );
+        }
+        [..._el.tBodies]
+        .forEach(
+            tb => this._tbody( tb, _buf )
+        );
+        if ( _el.tFoot ) {
+            this._tfoot( _el.tFoot, _buf )
+        }
+
+        return this._bch ? _buf.map( s => `${this._bch} ${s}` ) : _buf;
+    }
+
+
+    /**
+     * 转换完成。
+     * 表格标题与表格行，以及表格行之间仅以换行分隔。
+     * 注记：
+     * 表格被划归为顶层区块（如列表），不以引用块标识符封装（除非在小区块内），
+     * 因此标题与行紧密相邻，以与普通的章节标题相区分。
+     * @param  {[String]} list 表格行集
+     * @return {String}
+     */
+    done( list ) {
+        return list.join( '\n' );
+    }
+
+
+    //-- 私有辅助 ------------------------------------------------------------
+
+
+    /**
+     * 处理表格标题。
+     * 返回的集合用于后续表格行的存储，没有表标题时返回一个空集。
+     * 可适用<table>和<tbody>等单元。
+     * @param  {Element} el 待转换元素
+     * @return {[String]}
+     */
+    _caption( el ) {
+        let _cap = el.caption;
+        return _cap ? [ __blockFunc.CAPTION(_cap) ] : [];
+    }
+
+
+    /**
+     * 表头行转换。
+     * @param  {Element} head 表头元素
+     * @param  {[String]} buf 行集缓存
+     * @return {[String]} buf
+     */
+    _thead( head, buf ) {
+        buf.push(
+            ...[...head.rows].map( tr => cellsTr(tr, true) )
+        );
+        return pushSpace( buf );
+    }
+
+
+    /**
+     * 表体行转换。
+     * @param  {Element} body 表体元素
+     * @param  {[String]} buf 行集缓存
+     * @return {[String]} buf
+     */
+    _tbody( body, buf ) {
+        buf.push(
+            ...[...body.rows].map( tr => cellsTr(tr) )
+        );
+        return buf;
+    }
+
+
+    /**
+     * 表脚行转换。
+     * @param  {Element} foot 表脚元素
+     * @param  {[String]} buf 行集缓存
+     * @return {[String]} buf
+     */
+    _tfoot( foot, buf ) {
+        pushSpace( buf )
+        .push(
+            ...[...foot.rows].map( tr => cellsTr(tr) )
+        );
+        return buf;
+    }
+
+
+    /**
+     * 单个表区域转换。
+     * 当用户直接选取<thead|tbody|tfoot>时适用。
+     * @param  {Element} tsec 表区域元素（<thead|tbody|tfoot>）
+     * @return {[String]} 转换行集
+     */
+    _tSect( tsec ) {
+        let _ih = tsec.tagName === 'THEAD';
+        return [ ...tsec.rows ].map( tr => cellsTr(tr, _ih) );
     }
 }
 
@@ -707,12 +808,57 @@ function convLi( el, lev, ind ) {
  * - 单元格之间以一个特殊序列 §§ 分隔。
  * - 首尾单元格外围则只有单个 § 包围。
  * @param  {Element} tr 表格行元素
+ * @param  {Boolean} head 是否为表头行
  * @return {String} 一行文本
  */
-function cellsTr( tr ) {
-    return __cellStart +
-        [...tr.children].map( conLine ).join( __tableCell ) +
-        __cellEnd;
+function cellsTr( tr, head ) {
+    let _els = [ ...tr.cells ],
+        _vth = _els.shift() || '',
+        _ch1 = _vth.tagName === 'TH' ? __thFlag : '',
+        _ch2 = head ? __thFlag : '';
+
+    return _vth && __tableFlag + wrapCell( _vth, _ch1, _ch2 ) + wrapCells( _els );
+}
+
+
+/**
+ * 普通单元格序列封装。
+ * @param  {[Element]} els 单元格集
+ * @return {String}
+ */
+function wrapCells( els ) {
+    return els.map( el => wrapCell(el) ).join( '' );
+}
+
+
+/**
+ * 单元格封装。
+ * 注意在封装字符内填充一个空格。
+ * @param  {Element} el 单元格
+ * @param  {String} ch1 前标识（:）
+ * @param  {String} ch2 后标识（:）
+ * @return {String}
+ */
+function wrapCell( el, ch1 = '', ch2 = '' ) {
+    return `${__cellStart}${ch1} ${conLine(el)} ${ch2}${__cellEnd}`;
+}
+
+
+/**
+ * 插入表区域间隔行。
+ * 内部间隔线至少3个短横线，整体长度不超过80字节。
+ * @param  {[String]} buf 缓存集
+ * @return {[String]} buf
+ */
+function pushSpace( buf ) {
+    let _ref = buf[ buf.length-1 ],
+        _n = Math.min(
+            Math.max( _ref.length, 5 ), 80
+        );
+    buf.push(
+        __tableFlag + __cellStart + ''.padStart(_n - 2, '-') + __cellEnd
+    )
+    return buf;
 }
 
 
