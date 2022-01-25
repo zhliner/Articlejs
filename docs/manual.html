@@ -188,7 +188,7 @@
                             <li><kbd>↑/K</kbd>： <strong>平级移动</strong>，定位到前一个（<code>prev</code>）兄弟元素。支持数字指定移动距离，默认值 <code>1</code>（即前一个兄弟元素），特殊值 <code>0</code> 表示头部首个兄弟元素。</li>
                             <li><kbd>↓/J</kbd>： <strong>平级移动</strong>，定位到下一个（<code>next</code>）兄弟元素。支持数字指定移动距离，默认值 <code>1</code>（即下一个兄弟元素），特殊值 <code>0</code> 表示末尾最后一个兄弟元素。</li>
                             <li><kbd>←/H</kbd>：<strong>纵向移动</strong>，定位到父元素（<em>父级方向</em>）。支持数字指定移动层级，默认值 <code>1</code>（即父元素）。</li>
-                            <li><kbd>→/L</kbd>：<strong>纵向移动</strong>，定位到子元素（<em>子级方向</em>），支持数字指定子元素位置下标，默认值 <code>0</code>（即首个子元素），负值表示从末尾算起（<code>-1</code>&nbsp;为最后一个子元素）。</li>
+                            <li><kbd>→/L</kbd>：<strong>纵向移动</strong>，定位到子元素（<em>子级方向</em>），支持数字指定子元素位置下标，默认值 <code>0</code>（即首个子元素），负值表示从末尾算起（<code>-1</code> 为最后一个子元素）。</li>
                         </ul>
                         <p role="tips"><strong>提示</strong>：<br />在内容区拥有浏览器焦点时，键入数字可设置之后操作的前置计数。左下角状态栏有数字提示，按<kbd>ESC</kbd>取消计数。</p>
                         <p><kbd>Tab</kbd>：普通模式下，在当前选取集成员间按<em>选取顺序</em>移动焦点。加按<kbd>Shift</kbd>则逆向移动。</p>
@@ -215,13 +215,14 @@
                         </ul>
                         <p>下面的鼠标选取有一定的智能性，与焦点元素有关。</p>
                         <ul>
-                            <li><strong>跨选</strong>：<kbd>Shift</kbd> + <code>单击</code>。将焦点元素到目标元素的同级兄弟元素全部<strong>选取</strong>或<strong>取消选取</strong>。如果目标元素层级较深，自动取与焦点元素同级的容器元素为目标。焦点同时移动到目标上。与起始的焦点元素保持<em>相同状态</em>（选取与否）可被称为<strong>同态</strong>。</li>
-                            <li><strong>浮选</strong>：<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <code>单击</code>。以焦点元素所在层级为依据，对目标元素的同层级容器元素执行<strong>切换</strong>选取。如果目标不在焦点元素所属父容器内则无效（简单忽略）。</li>
+                            <li><strong>跨选</strong>：<kbd>Shift</kbd> + <code>单击</code>。与焦点元素同级，跨选到目标元素之处的全部兄弟元素。鼠标指向的目标元素（<code>event.target</code>）可能并不与焦点元素同级，但会自动提升至同级。跨选是<strong>同态</strong>逻辑（见下）。</li>
+                            <li><strong>浮选</strong>：<kbd>Shift</kbd> + <kbd>Ctrl</kbd> + <code>单击</code>。以焦点元素所在层级为参考，对目标元素的同层级容器元素执行<strong>切换</strong>选取。</li>
                         </ul>
                         <p>下面的鼠标选取与焦点元素无关。</p>
                         <ul>
-                            <li><strong>父选</strong>：<kbd>Alt</kbd> + <kbd>Ctrl</kbd> + <code>单击</code>。选取鼠标单击的目标元素的父元素，将之添加到当前选取集。如果目标的父元素已经选取，则为取消选取（<em>多选</em>/<em>切换选取</em>逻辑）。这在选取表格行元素（<code>&lt;tr&gt;</code>）时很有用。</li>
-                            <li><strong>父焦</strong>：<kbd>Shift</kbd> + <kbd>Alt</kbd> + <code>单击</code>。仅将选取焦点移动到单击目标的父元素上，不影响当前选取集。</li>
+                            <li><strong>父多选</strong>：<kbd>Alt</kbd> + <kbd>Ctrl</kbd> + <code>单击</code>。选取或取消选取鼠标单击的目标元素的父元素。这在定位<code>&lt;tr&gt;</code>元素时很有用。</li>
+                            <li><strong>父单选</strong>：<kbd>Alt</kbd> + <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <code>单击</code>。类似父选，但会取消之前的全部选取。</li>
+                            <li><strong>父聚焦</strong>：<kbd>Alt</kbd> + <kbd>Shift</kbd> + <code>单击</code>。仅将选取焦点移动到单击目标的父元素上，不影响当前选取集。</li>
                         </ul>
                         <aside>
                             <h4>同态：</h4>
@@ -232,7 +233,7 @@
                         <h2>按键选取</h2>
                         <p>如果焦点元素已经存在（<em>鼠标点选</em>），通过简单的键盘按键，我们可以实现更多的选取操作。</p>
                         <ul>
-                            <li><kbd>Space</kbd> 或&nbsp;<kbd>Enter</kbd>：<strong>选取切换</strong>。焦点元素选取或取消选取。不影响其它已选取元素，类似&nbsp;<kbd>Ctrl</kbd> + <code>单击</code> 的效果。</li>
+                            <li><kbd>Space</kbd> 或 <kbd>Enter</kbd>：<strong>选取切换</strong>。焦点元素选取或取消选取。不影响其它已选取元素，类似 <kbd>Ctrl</kbd> + <code>单击</code> 的效果。</li>
                             <li><kbd>Shift</kbd> + <em>箭头键</em>：<strong>单选游走</strong>。移动焦点的同时改选到目标元素，其它选取被取消，类似鼠标<code>单击</code>的效果。</li>
                         </ul>
                         <p role="tips"><strong>提示</strong>：支持 <kbd>Shift</kbd> + <kbd>T</kbd> 单选游走到焦点元素的<strong>顶元素</strong>。顶元素含义见后。</p>
@@ -448,7 +449,7 @@
                         </ul>
                         <ul>
                             <li><kbd>Ctrl+V</kbd>：浏览器<em>粘贴</em>功能，但内容以换行符分段，从当前单元格开始向后<em>连续覆盖</em>。</li>
-                            <li><kbd>Shift+Ctrl+V</kbd>&nbsp;保留浏览器普通方式粘贴（纯文本）。</li>
+                            <li><kbd>Shift+Ctrl+V</kbd> 保留浏览器普通方式粘贴（纯文本）。</li>
                         </ul>
                         <p role="tips"><strong>提示</strong>：智能切分粘贴只支持<em>当前行</em>单元格。如果需要一次性对<em>多行粘贴</em>，可在内容区的普通模式下进行。</p>
                     </section>

@@ -88,12 +88,19 @@ class MdLine extends Hicode {
                 handle: (_, $1) => `<a href="${$1}">${htmlEscape($1)}</a>`,
             },
 
-            // 内联标签内嵌支持（部分）
+            // 内联标签支持（部分）
             {
                 // type: '...',
                 // 单纯的标签封装有效，不支持元素特性定义。
                 begin:  /^<(q|abbr|del|ins|dfn|bdo|time|cite|small|sub|sup|mark|samp|kbd|s|u|var|code|strong|em)>(.+?)<\/\1>/,
                 handle: (_, $1, $2) => `<${$1}>${$2}</${$1}>`
+            },
+
+            // HTML 实体
+            // 原样保留无需处理。
+            {
+                // type: '...',
+                begin: /^&(\w+|#\d+|#x[0-9a-fA-F]+);/g
             }
 
         ]);

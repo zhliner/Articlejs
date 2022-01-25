@@ -2081,8 +2081,11 @@ menu._cells code {
     margin-bottom: 6px;
     padding: 0 5px;
 }
-.Modal ._export ._top > label {
+.Modal ._export ._top > span:last-child {
     float: right;
+}
+.Modal ._export ._top > span:last-child > label {
+    margin-left: 1em;
 }
 .Modal ._export ._top button {
     margin-left: 10px;

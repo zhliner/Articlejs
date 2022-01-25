@@ -785,7 +785,7 @@ class MiniEdit {
      * 清理非合法内联子元素。
      * 如果有非法元素，返回集内就会有离散文本。
      * @param  {NodeList} nodes 子节点集
-     * @return {[Node]} 合法子节点集
+     * @return {[Node|String]} 合法子节点集
      */
     _inlines( nodes ) {
         let _buf = [];
@@ -2628,8 +2628,8 @@ function closestFocus( hot, beg ) {
 
 
 /**
- * 获取容器内的父元素。
- * 注：不超出主容器范围。
+ * 获取父元素。
+ * 目标不超出编辑器容器范围。
  * @param  {Element} el 目标元素
  * @return {Element|false}
  */
@@ -4609,6 +4609,10 @@ export const Edit = {
         // 切换/多选
         if ( scamPressed(scam, cfg.Keys.turnSelect) ) {
             return historyPush( ...selectOne(_el, 'turn') );
+        }
+        // 父单选（换目标）
+        if ( scamPressed(scam, cfg.Keys.onlyParent) ) {
+            _el = closestParent( _el );
         }
         // 单选
         // 单击已聚焦单选忽略（冗余）。
@@ -7024,14 +7028,15 @@ export const Kit = {
      * 0值空格数有效，即没有缩进（但有换行）。
      * @data: String 内容源码
      * @param  {Number|NaN} tabs 制表符空格数，可选
+     * @param  {Boolean} clean 空白清理
      * @return {String}
      */
-    nicehtml( evo, tabs ) {
+    nicehtml( evo, tabs, clean ) {
         let _ind = isNaN(tabs) ? '\t' : ' '.repeat(tabs),
             _els = [...$.fragment(evo.data).children];
 
         try {
-            return _els.map( el => niceHtml(el, _ind) ).join( '' ).trim();
+            return _els.map( el => niceHtml(el, clean, _ind) ).join( '' ).trim();
         }
         catch( e ) {
             // 源码结构出错提示。

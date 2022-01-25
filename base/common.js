@@ -940,15 +940,16 @@ function tagWrap( tag, html ) {
 
 /**
  * 元素自身格式化。
- * - 内联元素自身和内部不起新行；
- * - 块级元素自身强制起新行；
- * - 块级元素内仅含单个文本节点时不起新行；
+ * - 内联元素自身和内部不起新行。
+ * - 块级元素自身强制起新行。
+ * - 块级元素内仅含单个文本节点时不起新行。
  * @param  {Element} el 当前元素
+ * @param  {Boolean} clean 空白清理
  * @param  {String} ind 缩进字符串
  * @param  {String} prefix 前阶缩进字符串
  * @return {String} 格式串
  */
-function stringElement( el, ind, prefix ) {
+function stringElement( el, clean, ind, prefix ) {
 	let _tag = el.tagName.toLowerCase(),
 		_html = `<${_tag}${stringAttr(el.attributes, ind, prefix)}`,
         _con = '';
@@ -959,7 +960,7 @@ function stringElement( el, ind, prefix ) {
     _html += '>';
 
     for ( const nd of el.childNodes ) {
-        _con += niceHtml( nd, ind, prefix + ind );
+        _con += niceHtml( nd, clean, ind, prefix + ind );
     }
 	return _html + _con + newLineClose(el, prefix) + `</${_tag}>`;
 }
@@ -1122,7 +1123,9 @@ function isConitem( el ) {
  * @return {String|''}
  */
 function cleanText( node ) {
-    let _txt = node.textContent.replace( /\s\s+/g, ' ' );
+    // 单个 \s 可能匹配 &nbsp;
+    // 替换之
+    let _txt = node.textContent.replace( /\s+/g, ' ' );
 
     if ( !node.nextSibling ) {
         _txt = _txt.trimEnd();
@@ -1321,21 +1324,22 @@ export function elem2Swap( a, b ) {
  * 不适用任意元素的源码美化，因为单元类型判断涉及父子结构逻辑。
  * 如果目标元素是一个完整的单元则没有问题。
  * @param  {Node} node 目标节点
+ * @param  {Boolean} clean 空白清理
  * @param  {String} tabs 缩进字符串（对应一个Tab）
  * @param  {String} prefix 前阶缩进字符串，可选
  * @return {String} 格式良好的源码
  */
-export function niceHtml( node, tabs, prefix = '' ) {
+export function niceHtml( node, clean, tabs, prefix = '' ) {
     let _n = node.nodeType,
         _nl = newLineStart( node, prefix );
 
     if ( _n === 1 ) {
-        return _nl + ( keepHTML(node) || stringElement(node, tabs, prefix) )
+        return _nl + ( keepHTML(node) || stringElement(node, clean, tabs, prefix) )
     }
     if ( _n === 3 ) {
-        // 自动清理空白。
+        // 纯空自动清理。
         // 注：代码类单元不会至此。
-        return node.textContent.trim() && $.html( cleanText(node) );
+        return node.textContent.trim() && $.html( clean ? cleanText(node) : node.textContent );
     }
     if ( _n === 8 ) {
         return _nl + `<!--${node.data}-->`;
@@ -1359,7 +1363,7 @@ export function markdownLine( code ) {
 
 /**
  * 清理非合法内联元素。
- * 仅合法的内联元素被原样保留，非此则仅取其文本。
+ * 仅合法的内联元素被保留，非此则仅取其文本。
  * 注释节点被简单保留。
  * @param  {Element} el 内容元素
  * @return {Element|String}

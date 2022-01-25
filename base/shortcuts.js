@@ -824,7 +824,7 @@ Modal: [
 //
 // 辅助功能键。
 // 键名：[shift|ctrl|alt|meta]
-// 键名大小写任意，多个键名需用“空格”分隔。
+// 键名大小写任意，多个键名用空格分隔，顺序任意。
 ///////////////////////////////////////////////////////////
 
 Keys: {
@@ -876,15 +876,20 @@ Keys: {
     smartSelect: 'Ctrl Shift',
 
 
-    // 父选（聚焦）。
+    // 父聚焦。
     // 定位：目标元素的父元素。
     // [Key] + 单击
     parentFocus: 'Alt Shift',
 
-    // 父选（多选/切换）。
+    // 父多选（切换）。
     // 定位：目标元素的父元素。
     // [Key] + 单击
-    parentSelect: 'Alt Ctrl',
+    parentSelect: 'Ctrl Alt',
+
+    // 父单选
+    // 定位：目标元素的父元素。
+    // [Key] + 单击
+    onlyParent: 'Ctrl Shift Alt',
 
 
     // 微编辑同类行创建辅助。

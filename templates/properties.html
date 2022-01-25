@@ -1087,8 +1087,8 @@
                 <input type="text" name="tabs" class="_char" value="4" title="空格数">
             </label>
             <button type="button"
-                on="click|$('3/textarea') val $('1/input') val int"
-                by="Kit.nicehtml(_1)"
+                on="click|$('3/textarea') val $('1/input') val int $('2/[name=clean]') prop('checked')"
+                by="Kit.nicehtml(_2)"
                 to="3/textarea|val">格式化</button>
             <!-- 出错提示： 5秒后自动隐藏。 -->
             <small id="x-fmthtml" class="_err" data-pbo="hidden"
@@ -1096,11 +1096,16 @@
                 <strong>错误</strong>：目标源码需要是完整合法的结构！
             </small>
         </span>
-        <label
-            on="click(input)|(['true', 'false'])"
-            to="2/textarea|^spellcheck">
-            <input type="checkbox" name="spell" />拼写检查
-        </label>
+        <span>
+            <label title="连续空白压缩，首尾空白移除">
+                <input type="checkbox" name="clean" checked>空白清理
+            </label>
+            <label title="仅简单提示"
+                on="click(input)|(['true', 'false'])"
+                to="3/textarea|^spellcheck">
+                <input type="checkbox" name="spell" />拼写检查
+            </label>
+        </span>
     </div>
     <textarea name="html" class="_code" spellcheck="false"></textarea>
     <fieldset>
