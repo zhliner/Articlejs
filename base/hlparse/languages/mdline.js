@@ -8,19 +8,20 @@
 //
 //  MarkDown 单行语法。
 //
-//  - 仅支持单标记，需要多个标签封装的复合标记不被支持。
-//      如：
-//      ***XXX*** => <strong><em>XXX</em></strong>
-//
 //  - 仅支持内容行顶层的标记，嵌套标记不被支持。
 //      如：
 //      **重要`代码`在这里**
 //      [![链接图片](img-url)](a-href)
 //
-//  - 部分内联的文本类标签嵌入有效，但其它标签被视为纯文本。
+//  - 部分内联的文本类标签有效，其它标签被视为文本。
 //      如：
-//      Press the <kbd>P</kbd> character to open the properties dialog.<br>
-//      其中<kbd>有效，但末尾的<br>不被支持。
+//      The <kbd>P</kbd> character for open the <b>properties</b> dialog.
+//      其中<kbd>有效，但<b>不被支持。
+//
+//  - 支持的部分内联标签也仅限于顶层，嵌套的标签不被支持。
+//      如：
+//      This is <strong><em>IMPORTANT</em></strong>.
+//      内嵌的<em>无效，将视为纯文本的<em>字符串。
 //
 //
 //  主要用于用户在 Cooljed 编辑器中粘贴从 .md 文件中拷贝而来的代码。
@@ -35,8 +36,9 @@ import { Hicode, htmlEscape } from "../base.js";
 
 //
 // type:
-// - strong:    **xx**
-// - em:        *xx*
+// - strong:    **xx**, __xx__
+// - em:        *xx*, _x_
+// - strong/em: ***xx***, ___xx___
 // - code:      `xxx`、``xxx`yy`zz``
 // - img:       ![alt](url "title"?)
 // - a:         [xxx](url "title"?)、<url>
@@ -49,40 +51,53 @@ class MdLine extends Hicode {
      */
     constructor() {
         super([
+            // 转义处理（最先匹配）
+            // 仅需排除内联支持的MD特殊字符。
+            {
+                // type: none
+                begin:  /^\\([*`_![])/,
+                handle: (_, $1) => $1
+            },
+            {
+                // <strong><em>
+                type:   'strong',
+                begin:  /^(\*\*\*|___)([^*_]+?)\1/,
+                handle: (_, $1, $2) => `<em>${htmlEscape($2)}</em>`,
+            },
             {
                 type:   'strong',
-                begin:  /^\*\*(.+?)\*\*/,
-                handle: (_, $1) => htmlEscape( $1 ),
+                begin:  /^(\*\*|__)([^*_]+?)\1/,
+                handle: (_, $1, $2) => htmlEscape( $2 ),
             },
             {
                 type:   'em',
-                begin:  /^\*(.+?)\*/,
+                begin:  /^(\*|_)([^*_]+?)\1/,
+                handle: (_, $1, $2) => htmlEscape( $2 ),
+            },
+            {
+                type:   'code',
+                begin:  /^``\s?(.+?)\s?``/,   // ``xxx`yy`zz``
                 handle: (_, $1) => htmlEscape( $1 ),
             },
             {
                 type:   'code',
-                begin:  /^``(.+?)``/,   // ``xxx`yy`zz``
+                begin:  /^`\s?([^`]+?)\s?`/,   // `xxx`
                 handle: (_, $1) => htmlEscape( $1 ),
             },
             {
-                type:   'code',
-                begin:  /^`(.+?)`/,   // `xxx`
-                handle: (_, $1) => htmlEscape( $1 ),
-            },
-            {
-                // type:   'img',
+                // type: 'img',
                 // ![alt](url "title"?)
                 begin:  /^!\[(.*?)\]\(\s*([^\s\n\r]+)(?:\s+(["'])(.*?)\3)?\s*\)/,
                 handle: (_, $1, $2, $3, $4) => `<img src="${$2}" alt="${htmlEscape($1)}"${$4 ? ` title="${htmlEscape($4)}"` : ''} />`,
             },
             {
-                // type:   'a',
+                // type: 'a',
                 // [xxx](url "title"?)
                 begin:  /^\[(.*?)\]\(\s*([^\s\n\r]+)(?:\s+(["'])(.*?)\3)?\s*\)/,
                 handle: (_, $1, $2, $3, $4) => `<a href="${$2}"${$4 ? ` title="${htmlEscape($4)}"` : ''}>${htmlEscape($1)}</a>`,
             },
             {
-                // type:   'a',
+                // type: 'a',
                 // <url>
                 begin:  /^<((?:https?|ftps?):\/\/[^\s\n\r]+)>/,
                 handle: (_, $1) => `<a href="${$1}">${htmlEscape($1)}</a>`,
@@ -90,17 +105,18 @@ class MdLine extends Hicode {
 
             // 内联标签支持（部分）
             {
-                // type: '...',
+                // type: none,
                 // 单纯的标签封装有效，不支持元素特性定义。
+                // 仅顶层有效，内嵌的标签会被文本化。
                 begin:  /^<(q|abbr|del|ins|dfn|bdo|time|cite|small|sub|sup|mark|samp|kbd|s|u|var|code|strong|em)>(.+?)<\/\1>/,
-                handle: (_, $1, $2) => `<${$1}>${$2}</${$1}>`
+                handle: (_, $1, $2) => `<${$1}>${htmlEscape($2)}</${$1}>`
             },
 
             // HTML 实体
             // 原样保留无需处理。
             {
-                // type: '...',
-                begin: /^&(\w+|#\d+|#x[0-9a-fA-F]+);/g
+                // type: none,
+                begin: /^&(\w+|#\d+|#x[0-9a-fA-F]+);/
             }
 
         ]);

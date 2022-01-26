@@ -238,15 +238,16 @@
             <li data-val="samp" title="<samp>"><b><samp>样本</samp></b><kbd></kbd></li>
             <li data-val="cite" title="<cite>"><b><cite>来源</cite></b><kbd></kbd></li>
             <li data-val="s" title="<s>"><b><s>失效</s></b><kbd></kbd></li>
-            <li data-k="u" data-val="u" title="<u>"><b><u>注记</u></b><kbd>u</kbd></li>
             <li data-k="v" data-val="var" title="<var>"><b><var>变量</var></b><kbd>v</kbd></li>
+            <li data-k="u" data-val="u" title="<u>"><b><u>注记</u></b><kbd>u</kbd></li>
             <li data-k="b" data-val="bdo" title="<bdo dir=rtl>"><b><bdo dir="rtl">有向文本</bdo></b><kbd>b</kbd></li>
             <li data-pbo="disabled">&nbsp;</li>
             <li data-val="b" title="<b>"><b>特用&lt;b&gt;</b><kbd></kbd></li>
             <li data-val="i" title="<i>"><b>特用&lt;i&gt;</b><kbd></kbd></li>
         </menu>
         <!--内容区：
-            click(*)|avoid 取消链接单击跳转。
+            click(*) 单击相关操作。avoid取消链接单击跳转。
+                     注：按Shift单击并不会有浏览器聚焦，因此需主动聚焦。
             focus(audio,video) 单击选取在音/视频元素上无效，故借助聚焦（但无键盘按键信息）。
             cancel  选取集取消（ESC）。
             mouseup 弹出内联单元创建表。划选完整嵌套，非空，发送Range。同时存储鼠标指针和滚动条位置。
@@ -275,7 +276,7 @@
                 Kit.ecancel;
                 Kit.puthtml (0);
                 Kit.heading"
-            to="#g-count|trigger('reset');
+            to="#g-count|trigger('reset')|fire('#g-scroll', 'focus');
                 #g-count|trigger('reset');
                 ._scroll/|scrollTop|fire('#g-count', 'reset') fire('#g-scroll', 'focus');
                 -;
