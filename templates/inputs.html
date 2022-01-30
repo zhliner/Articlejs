@@ -52,9 +52,12 @@
 <!--表格行数：仅表体<tbody>部分 -->
 <div class="_option" tpl-name="part:rows">
     <label>行数
+        <!-- dval 设置默认值（当前无值或0值时） -->
         <input id="_rows" name="rows" type="text" class="_nums" title="行数"
-            on="change|evo(3) val int"
-            to="._body/._tsec|trigger('trim')" />
+            on="dval|evo(3) val ev('detail') or(_1);
+                change|evo(3) val int"
+            to="|val|goto('change');
+                ._body/._tsec|trigger('trim')" />
     </label>
 </div>
 
@@ -999,22 +1002,22 @@
         |data('tbo')|pop fire('/thead', 'new')">
     <div class="_main">
         <div class="_list">
-            <!--new 创建与原表相同列类型的行（默认1行）。-->
+            <!--new 创建与原表相同列类型的行（1行）。-->
             <table border="1" obt-src="obts/table.json">
                 <thead obt-src="obts/pastes.json" class="_tsec"
                     on="new|ev('detail') call('newTR', true);
-                        trim|evo(3) ev('detail') or(1);
+                        trim|evo(3) ev('detail');
                         editable|(true)"
                     by="-;
                         Kit.croptr(_1)"
                     to="|fill|goto('editable');
                         -;
-                        (/th,td)|@contenteditable|change('4/#_rows')"></thead>
+                        (/th,td)|@contenteditable|tmp(1) fire('4/#_rows', 'dval')"></thead>
             </table>
         </div>
     </div>
     <aside>
-        <pre tpl-node="part:rows, input:update">
+        <pre tpl-node="!part:rows, input:update">
             [行数]
             [更新]
         </pre>
@@ -1034,23 +1037,23 @@
         <div class="_list">
             <!--原表匹配创建
                 new 创建与原表相同列类型的一行，detail：内容表格实例。
-                trim 裁剪为目标行数（末尾删减/增加），默认5行（也避免列头失效）。
-                editable 让单元格可编辑。-->
+                trim 裁剪为目标行数（末尾删减/增加）。
+                editable 让单元格可编辑。tmp(5) 默认5行。 -->
             <table border="1" obt-src="obts/table.json">
                 <tbody obt-src="obts/pastes.json" class="_tsec"
                     on="new|ev('detail') call('newTR');
-                        trim|evo(3) ev('detail') or(5);
+                        trim|evo(3) ev('detail');
                         editable|(true)"
                     by="-;
                         Kit.croptr(_1)"
                     to="|fill|goto('editable');
                         -;
-                        (/th,td)|@contenteditable|change('4/#_rows')"></tbody>
+                        (/th,td)|@contenteditable|tmp(5) fire('4/#_rows', 'dval')"></tbody>
             </table>
         </div>
     </div>
     <aside>
-        <pre tpl-node="part:rows, input:merge">
+        <pre tpl-node="!part:rows, input:merge">
             [行数]
             [合并]
         </pre>
@@ -1065,22 +1068,22 @@
         |data('tbo')|pop fire('/tfoot', 'new')">
     <div class="_main">
         <div class="_list">
-            <!--new 创建与原表相同列类型的行（默认1行）。-->
+            <!--new 创建与原表相同列类型的行（1行）。-->
             <table border="1" obt-src="obts/table.json">
                 <tfoot obt-src="obts/pastes.json" class="_tsec"
                     on="new|ev('detail') call('newTR');
-                        trim|evo(3) ev('detail') or(1);
+                        trim|evo(3) ev('detail');
                         editable|(true)"
                     by="-;
                         Kit.croptr(_1)"
                     to="|fill|goto('editable');
                         -;
-                        (/th,td)|@contenteditable|change('4/#_rows')"></tfoot>
+                        (/th,td)|@contenteditable|tmp(1) fire('4/#_rows', 'dval')"></tfoot>
             </table>
         </div>
     </div>
     <aside>
-        <pre tpl-node="part:rows, input:update">
+        <pre tpl-node="!part:rows, input:update">
             [行数]
             [更新]
         </pre>
