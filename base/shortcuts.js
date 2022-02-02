@@ -746,6 +746,15 @@ Content: [
         "command":  "properties"
     },
 
+
+    // 元素选取。
+    // 范围划选，仅适用于内联元素。
+    // 主要为精确选取后创建链接（如图片不方便划选）。
+    {
+        "key":      "alt:s",
+        "command":  "elementRange"
+    },
+
 ],
 
 

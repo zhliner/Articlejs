@@ -127,6 +127,7 @@ const
         toup:       'indentReduce',
         todown:     'indentIncrease',
         delete:     'deletes',
+        range:      'elementRange',
         property:   'properties',
     },
 
@@ -536,8 +537,8 @@ class RngEdit {
      * 分析构造链接配置。
      * 链接格式容错两端空白，但文本原样保持。
      * @param  {RngEdit} self 实例自身
-     * @param  {String} text 链接文本
-     * @param  {Fragmentt} frg 选取内容的文档片段副本
+     * @param  {String} text  链接文本
+     * @param  {Fragment} frg 选取内容的文档片段副本
      * @return {[Object, Value]} 配置对象和数据值对
      */
     _a( self, text, frg ) {
@@ -555,8 +556,8 @@ class RngEdit {
      * 不匹配时应当有一个<rt>的占位串，以便于修改，
      * 因为<rt>不支持单独创建。
      * @param  {RngEdit} self 实例自身
-     * @param  {String} text 注音文本
-     * @param  {Fragmentt} frg 选取内容的文档片段副本
+     * @param  {String} text  注音文本
+     * @param  {Fragment} frg 选取内容的文档片段副本
      * @return {[Object, Value]} 配置对象和数据值对
      */
     _ruby( self, text, frg ) {
@@ -2938,12 +2939,13 @@ function propertyEdit( name ) {
  * 延迟激发以等待DOM更新完成。
  * @param {Element} el 目标元素
  * @param {String} evn 事件名
+ * @param {Number} tm 延迟毫秒数，可选
  * @param {...Value} rest 剩余参数
  */
-function delayFire( el, evn, ...rest ) {
+function delayFire( el, evn, tm = 1, ...rest ) {
     setTimeout(
         () => el.isConnected && $.trigger(el, evn, ...rest),
-        1
+        tm
     );
 }
 
@@ -3623,7 +3625,7 @@ function cleanCall( handle ) {
  * @param {String} msg 提示信息
  */
 function statusInfo( msg ) {
-    setTimeout( () => $.trigger(infoElement, Sys.info, msg), 10 );
+    delayFire( infoElement, Sys.info, 10, msg );
 }
 
 
@@ -4164,6 +4166,16 @@ function canDeletes( els ) {
 
 
 /**
+ * 可否作为范围选取。
+ * @param  {[Element]} els 目标元素集
+ * @return {Boolean}
+ */
+function canElemRange( els ) {
+    return els.length === 1 && T.isRangeX( getType(els[0]) );
+}
+
+
+/**
  * 属性编辑。
  * 全部选取必需相同且可编辑属性。
  * 特例：
@@ -4191,6 +4203,7 @@ const cmenuStatusHandles = [
     canIndent1,
     canIndent2,
     canDeletes,
+    canElemRange,
     canProperty,
 ];
 
@@ -5980,7 +5993,7 @@ export const Edit = {
             // 非编辑区操作实例集，返回值回显
             return _val;
         }
-        delayFire( contentElem, __evnFocus, null, true );
+        delayFire( contentElem, __evnFocus, 1, null, true );
 
         return historyPush( ..._val ) || null;
     },
@@ -6025,6 +6038,7 @@ export const Edit = {
      * 注记：
      * 为避免一次性大量撤销可能导致浏览器假死，仅支持单步逐次撤销。
      * 因为共用按钮，微编辑状态下的撤销也集成于此，虽然它们逻辑上是独立的。
+     * @return {void}
      */
     editUndo() {
         $.trigger(
@@ -6039,6 +6053,7 @@ export const Edit = {
     /**
      * 重做操作。
      * 注记：（同上）
+     * @return {void}
      */
     editRedo() {
         $.trigger(
@@ -6054,6 +6069,7 @@ export const Edit = {
      * 进入微编辑。
      * 需要是一个内容元素，否则仅简单设置焦点。
      * 注：对选取集逐个处理。
+     * @return {void}
      */
     miniedIn() {
         let _el = __ESet.first();
@@ -6071,6 +6087,7 @@ export const Edit = {
     /**
      * 进入微编辑。
      * 注：光标设置在内容元素末尾。
+     * @return {void}
      */
     miniedInEnd() {
         let _el = __ESet.first();
@@ -6088,6 +6105,7 @@ export const Edit = {
     /**
      * 弹出属性编辑框。
      * 支持多个相同单元同时设置。
+     * @return {void}
      */
     properties() {
         let $els = $( __ESet ),
@@ -6097,6 +6115,28 @@ export const Edit = {
             return help( 'not_property', $els[0] );
         }
         propertyEdit( _tpl );
+    },
+
+
+    /**
+     * 用元素创建划选范围。
+     * 方便不易划选情况下创建链接或嵌套封装。
+     * 注：
+     * 划选逻辑，仅适用单个内联单元被选取时。
+     * @return {void}
+     */
+    elementRange() {
+        let _els = [ ...__ESet ];
+
+        if ( !canElemRange(_els) ) {
+            return help( 'not_elrange', _els[0] );
+        }
+        $.select( _els[0], true );
+        // 弹出创建菜单。
+        // 延迟，否则内容区聚焦会立即取消菜单（快捷键方式时）。
+        delayFire( _els[0], '_mouseup', 10, null, true );
+
+        historyPush( cleanHot(_els, true) );
     },
 
 };
@@ -6448,7 +6488,9 @@ export const Kit = {
      *  3. 升级（缩进）。
      *  4. 降级（缩进）。
      *  5. 删除（普通）。
-     *  6. 属性。
+     *  6. 元素选取（Range）。
+     *  7. 属性。
+     * @data: [Element] 菜单条目集（<li>）
      * @return {[Element]} 可启用的条目集
      */
     cmenable( evo ) {

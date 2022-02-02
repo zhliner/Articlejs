@@ -45,7 +45,8 @@ const
     COVERT      = 1 << 8,   // 隐蔽的（不可选）
     SEALED      = 1 << 9,   // 密封单元（不可合并）
     FIXED1      = 1 << 10,  // 位置向前固定
-    FIXED2      = 1 << 11;  // 位置向后固定
+    FIXED2      = 1 << 11,  // 位置向后固定
+    RANGEX      = 1 << 12;  // 可否选取为范围
 
 
 //
@@ -212,14 +213,14 @@ const Properties = {
     //
     // 内联结构元素
     /////////////////////////////////////////////
-    [ AUDIO ]:          INLINES | STRUCT,
-    [ VIDEO ]:          INLINES | STRUCT,
-    [ PICTURE ]:        INLINES | STRUCT,
-    [ SVG ]:            INLINES | STRUCT,
-    [ RUBY ]:           INLINES | STRUCT | SEALED,
-    [ METER ]:          INLINES | SEALED,
+    [ VIDEO ]:          INLINES | STRUCT | RANGEX,
+    [ AUDIO ]:          INLINES | STRUCT | RANGEX,
+    [ PICTURE ]:        INLINES | STRUCT | RANGEX,
+    [ SVG ]:            INLINES | STRUCT | RANGEX,
+    [ RUBY ]:           INLINES | STRUCT | SEALED | RANGEX,
+    [ METER ]:          INLINES | SEALED | RANGEX,
     [ SPACE ]:          INLINES | SEALED,
-    [ IMG ]:            INLINES | EMPTY,
+    [ IMG ]:            INLINES | EMPTY | RANGEX,
     [ BR ]:             INLINES | EMPTY | COVERT,
     [ WBR ]:            INLINES | EMPTY | COVERT,
     //
@@ -229,36 +230,36 @@ const Properties = {
     [ TRACK ]:          STRUCT | STRUCTX | EMPTY | COVERT,
     [ SOURCE1 ]:        STRUCT | STRUCTX | EMPTY | COVERT,
     [ SOURCE2 ]:        STRUCT | STRUCTX | EMPTY | COVERT,
-    [ PIMG ]:           STRUCT | STRUCTX | EMPTY,
+    [ PIMG ]:           STRUCT | STRUCTX | EMPTY | RANGEX,
     [ EXPLAIN ]:        STRUCT | STRUCTX | CONTENT,
     // 解包：先文本化，然后内容提升。
-    [ RT ]:             STRUCT | FIXED1 | FIXED2 | CONTENT,
+    [ RT ]:             STRUCT | FIXED1 | FIXED2 | CONTENT | RANGEX,
     [ RP ]:             STRUCT | FIXED1 | FIXED2 | SEALED | COVERT,
     //
     // 内联内容元素
     /////////////////////////////////////////////
-    [ A ]:              INLINES | CONTENT,
-    [ Q ]:              INLINES | CONTENT,
-    [ ABBR ]:           INLINES | CONTENT,
-    [ DEL ]:            INLINES | CONTENT,
-    [ INS ]:            INLINES | CONTENT,
-    [ DFN ]:            INLINES | CONTENT,
-    [ BDO ]:            INLINES | CONTENT,
-    [ TIME ]:           INLINES | CONTENT,  // SEALED
-    [ CODE ]:           INLINES | CONTENT,  // SEALED
-    [ STRONG ]:         INLINES | CONTENT,
-    [ EM ]:             INLINES | CONTENT,
-    [ CITE ]:           INLINES | CONTENT,
-    [ SMALL ]:          INLINES | CONTENT,
-    [ SUB ]:            INLINES | CONTENT,
-    [ SUP ]:            INLINES | CONTENT,
-    [ MARK ]:           INLINES | CONTENT,
-    [ ORZ ]:            INLINES | CONTENT,
-    [ SAMP ]:           INLINES | CONTENT,
-    [ KBD ]:            INLINES | CONTENT,
-    [ S ]:              INLINES | CONTENT,
-    [ U ]:              INLINES | CONTENT,
-    [ VAR ]:            INLINES | CONTENT,
+    [ A ]:              INLINES | CONTENT | RANGEX,
+    [ Q ]:              INLINES | CONTENT | RANGEX,
+    [ ABBR ]:           INLINES | CONTENT | RANGEX,
+    [ DEL ]:            INLINES | CONTENT | RANGEX,
+    [ INS ]:            INLINES | CONTENT | RANGEX,
+    [ DFN ]:            INLINES | CONTENT | RANGEX,
+    [ BDO ]:            INLINES | CONTENT | RANGEX,
+    [ TIME ]:           INLINES | CONTENT | RANGEX,  // SEALED
+    [ CODE ]:           INLINES | CONTENT | RANGEX,  // SEALED
+    [ STRONG ]:         INLINES | CONTENT | RANGEX,
+    [ EM ]:             INLINES | CONTENT | RANGEX,
+    [ CITE ]:           INLINES | CONTENT | RANGEX,
+    [ SMALL ]:          INLINES | CONTENT | RANGEX,
+    [ SUB ]:            INLINES | CONTENT | RANGEX,
+    [ SUP ]:            INLINES | CONTENT | RANGEX,
+    [ MARK ]:           INLINES | CONTENT | RANGEX,
+    [ ORZ ]:            INLINES | CONTENT | RANGEX,
+    [ SAMP ]:           INLINES | CONTENT | RANGEX,
+    [ KBD ]:            INLINES | CONTENT | RANGEX,
+    [ S ]:              INLINES | CONTENT | RANGEX,
+    [ U ]:              INLINES | CONTENT | RANGEX,
+    [ VAR ]:            INLINES | CONTENT | RANGEX,
 
     //
     // 行块内容元素
@@ -707,6 +708,19 @@ export function isBlocks( tval ) {
  */
 export function isInlines( tval ) {
     return !!( Properties[tval] & INLINES );
+}
+
+
+/**
+ * 是否为可选取单元。
+ * 选取为范围（Range）对象，类似划选逻辑。
+ * 注：
+ * 主要用于元素自身精确选取。
+ * @param  {Number} tval 类型值
+ * @return {Boolean}
+ */
+export function isRangeX( tval ) {
+    return !!( Properties[tval] & RANGEX );
 }
 
 

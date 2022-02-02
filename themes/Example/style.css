@@ -347,7 +347,12 @@ aside#outline {
 }
 
 .___Panel input._char {
-    width: 36px;
+    width: 34px;
+    text-align: center;
+}
+/* 单数字，可能有步进箭头 */
+.___Panel input._num {
+    width: 40px;
     text-align: center;
 }
 .___Panel input._nums {
@@ -1469,6 +1474,10 @@ menu._cells code {
 .Attr ._obts li._hot {
     color: #cef;
     background-color: #333;
+}
+
+.Attr ._body aside ._char {
+    margin-inline-end: 4px;
 }
 
 

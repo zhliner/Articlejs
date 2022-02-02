@@ -101,7 +101,7 @@
         keydown 普通模式快捷键操作（key, count），会重置状态栏提示。
         keyup   状态栏数字设置（非数字无效）。
         focus   设置选取范围到内部以捕获copy|cut事件。若范围已在内部则忽略，不影响用户划选。
-        copy    Range忽略用户已选取不规则选区的情况（交由浏览器复制逻辑），clean清理内容中的换行，规范换行符用途。
+        copy    Range忽略用户已选取不规则选区的情况（交由浏览器复制逻辑），trims清理内容中的换行，规范换行符用途。
         paste   普通模式下的粘贴。
         keydown|ev('shiftKey') 设置末尾追加式粘贴标记。
         keyup|env('paste:append', null) 清除追加粘贴标记（重置）。
@@ -112,8 +112,8 @@
             keyup|env('minied') end (/^[\d.-]$/) ev('key') test(_1) pass $('#g-count') val ev('key') add(_1);
             cut|env('minied') end avoid sels text trims(' ') trim join('\n');
             paste|env('minied') end avoid clipboard trim dup pass split('\n') env('paste:append');
-            focus|env('minied') end sRange(true) hasRange('/main') end $('/main') nodeRange(true) addRange;
-            copy|env('minied') end sRange str end avoid sels text trims(' ') trim join('\n') pop clipboard;
+            focus|env('minied') end wRange hasRange('/main') end $('/main') nodeRange(true) addRange;
+            copy|env('minied') end sRange end avoid sels text trims(' ') trim join('\n') pop clipboard;
             keydown|env('minied') end ev('shiftKey') pass env('paste:append', true);
             keyup|env('minied') end env('paste:append', null);
             _focus|env('minied') end evo(3) focus"
@@ -180,6 +180,7 @@
             <hr>
             <li data-op="delete"><b id="l-delete">删除</b><kbd>Delete</kbd></li>
             <hr>
+            <li data-op="range"><b id="l-select">选取</b><kbd>Alt_s</kbd></li>
             <li data-op="property"><b id="l-property">属性</b><kbd>p</kbd></li>
         </menu>
         <!-- 内联创建
@@ -260,7 +261,7 @@
             click(~) 在内容区为空时主动插入一个主标题。
         -->
         <main id="content" class="content"
-            on="click(*) focus(~audio,video)|avoid env('minied') end sRange str end evo(1) SCAM;
+            on="click(*) focus(~audio,video)|avoid env('minied') end sRange end evo(1) SCAM;
                 cancel|stop env('minied') end;
                 puthtml|env('minied') end ev('detail');
                 click(~)|stopAll ('文章主标题，单击开启');
@@ -268,9 +269,10 @@
                 mouseout(*)|env('minied') end ('_hover');
                 mouseover(*)|env('minied') end $('#g-count') val end evo(1) dup einfo(true) roleinfo(_1) str('<', '>');
                 mouseleave|env('minied') end $('#g-count') val end;
-                mouseup|stop env('minied') end ev('pageX pageY') env('pointerXY', _1) sRange dup pass dup str pass;
+                mouseup|stop env('minied') end ev('pageX pageY') env('pointerXY', _1) sRange dup pass;
+                _mouseup|env('minied') end sRange dup pass;
                 contextmenu|env('minied') end avoid ev('pageX pageY') env('pointerXY', _1);
-                mousedown|env('minied') end sRange str vnot ev('shiftKey') both pop avoid;
+                mousedown|env('minied') end sRange(true) vnot ev('shiftKey') both pop avoid;
                 mouseup([contenteditable]) keyup([contenteditable]) input focus([contenteditable])|env('minied') pass sRange pop xRange stop"
             by="Ed.click(_1);
                 Kit.ecancel;
@@ -284,6 +286,7 @@
                 =|removeClass;
                 #status-info|trigger('info');
                 #g-count|trigger('reset');
+                #g-cells|trigger('store');
                 #g-cells|trigger('store');
                 #g-cmenu|trigger('show')">
         </main>

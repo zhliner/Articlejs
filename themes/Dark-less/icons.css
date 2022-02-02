@@ -107,4 +107,5 @@ menu b[id|=l]::before {
 #l-delete::before   { background-position: -200px -350px; }
 /* 空白透明 */
 #l-convert::before  { background-position: -200px -150px; }
+#l-select::before   { background-position: -200px -150px; }
 #l-property::before { background-position: -200px -150px; }

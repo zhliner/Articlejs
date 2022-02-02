@@ -219,7 +219,12 @@ const
         'not_property': [
             'edit:property',
             '没有可编辑的属性'
-        ]
+        ],
+
+        'not_elrange': [
+            'edit:elrange',
+            '仅可视内联单元可以选取为范围'
+        ],
 
     },
 

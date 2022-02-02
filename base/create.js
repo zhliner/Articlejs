@@ -283,7 +283,7 @@ const Children = {
     /**
      * 代码单元。
      * 如果是源码，应当已经处理好Tab和语法高亮。
-     * 对于非源码实参，视为合法内联节点。
+     * 如果是节点实参，不为合法子节点时取其纯文本。
      * @param {null} ref 插入参考占位
      * @param {Element} code 代码元素
      * @param {String|[Node]|Node} data 已解析源码或节点集
@@ -293,7 +293,7 @@ const Children = {
             if ( typeof data === 'string' ) {
                 data = $.fragment( data, false );
             } else {
-                data = isCodeCons( data ) && data;
+                data = isCodeCons( data ) ? data : dataText(data);
             }
             $.append( code, data );
         }
