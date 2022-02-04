@@ -1683,7 +1683,7 @@ function reverseAdds( el ) {
 /**
  * 清除选取集。
  * 返回的选取编辑实例需要进入历史栈。
- * 返回false用于清除无效集。
+ * 返回的false可被安全忽略。
  * @return {ESEdit|false} 选取操作实例
  */
 function clearSets() {
@@ -6135,8 +6135,6 @@ export const Edit = {
         // 弹出创建菜单。
         // 延迟，否则内容区聚焦会立即取消菜单（快捷键方式时）。
         delayFire( _els[0], '_mouseup', 10, null, true );
-
-        historyPush( cleanHot(_els, true) );
     },
 
 };
@@ -7205,11 +7203,12 @@ export const Kit = {
             _box = _box.parentElement;
         }
         let _op0 = clearSets(),
+            _opx = new HotEdit( null ), // 焦点可能在选区内
             _op1 = new RngEdit( evo.data, name ),
             _hot = _op1.elem();
 
         // 最终聚焦使视觉明显。
-        historyPush( _op0, _op1, new ESEdit(elementOne, _hot, 'safeAdd'), new HotEdit(_hot) );
+        historyPush( _op0, _opx, _op1, new ESEdit(elementOne, _hot, 'safeAdd'), new HotEdit(_hot) );
 
         // 友好：立即定义属性。
         // 但单元已经创建，撤销需手动Undo。
