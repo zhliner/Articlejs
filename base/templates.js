@@ -111,7 +111,7 @@ const InputOptions = {
     [ T.XH5LI ]:        'option:xh5li',
     [ T.XOLH5LI ]:      'option:xolh5li',
     [ T.XOLAH5LI ]:     'option:xolah5li',
-    [ T.FIGIMGBOX ]:    'option:figimgbox',
+    [ T.FIGCOMBOX ]:    'option:figconbox',
 
     [ T.HGROUP ]:       'option:hgroup',
     [ T.ARTICLE ]:      'option:article',

@@ -180,11 +180,11 @@
             <hr>
             <li data-op="delete"><b id="l-delete">删除</b><kbd>Delete</kbd></li>
             <hr>
-            <li data-op="range"><b id="l-select">选取</b><kbd>Alt_s</kbd></li>
+            <li data-op="range" title="创建范围"><b id="l-select">选取</b><kbd>Alt_s</kbd></li>
             <li data-op="property"><b id="l-property">属性</b><kbd>p</kbd></li>
         </menu>
         <!-- 内联创建
-            store 检查范围对象（在内容元素但非代码内）并存储。
+            store 进一步检查范围对象（在内容元素但非代码内）并存储。
             show  显示菜单并压入ESC取消栈，提取单击位置相关存储值计算菜单显示位置。
                   to|focus 聚焦菜单，延时避免滚动框跳动。
             keydown 快捷键直达（data-k），stop避免上层快捷键触发。
@@ -192,6 +192,7 @@
             blur    菜单失焦即隐藏，保证快捷键的当前场景合适。注记：不聚焦内容区避免取消划选文本。
             cancel  简单失焦调用。注记：与blur分开定义，否则会两次触发相同流程。
             esced/escpop  向ESC栈添加/移除一条记录。
+            status  检查范围内的子节点可否被目标类型包含（设置可用/禁用）。
         -->
         <menu id="g-cells" class="_cells" tabindex="0" data-pbo="lost"
             on="create|data('range') ev('detail');
@@ -202,6 +203,7 @@
                 click(li[data-val])|evo(2) attr('-val');
                 esced|evo(3) (ESC) pop;
                 escpop|('cells', ESC) pop;
+                status|$$('/>li') dup disable boxable disable(false);
                 cancel|evo(3) blur"
             by="Kit.rngelem(_1)"
             to="#g-scroll|trigger('focus');

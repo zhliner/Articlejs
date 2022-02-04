@@ -1055,9 +1055,9 @@
     svg 显示SVG源码录入框。
     img 显示普通图片录入条目清单。
     to:
-    见 input:figimgbox 模板定义。
+    见 input:figconbox 模板定义。
 -->
-<ul class="_prop" tpl-name="prop:figimgbox"
+<ul class="_prop" tpl-name="prop:figconbox"
     on="svg|evo(3) children not(':last-child') lose(true) $('/li') lose(false) ('svg');
         img|evo(3) children not(':last-child') lose(false) $('/li') lose(true) ('img')"
     to="._body/[name=type]|val;

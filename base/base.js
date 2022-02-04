@@ -122,27 +122,35 @@ const CustomStruct = {
     /**
      * 两种可能：
      * - SPACE: 空白。
-     * - FIGIMGBOX: 插图子结构（figure/span/img, i:explain）。
+     * - FIGCONBOX: 插图子结构（figure/span/img, i:explain）。
      * 非此两种时返回null标识（非法）。
      * @param  {Element} el 当前元素
      * @return {Number} 单元值
      */
     SPAN( el ) {
         if ( el.parentElement.tagName === 'FIGURE' ) {
-            return T.FIGIMGBOX;
+            return T.FIGCONBOX;
         }
         return el.hasAttribute('space') && !el.childNodes.length ? T.SPACE : null;
     },
 
 
     /**
-     * 仅两种可能：
-     * - IMG:  正常普通图片（内联、插图）。
-     * - PIMG: 自适应图片内的占位图片（:last-child）。
+     * 三种可能：
+     * - IMG:   内容元素里的内联图片。
+     * - PIMG:  最佳图片内的占位图片（:last-child）。
+     * - FIMG:  插图内的图片（Figure/span:<img>）。
+     * 注记：
+     * 插图内的链接图片被<a>封装，可视为普通图片。
      * @param {Element} el 当前元素
      */
     IMG( el ) {
-        return el.parentElement.tagName === 'PICTURE' ? T.PIMG : T.IMG;
+        let _ptv = getType( el.parentElement );
+
+        if ( _ptv === T.PICTURE ) {
+            return T.PIMG;
+        }
+        return _ptv === T.FIGCONBOX ? T.FIMG : T.IMG;
     },
 
 
@@ -156,6 +164,29 @@ const CustomStruct = {
         return el.parentElement.tagName === 'PICTURE' ? T.SOURCE2 : T.SOURCE1;
     },
 
+
+    /**
+     * 两种可能：
+     * - SVG:   内容元素内的普通单元。
+     * - FIMG:  插图内的矢量图（Figure/span:<svg>）。
+     * 注：<svg>标签名是小写。
+     * @param {Element} el 当前元素
+     */
+    svg( el ) {
+        return getType(el.parentElement) === T.FIGCONBOX ? T.FSVG : T.SVG;
+    },
+
+
+    /**
+     * 两种可能：
+     * - A:     内容元素内的普通链接单元。
+     * - FCONA: 插图图片链接（Figure/span:<a>）
+     * @param {Element} el 当前元素
+     */
+    A( el ) {
+        return getType(el.parentElement) === T.FIGCONBOX ? T.FCONA : T.A;
+    },
+
 };
 
 
@@ -166,6 +197,8 @@ const CustomStruct = {
 // 注记：
 // 仅针对不能直接判断单元类型（parseType）的节点，
 // 它们通常需要借助于所在父容器元素来分析自身的类型。
+//
+// 格式：{ tagName: [Object2] }
 //
 const StructVerify = {
     /**
@@ -178,21 +211,22 @@ const StructVerify = {
      * - XH5LI: 无序级联表项标题（li/h5, ul）
      * - LI: 普通列表项（li/*）
      * @param  {Element} el 当前元素
+     * @param  {Element} box 父容器元素，可选
      * @return {Boolean} 是否达标
      */
     LI: [
         {
-            type: T.CODELI,
+            type:  T.CODELI,
             check: el => _onlyChild( el, 'CODE' )
         },
 
         {
-            type: T.ALI,
+            type:  T.ALI,
             check: el => _onlyChild( el, 'A' )
         },
 
         {
-            type: T.XOLAH5LI,
+            type:  T.XOLAH5LI,
             check: function( el ) {
                 let _sub = el.firstElementChild;
                 return el.childElementCount === 2 && _sub.tagName === 'H5' && _liXList(_sub) === T.XOLAH5LI;
@@ -200,7 +234,7 @@ const StructVerify = {
         },
 
         {
-            type: T.XOLH5LI,
+            type:  T.XOLH5LI,
             check: function( el ) {
                 let _sub = el.firstElementChild;
                 return el.childElementCount === 2 && _sub.tagName === 'H5' && _liXList(_sub) === T.XOLH5LI;
@@ -208,7 +242,7 @@ const StructVerify = {
         },
 
         {
-            type: T.XH5LI,
+            type:  T.XH5LI,
             check: function( el ) {
                 let _sub = el.firstElementChild;
                 return el.childElementCount === 2 && _sub.tagName === 'H5' && _liXList(_sub) === T.XH5LI;
@@ -216,7 +250,7 @@ const StructVerify = {
         },
 
         {
-            type: T.LI,
+            type:  T.LI,
             check: () => true
         }
     ],
@@ -226,44 +260,55 @@ const StructVerify = {
      * 仅两种可能：
      * 类型本身受目标父容器约束，简单验证也可。
      * - SPACE: 内联空白。
-     * - FIGIMGBOX: 插图子结构（figure/span/img, i:explain）。
+     * - FIGCONBOX: 插图子结构（figure/span/img, i:explain）。
      * @param  {Element} el 当前元素
-     * @param  {Element} box 将要进入的父容器
      * @return {Boolean} 是否合法
      */
     SPAN: [
         {
-            type: T.SPACE,
+            type:  T.SPACE,
             check: el => el.childNodes.length === 0
         },
 
         {
-            type: T.FIGIMGBOX,
+            type:  T.FIGCONBOX,
             check: () => true
         },
     ],
 
 
     /**
-     * 仅两种可能：
-     * 类型本身受目标父容器约束，没有重叠，可简单返回true。
-     * - PIMG: 自适应图片内的占位图片（:last-child）。
-     * - IMG:  正常普通图片（内联、插图）。
-     * @param  {Element} el 当前元素
-     * @param  {Element} box 将要进入的父容器
-     * @return {Boolean} 是否合法
+     * 说明：
+     * 插图内的图片链接被定义为一种新类型，因此需要判断。
      */
-    IMG: [
+    A: [
         {
-            type: T.PIMG,
-            check: () => true
+            type:  T.FCONA,
+            check: el => _onlyChild( el, 'IMG' ) || _onlyChild( el, 'svg' )
         },
 
         {
-            type: T.IMG,
+            type:  T.A,
             check: () => true
         }
     ],
+
+
+    //
+    // 三种可能。
+    // 类型本身受目标父容器约束，自身自由也无子级验证。
+    // 注记：
+    // 如果无子级验证需求，简单罗列可能的类型值即可。
+    // 上级验证函数已经知道合法子单元集，这里简单提供类型值即可。
+    //
+    IMG: [ T.PIMG, T.FIMG, T.IMG ],
+
+
+    //
+    // 两种可能。
+    // 注：<svg>标签名为小写。
+    //
+    svg: [ T.FSVG, T.SVG ],
 
 };
 
@@ -385,7 +430,7 @@ function contentRoot( beg, end ) {
 
     if ( !T.isInlines(_tv) ) {
         // 容错定制结构：
-        // 如：CODELI/code, FIGIMGBOX/img 子单元为内联，但父容器非内容元素。
+        // 如：CODELI/code, FIGCONBOX/img 子单元为内联，但父容器非内容元素。
         // 因此转为单元根获取。
         return T.isContent(_tv) ? beg : entityRoot( beg, end );
     }
@@ -508,13 +553,14 @@ function _liXList( h5 ) {
 
 /**
  * 唯一子单元测试。
+ * 容忍容器内的纯空白文本和注释节点。
  * @param  {Element} box 容器元素
  * @param  {String} tag 子单元标签名
  * @return {Boolean}
  */
 function _onlyChild( box, tag ) {
     let _sub = box.firstElementChild;
-    return box.childElementCount === 1 && !$.siblingNodes(_sub).length && _sub.tagName === tag;
+    return box.childElementCount === 1 && !$.siblingNodes(_sub, false, true).length && _sub.tagName === tag;
 }
 
 
@@ -524,10 +570,13 @@ function _onlyChild( box, tag ) {
  * 合法时会设置元素类型值（用于递进子验证）并返回true。
  * @param  {Element} el 待验证元素
  * @param  {Set<number>} subs 合法子类型值集
- * @param  {Object} cfg 验证配置对象{type, check}
+ * @param  {Object|Number} cfg 验证配置对象{type, check}或类型值
  * @return {Boolean}
  */
 function _customVerify( el, subs, cfg ) {
+    if ( typeof cfg === 'number' ) {
+        return subs.has(cfg) && !!setType(el, cfg);
+    }
     return subs.has(cfg.type) && cfg.check(el) && !!setType(el, cfg.type);
 }
 

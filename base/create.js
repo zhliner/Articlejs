@@ -133,7 +133,7 @@ const Tags = {
     [ T.XOLH5LI ]:      'li',
     [ T.XOLAH5LI ]:     'li',
     [ T.TOCCASCADE ]:   'ol\\cascade',
-    [ T.FIGIMGBOX ]:    'span',
+    [ T.FIGCOMBOX ]:    'span',
 
     //
     // 行块结构元素
@@ -494,7 +494,7 @@ const Children = {
      * @param {String|Node|[Node]} explain 图片讲解，可选
      * @param {Element} data 主体内容（<img>|<svg>）
      */
-    [ T.FIGIMGBOX ]: function( ref, box, {explain}, data ) {
+    [ T.FIGCOMBOX ]: function( ref, box, {explain}, data ) {
         let [_img, _end] = appendChild(
             ref,
             box,
@@ -721,7 +721,7 @@ const Children = {
             ref,
             fig,
             data,
-            () => elem( T.FIGIMGBOX )
+            () => elem( T.FIGCOMBOX )
         );
         cleanOptions( opts, 'figcaption' );
 
@@ -1232,7 +1232,7 @@ const Builder = {
     // T.TFOOT,
     // T.AH5,
     // T.TOCCASCADE,
-    // T.FIGIMGBOX,
+    // T.FIGCOMBOX,
     // T.HGROUP,
     // T.ABSTRACT,
     // T.TOC,

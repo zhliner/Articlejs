@@ -6359,9 +6359,11 @@ export const Kit = {
 
     /**
      * 检查范围是否合法。
-     * 范围需在文本节点或内容元素但排除代码容器内。
      * 目标：暂存区/栈顶1项。
      * 目标为划选范围对象。
+     * 范围需在文本节点或内容元素内，但代码内不应被支持。
+     * 注：
+     * 特别允许插图容器内可创建图片链接（<a/img>）。
      * @data: Range
      * @return {Boolean}
      */
@@ -6374,7 +6376,7 @@ export const Kit = {
         }
         let _tv = getType( _box );
 
-        return T.isContent( _tv ) && _tv !== T.CODE;
+        return T.isContent( _tv ) && _tv !== T.CODE || _tv === T.FIGCOMBOX;
     },
 
     __rngok: 1,
