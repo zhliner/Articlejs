@@ -6495,7 +6495,7 @@ export const Kit = {
      * @data: [Element] 菜单条目集（<li>）
      * @return {[Element]} 可启用的条目集
      */
-    cmenable( evo ) {
+    cmable( evo ) {
         let _els = [...__ESet];
 
         if ( _els.length === 0 ) {
@@ -6504,7 +6504,18 @@ export const Kit = {
         return $.map( cmenuStatusHandles, (fn, i) => fn(_els) ? evo.data[i] : null );
     },
 
-    __cmenable: 1,
+    __cmable: 1,
+
+
+    /**
+     * 获取内联创建可用条目集。
+     * 用于划选创建时检查选区内条目适用的父单元类型。
+     */
+    inlable( evo ) {
+        //
+    },
+
+    __inlable: 1,
 
 
     /**
@@ -7745,7 +7756,8 @@ customGetter( On, null, Kit, [
     'submenu',
     'convtype',
     'roleinfo',
-    'cmenable',
+    'cmable',
+    'inlable',
     'inslist',
     'ismixed',
     'pretreat2',

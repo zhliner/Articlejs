@@ -145,7 +145,7 @@
                 click(#m-conv li[data-val])|evo(2) attr('-val');
                 blur|evo(3) lose(true) ('cmenu', ESC) pop;
                 esced|evo(3) (ESC) pop;
-                status|$$('/>li') dup disable cmenable disable(false);
+                status|$$('/>li') dup disable cmable disable(false);
                 cancel|evo(3) blur"
             by="Kit.cmenudo;
                 Kit.convert"
@@ -203,7 +203,7 @@
                 click(li[data-val])|evo(2) attr('-val');
                 esced|evo(3) (ESC) pop;
                 escpop|('cells', ESC) pop;
-                status|$$('/>li') dup disable boxable disable(false);
+                status|$$('/>li') dup disable inlable disable(false);
                 cancel|evo(3) blur"
             by="Kit.rngelem(_1)"
             to="#g-scroll|trigger('focus');
