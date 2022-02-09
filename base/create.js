@@ -57,7 +57,6 @@ const Tags = {
     [ T.METER ]:        'meter',
     [ T.SPACE ]:        'span\\space',
     [ T.IMG ]:          'img',
-    [ T.PIMG ]:         'img',
     [ T.BR ]:           'br',
     [ T.WBR ]:          'wbr',
     //
@@ -67,9 +66,11 @@ const Tags = {
     [ T.TRACK ]:        'track',
     [ T.SOURCE1 ]:      'source',
     [ T.SOURCE2 ]:      'source',
-    [ T.EXPLAIN ]:      'i\\explain',
+    [ T.PIMG ]:         'img',
     [ T.RT ]:           'rt',
     [ T.RP ]:           'rp',
+    [ T.FCONA ]:        'a',
+    [ T.EXPLAIN ]:      'i\\explain',
     //
     // 内联内容元素
     /////////////////////////////////////////////
@@ -133,7 +134,7 @@ const Tags = {
     [ T.XOLH5LI ]:      'li',
     [ T.XOLAH5LI ]:     'li',
     [ T.TOCCASCADE ]:   'ol\\cascade',
-    [ T.FIGCOMBOX ]:    'span',
+    [ T.FIGCONBOX ]:    'span',
 
     //
     // 行块结构元素
@@ -494,7 +495,7 @@ const Children = {
      * @param {String|Node|[Node]} explain 图片讲解，可选
      * @param {Element} data 主体内容（<img>|<svg>）
      */
-    [ T.FIGCOMBOX ]: function( ref, box, {explain}, data ) {
+    [ T.FIGCONBOX ]: function( ref, box, {explain}, data ) {
         let [_img, _end] = appendChild(
             ref,
             box,
@@ -505,6 +506,23 @@ const Children = {
             explain = appendNode( box, create(T.EXPLAIN, null, explain) );
         }
         return result( explain, _img, _end );
+    },
+
+
+    /**
+     * 插图图片链接。
+     * @param {Element|null} ref 参考子元素
+     * @param {Element} el 链接容器（<a>）
+     * @param {Element} data 图元素（<img>|<svg>）
+     */
+    [ T.FCONA ]: function( ref, el, _, data ) {
+        let [_img, _end] = appendChild(
+            ref,
+            el,
+            data,
+            () => elem( T.IMG )
+        );
+        return result( null, _img, _end );
     },
 
 
@@ -721,7 +739,7 @@ const Children = {
             ref,
             fig,
             data,
-            () => elem( T.FIGCOMBOX )
+            () => elem( T.FIGCONBOX )
         );
         cleanOptions( opts, 'figcaption' );
 
@@ -1157,6 +1175,7 @@ const Builder = {
     [ T.BLOCKQUOTE,     ['cite'] ],
     [ T.DETAILS,        ['open'] ],
     [ T.A,              ['href', 'target', 'title'] ],
+    [ T.FCONA,          ['href', 'target', 'title'] ],
     [ T.Q,              ['cite'] ],
     [ T.ABBR,           ['title'] ],
     [ T.DFN,            ['title'] ],
@@ -1232,7 +1251,7 @@ const Builder = {
     // T.TFOOT,
     // T.AH5,
     // T.TOCCASCADE,
-    // T.FIGCOMBOX,
+    // T.FIGCONBOX,
     // T.HGROUP,
     // T.ABSTRACT,
     // T.TOC,
@@ -2108,7 +2127,7 @@ function elem( tval, data ) {
  *
  * @param  {Element} el 待构建的目标元素
  * @param  {Object} opts 特性配置集
- * @param  {Node|[Node]|String} data 源数据
+ * @param  {Node|[Node]|String|Fragment} data 源数据
  * @param  {Boolean} more 是否重复子单元创建
  * @return {Element|null} el或null
  */
@@ -2193,7 +2212,7 @@ function create( name, opts, data, more ) {
     if ( name == null ) {
         throw new Error( 'invalid target name.' );
     }
-    return build( elem(name), opts || {}, data, more );
+    return build( elem(name), opts || {}, data || '', more );
 }
 
 

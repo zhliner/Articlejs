@@ -93,13 +93,14 @@ const CustomStruct = {
      * - XOLH5LI: 级联表有序标题项（li/h5, ol）
      * - XOLAH5LI: 级联表有序链接标题项（li/[h5/a], ol）
      * @param  {Element} el 当前元素
+     * @param  {Element} box 适配父容器
      * @return {Number} 单元值
      */
-    LI( el ) {
+    LI( el, box ) {
         let _sub = el.firstElementChild;
 
         if ( el.childElementCount <= 1 ) {
-            return _liChild( _sub, el.parentElement ) || T.LI;
+            return box && _liChild( _sub, box ) || T.LI;
         }
         // 已无需借助于父容器。
         return el.childElementCount === 2 && _sub.tagName === 'H5' ? _liXList(_sub) : T.LI;
@@ -125,10 +126,11 @@ const CustomStruct = {
      * - FIGCONBOX: 插图子结构（figure/span/img, i:explain）。
      * 非此两种时返回null标识（非法）。
      * @param  {Element} el 当前元素
+     * @param  {Element} box 适配父容器
      * @return {Number} 单元值
      */
-    SPAN( el ) {
-        if ( el.parentElement.tagName === 'FIGURE' ) {
+    SPAN( el, box ) {
+        if ( box && box.tagName === 'FIGURE' ) {
             return T.FIGCONBOX;
         }
         return el.hasAttribute('space') && !el.childNodes.length ? T.SPACE : null;
@@ -139,18 +141,15 @@ const CustomStruct = {
      * 三种可能：
      * - IMG:   内容元素里的内联图片。
      * - PIMG:  最佳图片内的占位图片（:last-child）。
-     * - FIMG:  插图内的图片（Figure/span:<img>）。
      * 注记：
      * 插图内的链接图片被<a>封装，可视为普通图片。
-     * @param {Element} el 当前元素
+     * @param  {Element} el 当前元素
+     * @param  {Element} box 适配父容器
+     * @return {Number} 单元值
      */
-    IMG( el ) {
-        let _ptv = getType( el.parentElement );
-
-        if ( _ptv === T.PICTURE ) {
-            return T.PIMG;
-        }
-        return _ptv === T.FIGCONBOX ? T.FIMG : T.IMG;
+    IMG( el, box ) {
+        let _ptv = box && getType( box );
+        return _ptv === T.PICTURE ? T.PIMG : T.IMG;
     },
 
 
@@ -158,22 +157,12 @@ const CustomStruct = {
      * 媒体资源分2种：
      * - SOURCE1 包含 [src, type] 两个特性的音/视频资源。
      * - SOURCE2 包含 [srcset, media] 两个特性的最适图片资源。
-     * @param {Element} el 当前元素
+     * @param  {Element} el 当前元素
+     * @param  {Element} box 适配父容器
+     * @return {Number} 单元值
      */
-    SOURCE( el ) {
-        return el.parentElement.tagName === 'PICTURE' ? T.SOURCE2 : T.SOURCE1;
-    },
-
-
-    /**
-     * 两种可能：
-     * - SVG:   内容元素内的普通单元。
-     * - FIMG:  插图内的矢量图（Figure/span:<svg>）。
-     * 注：<svg>标签名是小写。
-     * @param {Element} el 当前元素
-     */
-    svg( el ) {
-        return getType(el.parentElement) === T.FIGCONBOX ? T.FSVG : T.SVG;
+    SOURCE( el, box ) {
+        return box.tagName === 'PICTURE' ? T.SOURCE2 : T.SOURCE1;
     },
 
 
@@ -181,10 +170,12 @@ const CustomStruct = {
      * 两种可能：
      * - A:     内容元素内的普通链接单元。
      * - FCONA: 插图图片链接（Figure/span:<a>）
-     * @param {Element} el 当前元素
+     * @param  {Element} el 当前元素
+     * @param  {Element} box 适配父容器
+     * @return {Number} 单元值
      */
-    A( el ) {
-        return getType(el.parentElement) === T.FIGCONBOX ? T.FCONA : T.A;
+    A( el, box ) {
+        return box && getType(box) === T.FIGCONBOX ? T.FCONA : T.A;
     },
 
 };
@@ -195,7 +186,7 @@ const CustomStruct = {
 // 数据节点为未知类型，相对于将要进入的父容器而验证。
 // 数据节点为游离态（未进入DOM）。
 // 注记：
-// 仅针对不能直接判断单元类型（parseType）的节点，
+// 仅针对不能直接判断单元类型的节点，
 // 它们通常需要借助于所在父容器元素来分析自身的类型。
 //
 // 格式：{ tagName: [Object2] }
@@ -295,20 +286,13 @@ const StructVerify = {
 
 
     //
-    // 三种可能。
+    // 两种可能。
     // 类型本身受目标父容器约束，自身自由也无子级验证。
     // 注记：
     // 如果无子级验证需求，简单罗列可能的类型值即可。
     // 上级验证函数已经知道合法子单元集，这里简单提供类型值即可。
     //
-    IMG: [ T.PIMG, T.FIMG, T.IMG ],
-
-
-    //
-    // 两种可能。
-    // 注：<svg>标签名为小写。
-    //
-    svg: [ T.FSVG, T.SVG ],
+    IMG: [ T.PIMG, T.IMG ],
 
 };
 
@@ -389,9 +373,10 @@ function nameType( name ) {
  * 分析节点类型值。
  * 仅限于文本节点和元素，其它实参自然出错。
  * @param  {Element|Text} el 目标节点
+ * @param  {Element} box 适配父容器
  * @return {Number} 类型值
  */
-function parseType( el ) {
+function parseType( el, box ) {
     if ( el.nodeType === 3 ) {
         return T.$TEXT;
     }
@@ -400,7 +385,7 @@ function parseType( el ) {
     }
     let _fn = CustomStruct[ el.tagName ];
 
-    return _fn ? _fn( el ) : nameType( name(el) );
+    return _fn ? _fn( el, box ) : nameType( name(el) );
 }
 
 
@@ -593,19 +578,20 @@ function _customVerify( el, subs, cfg ) {
  * 注记：
  * 返回 $TEXT 是有意义的，可用于合法子单元判断。
  * @param  {Node} el 目标节点
+ * @param  {Element} box 适配父容器
  * @return {Number}
  */
-export function getType( el ) {
+export function getType( el, box = el.parentElement ) {
     if ( el.nodeType === 3 ) {
         return T.$TEXT;
     }
-    if ( el.nodeType === 11 ) {
+    if ( el.nodeType !== 1 ) {
         return null;
     }
     let _v = el[ __typeKey ];
 
     if ( _v === undefined ) {
-        setType( el, (_v = parseType(el)) );
+        setType( el, (_v = parseType(el, box)) );
     }
     return _v;
 }
@@ -688,8 +674,9 @@ export function htmlFill( box, html ) {
     $.html( box, html );
 
     $.find( '*', box )
-    .forEach( el => setType( el, parseType(el) ) );
-
+    .forEach(
+        el => setType( el, parseType(el, el.parentElement) )
+    );
     return box;
 }
 

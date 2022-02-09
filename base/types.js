@@ -42,7 +42,7 @@ const
     BLOCKS      = 1 << 5,   // 行块单元
     SINGLE      = 1 << 6,   // 单一成员（如标题）
     EMPTY       = 1 << 7,   // 空元素（单标签）
-    COVERT      = 1 << 8,   // 隐蔽的（不可选）
+    COVERT      = 1 << 8,   // 隐蔽的（无法划选）
     SEALED      = 1 << 9,   // 密封单元（不可合并）
     FIXED1      = 1 << 10,  // 位置向前固定
     FIXED2      = 1 << 11,  // 位置向后固定
@@ -85,11 +85,12 @@ export const
     TRACK           = 100,  // 字幕轨 {kind, src, srclang, label, default?}
     SOURCE1         = 101,  // 媒体资源 {src, type}
     SOURCE2         = 102,  // 图片资源 {srcset, media}
-    PIMG            = 103,  // P图片 <picture/img> 注：有位置要求，故单独定义
+    PIMG            = 103,  // 最佳图片（Picture:img） 注：有位置要求，故单独定义
     RT              = 104,  // 注音拼音
     RP              = 105,  // 注音拼音包围
-    EXPLAIN         = 106,  // 插图讲解 {fix}
-    SVGITEM         = 107,  // 图形内容（仅用于SVG子元素配置）
+    FCONA           = 106,  // 插图图片链接（Figure/span:a/img|svg），主要用于子单元约束
+    EXPLAIN         = 107,  // 插图讲解 {fix}
+    SVGITEM         = 108,  // 图形内容（仅用于SVG子元素配置）
     //
     // 内联内容元素
     /////////////////////////////////////////////
@@ -154,7 +155,7 @@ export const
     XOLH5LI         = 422,  // 级联表有序标题项（li/h5, ol）
     XOLAH5LI        = 423,  // 级联表有序链接标题项（li/[h5/a], ol）
     TOCCASCADE      = 424,  // 目录级联表（ol:cascade/[li/a]）
-    FIGIMGBOX       = 425,  // 插图内容块（span/img, i:explain）
+    FIGCONBOX       = 425,  // 插图内容块（span/img, i:explain）
     //
     // 行块结构元素
     /////////////////////////////////////////////
@@ -230,10 +231,11 @@ const Properties = {
     [ TRACK ]:          STRUCT | STRUCTX | EMPTY | COVERT,
     [ SOURCE1 ]:        STRUCT | STRUCTX | EMPTY | COVERT,
     [ SOURCE2 ]:        STRUCT | STRUCTX | EMPTY | COVERT,
-    [ PIMG ]:           STRUCT | STRUCTX | EMPTY | RANGEX,
+    [ PIMG ]:           STRUCT | EMPTY,
+    [ FCONA ]:          STRUCT | STRUCTX,
     [ EXPLAIN ]:        STRUCT | STRUCTX | CONTENT,
     // 解包：先文本化，然后内容提升。
-    [ RT ]:             STRUCT | FIXED1 | FIXED2 | CONTENT | RANGEX,
+    [ RT ]:             STRUCT | FIXED1 | FIXED2 | CONTENT,
     [ RP ]:             STRUCT | FIXED1 | FIXED2 | SEALED | COVERT,
     //
     // 内联内容元素
@@ -299,7 +301,7 @@ const Properties = {
     [ XOLAH5LI ]:       STRUCT | STRUCTX | SEALED,
     [ TOCCASCADE ]:     STRUCT | FIXED1 | FIXED2 | SEALED,
     // 插图内允许多个<span>容器。
-    [ FIGIMGBOX ]:      STRUCT | STRUCTX,  // SEALED,
+    [ FIGCONBOX ]:      STRUCT | STRUCTX,  // SEALED,
 
     //
     // 行块结构元素
@@ -462,7 +464,8 @@ export const ChildTypes = {
     [ PIMG ]:           null,
     [ RT ]:             [ $TEXT ],
     [ RP ]:             [ $TEXT ],
-    [ EXPLAIN ]:        [ $TEXT, A, ..._NOMEDIA ], // 插图讲解
+    [ FCONA ]:          [ IMG, SVG ],
+    [ EXPLAIN ]:        [ $TEXT, A, ..._NOMEDIA ],  // 插图讲解
     //
     // 内联内容元素
     /////////////////////////////////////////////
@@ -492,11 +495,11 @@ export const ChildTypes = {
     //
     // 行块内容元素
     /////////////////////////////////////////////
-    [ P ]:              [ $TEXT, A, ..._INLALL ],
-    [ NOTE ]:           [ $TEXT, A, ..._INLALL ],
-    [ TIPS ]:           [ $TEXT, A, ..._INLALL ],
+    [ P ]:              [ $TEXT, A, ..._INLALL, B, I ],
+    [ NOTE ]:           [ $TEXT, A, ..._INLALL, B, I ],
+    [ TIPS ]:           [ $TEXT, A, ..._INLALL, B, I ],
     [ PRE ]:            [ $TEXT, A, ..._NOMEDIA ],
-    [ ADDRESS ]:        [ $TEXT, A, ..._INLALL ],
+    [ ADDRESS ]:        [ $TEXT, A, ..._INLALL, B, I ],
     //
     // 块内结构元素
     /////////////////////////////////////////////
@@ -506,9 +509,9 @@ export const ChildTypes = {
     [ H4 ]:             [ $TEXT, A, ..._NOMEDIA, SVG, IMG, I ],
     [ H5 ]:             [ $TEXT, A, ..._NOMEDIA, SVG, IMG, I ],
     [ H6 ]:             [ $TEXT, A, ..._NOMEDIA, SVG, IMG, I ],
-    [ SUMMARY ]:        [ $TEXT, A, ..._NOMEDIA ],
-    [ FIGCAPTION ]:     [ $TEXT, A, ..._NOMEDIA ],
-    [ CAPTION ]:        [ $TEXT, A, ..._NOMEDIA ],
+    [ SUMMARY ]:        [ $TEXT, A, ..._NOMEDIA, I ],
+    [ FIGCAPTION ]:     [ $TEXT, A, ..._NOMEDIA, I ],
+    [ CAPTION ]:        [ $TEXT, A, ..._NOMEDIA, I ],
     [ DT ]:             [ $TEXT, A, ..._NOMEDIA, SVG, IMG, I ],
     [ LI ]:             [ $TEXT, A, ..._INLALL ],
     [ DD ]:             [ $TEXT, A, ..._INLALL ],
@@ -526,7 +529,7 @@ export const ChildTypes = {
     [ XOLH5LI ]:        [ H4, OL ],
     [ XOLAH5LI ]:       [ AH5, OL ],
     [ TOCCASCADE ]:     [ ALI, XOLAH5LI ],
-    [ FIGIMGBOX ]:      [ IMG, SVG, EXPLAIN ],
+    [ FIGCONBOX ]:      [ IMG, SVG, EXPLAIN, FCONA ],
     //
     // 行块结构元素
     /////////////////////////////////////////////
@@ -549,7 +552,7 @@ export const ChildTypes = {
     [ CASCADE ]:        [ LI, ALI, XOLH5LI, XOLAH5LI ],
     [ DL ]:             [ DT, DD ],
     [ TABLE ]:          [ CAPTION, THEAD, TBODY, TFOOT ],
-    [ FIGURE ]:         [ FIGCAPTION, FIGIMGBOX ],
+    [ FIGURE ]:         [ FIGCAPTION, FIGCONBOX ],
     [ BLOCKQUOTE ]:     [ H4, P, ..._BLOLIMIT, TABLE ],
     [ ASIDE ]:          [ H4, P, ..._BLOLIMIT, TABLE ],
     [ DETAILS ]:        [ SUMMARY, P, ..._BLOLIMIT, TABLE ],
@@ -561,7 +564,7 @@ export const ChildTypes = {
     //
     // 特别单元
     /////////////////////////////////////////////
-    [ B ]:              [ $TEXT ],
+    [ B ]:              [ $TEXT, A ],
     [ I ]:              [ $TEXT, A ],
 
     //

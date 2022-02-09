@@ -167,7 +167,7 @@ const
 
         'both_conelem': [
             'type:contents',
-            '选中的元素及其父元素都必须为内容元素'
+            '选中的元素及其父元素需为内容元素'
         ],
 
         'merge_types': [

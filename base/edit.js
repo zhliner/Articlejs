@@ -21,7 +21,7 @@ import $, { OBTA, TplrName, TplsPool } from "./tpb/config.js";
 import { ROOT, Sys, Limit, Help, Tips, Cmdx, Local, On, By, Fx } from "../config.js";
 import { customGetter, processExtend } from "./tpb/tpb.esm.js";
 import * as T from "./types.js";
-import { isContent, isCovert, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, childTypes, compatibleNoit, checkStruct } from "./base.js";
+import { isContent, isCovert, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, childTypes, isChildType, compatibleNoit, checkStruct } from "./base.js";
 import { ESet, EHot, ECursor, History, CStorage, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, parseJSON, scriptRun, niceHtml, markdownLine, cleanInline } from './common.js';
 import { tabSpaces, rangeTextLine, indentedPart, shortIndent, highLight } from "./coding.js";
 import { children, create, tocList, convType, convData, convToType } from "./create.js";
@@ -141,7 +141,7 @@ const
     // 自动弹出属性框的条目。
     // 注：在划选创建内联单元时。
     __popupCells = new Set([
-        'a', 'ruby', 'bdo'
+        'a', 'ruby', 'bdo', 'fcona'
     ]),
 
     // OBT复合特性名。
@@ -451,7 +451,7 @@ class Follow {
 class RngEdit {
     /**
      * @param {Range} rng 范围对象
-     * @param {String} name 单元名（tag|role）
+     * @param {String} name 单元名（tag|role|...）
      */
     constructor( rng, name ) {
         this._el = create(
@@ -521,7 +521,7 @@ class RngEdit {
      * 解析选项配置和数据。
      * 分析文本内容智能判断提取选项，
      * 主要针对<ruby>和<a>单元。
-     * @param  {String} name 单元名
+     * @param  {String|Number} name 单元名或值
      * @param  {Range} rng 选取范围
      * @return {[Object, Value]} 配置对象和数据值对
      */
@@ -546,6 +546,19 @@ class RngEdit {
             .test( text.trim() );
 
         return [ self._whole && {href: text}, frg ];
+    }
+
+
+    /**
+     * 插图链接选项构造。
+     * 将选取的图片提取出来即可。
+     * @param  {RngEdit} self 实例自身
+     * @param  {String} text  链接文本
+     * @param  {Fragment} frg 选取内容的文档片段副本
+     * @return {[Object, Value, Boolean]} 配置对象、数据值、多子单元插入模式
+     */
+    _fcona( self, text, frg ) {
+        return [ {}, $.contents(frg, null, false, true), true ];
     }
 
 
@@ -2838,11 +2851,15 @@ function canTotext( el ) {
  * 宽容：
  * 应当允许纯内容的元素向上展开，即便不是内容元素，
  * 如编辑过程中的破坏性操作（如<ruby>）。
+ * 注意：
+ * 特别允许插图链接向上解包以取消链接封装（友好），
+ * 因为链接内的图片是上级容器内的合法子单元。
  * @param  {Element} el 目标元素
  * @return {Boolean}
  */
 function canUnwrap( el ) {
-    return isContent( el.parentElement ) && isContent( el );
+    let _tv = getType( el );
+    return isContent( el.parentElement ) && T.isContent( _tv ) || _tv === T.FCONA;
 }
 
 
@@ -3081,12 +3098,48 @@ function mediaSubs( conf, tval ) {
 
 /**
  * 是否需要弹出属性编辑框。
+ * 用于划选创建内联单元之后的友好弹出。
  * @param  {String} name 单元名
  * @param  {RngEdit}} rngop 选区编辑实例
  * @return {Boolean}
  */
 function inlinePopup( name, rngop ) {
     return __popupCells.has( name ) && !rngop.completed();
+}
+
+
+/**
+ * 是否可以被目标类型包含。
+ * type是作为容器的内联单元名称。
+ * 特别检查是否为在插图内创建链接，因为菜单条目仅为内联通用。
+ * 注记：
+ * 创建一个目标空容器以便于判断子类型值。
+ * 因为还需要判断空容器的类型，故需更上级容器cbox参考。
+ * @param  {String} type 目标类型
+ * @param  {[Node]} subs 划选区子节点集
+ * @param  {Node} cbox 选区公共容器
+ * @return {Boolean}
+ */
+function canInlineWrap( type, subs, cbox ) {
+    if ( type === 'a' && getType(cbox) === T.FIGCONBOX ) {
+        type = 'fcona';
+    }
+    let _box = create( type ),
+        _btv = getType( _box, cbox ),
+        _tvs = childTypes( _btv );
+
+    return subs.every( nd => _tvs.has( getType(nd, _box) ) ) && isChildType( cbox, _btv );
+}
+
+
+/**
+ * 获取划选区公共容器元素。
+ * @param  {Range} rng 划选区范围
+ * @return {Element}
+ */
+function rangeCommonElement( rng ) {
+    let _box = rng.commonAncestorContainer;
+    return _box.nodeType === 3 ? _box.parentElement : _box;
 }
 
 
@@ -6361,20 +6414,16 @@ export const Kit = {
      * 目标为划选范围对象。
      * 范围需在文本节点或内容元素内，但代码内不应被支持。
      * 注：
-     * 特别允许插图容器内可创建图片链接（<a/img>）。
+     * 特别允许插图容器内可创建图片链接（<a/img|svg>）。
      * @data: Range
      * @return {Boolean}
      */
     rngok( evo ) {
-        let _box = evo.data.commonAncestorContainer;
+        let _el = rangeCommonElement( evo.data ),
+            _tv = getType( _el );
+
         evo.data.detach();
-
-        if ( _box.nodeType === 3 ) {
-            _box = _box.parentElement;
-        }
-        let _tv = getType( _box );
-
-        return T.isContent( _tv ) && _tv !== T.CODE || _tv === T.FIGCOMBOX;
+        return T.isContent( _tv ) && _tv !== T.CODE || _tv === T.FIGCONBOX;
     },
 
     __rngok: 1,
@@ -6508,9 +6557,19 @@ export const Kit = {
     /**
      * 获取内联创建可用条目集。
      * 用于划选创建时检查选区内条目适用的父单元类型。
+     * @data: [Element] 类型条目集（<li>）
+     * @param  {String} atn 取值特性名
+     * @param  {Range} rng 当前划选区
+     * @return {[Element]} 可启用条目集（<li>）
      */
-    inlable( evo ) {
-        //
+    inlable( evo, atn, rng ) {
+        let _subs = [
+                ...rng.cloneContents().childNodes
+            ];
+        if ( _subs.length === 0 ) {
+            return [];
+        }
+        return evo.data.filter( li => canInlineWrap($.attr(li, atn), _subs, rangeCommonElement(rng)) );
     },
 
     __inlable: 1,
@@ -7192,15 +7251,15 @@ export const Kit = {
      * 从划选创建内联单元。
      * 目标：暂存区/栈顶1项。
      * 清除已选取，便于连续划选时可以有效弹出属性编辑框。
+     * 注意：<a>存在于两种场景下。
      * @data: Range
      * @param  {String} name 单元名称
      * @return {void}
      */
     rngelem( evo, name ) {
-        let _box = evo.data.commonAncestorContainer;
-
-        if ( _box.nodeType === 3 ) {
-            _box = _box.parentElement;
+        if ( name === 'a' &&
+            getType(rangeCommonElement(evo.data)) === T.FIGCONBOX ) {
+            name = 'fcona';
         }
         let _op0 = clearSets(),
             _opx = new HotEdit( null ), // 焦点可能在选区内

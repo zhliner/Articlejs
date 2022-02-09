@@ -433,6 +433,9 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     padding: 1px;
     margin: 0;
 }
+.content figure a {
+    display: inline-block;
+}
 .content figure i[role=explain] {
     display: inline-block;
 }

@@ -49,6 +49,7 @@ const InputOptions = {
     [ T.SOURCE1 ]:      'option:source1',
     [ T.SOURCE2 ]:      'option:source2',
     [ T.PIMG ]:         'option:pimg',
+    // [ T.FCONA ]:        'option:fcona',  // 仅通过先插入图片后划选创建
     [ T.EXPLAIN ]:      'option:explain',
     // <svg>向内插入时可用条目。
     // <svg>子元素平级和向内插入时可用条目。
@@ -111,7 +112,7 @@ const InputOptions = {
     [ T.XH5LI ]:        'option:xh5li',
     [ T.XOLH5LI ]:      'option:xolh5li',
     [ T.XOLAH5LI ]:     'option:xolah5li',
-    [ T.FIGCOMBOX ]:    'option:figconbox',
+    [ T.FIGCONBOX ]:    'option:figconbox',
 
     [ T.HGROUP ]:       'option:hgroup',
     [ T.ARTICLE ]:      'option:article',
@@ -168,7 +169,8 @@ const Properties = {
     [ T.TIME ]:         'property:times',       // datetime: date, time
     [ T.METER ]:        'property:meter',       // max, min, high, low, value, optimum
     [ T.SPACE ]:        'property:space',       // width
-    [ T.A ]:            'property:a',           // href, target
+    [ T.A ]:            'property:a',           // href, target, title
+    [ T.FCONA ]:        'property:a',           // href, target, title
     [ T.Q ]:            'property:q',           // cite
     [ T.ABBR ]:         'property:abbr',        // title
     [ T.DEL ]:          'property:del',         // datetime: date, time

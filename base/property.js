@@ -49,7 +49,8 @@ const customHandles = {
     // [ T.TIME ]:                          // datetime: date, time
     [ T.METER ]:        processAttr,        // max, min, high, low, value, optimum
     [ T.SPACE ]:        processCSS,         // CSS:width
-    [ T.A ]:            processAttr,        // href, target
+    [ T.A ]:            processAttr,        // href, target, title
+    [ T.FCONA ]:        processAttr,        // href, target, title
     // [ T.Q ]:                             // cite
     // [ T.ABBR ]:                          // title
     [ T.DEL ]:          processAttr,        // datetime(date, time), cite

@@ -134,6 +134,8 @@
             submenu 转换子菜单类型判断并导入。
             status  设置菜单条目可用性（注：先disable）。
             blur    失焦即隐藏菜单，也由按ESC键触发。
+            注记：
+            顶层菜单项的快捷键可直接使用（无需先弹出），故用方括号包围提示以示区别。
         -->
         <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pbo="lost"
             on="cmenudo|evo(3) blur ev('detail');
@@ -158,7 +160,7 @@
                 |trigger('convert');
                 -|apply('delete')|fire('#g-scroll', '_focus');
                 -|add('cmenu')|fire(3, 'focus')">
-            <li data-op="minied"><b id="l-minied">修改</b><kbd>m/M</kbd></li>
+            <li data-op="minied"><b id="l-minied">修改</b><kbd>[m/M]</kbd></li>
             <hr>
             <!-- 300:延迟显示，400:延迟隐藏
                 注：sm-1/sm-0 只是一个存储键，非用于事件绑定。 -->
@@ -175,13 +177,13 @@
                 <menu tpl-source="menu:inlines"></menu>
             </li>
             <hr>
-            <li data-op="toup"><b id="l-toup">升级</b><kbd>Alt_←</kbd></li>
-            <li data-op="todown"><b id="l-todown">降级</b><kbd>Alt_→</kbd></li>
+            <li data-op="toup"><b id="l-toup">升级</b><kbd>[Alt_←]</kbd></li>
+            <li data-op="todown"><b id="l-todown">降级</b><kbd>[Alt_→]</kbd></li>
             <hr>
-            <li data-op="delete"><b id="l-delete">删除</b><kbd>Delete</kbd></li>
+            <li data-op="delete"><b id="l-delete">删除</b><kbd>[Delete]</kbd></li>
             <hr>
-            <li data-op="range" title="创建范围"><b id="l-select">选取</b><kbd>Alt_s</kbd></li>
-            <li data-op="property"><b id="l-property">属性</b><kbd>p</kbd></li>
+            <li data-op="range" title="创建范围"><b id="l-select">选取</b><kbd>[Alt_s]</kbd></li>
+            <li data-op="property"><b id="l-property">属性</b><kbd>[p]</kbd></li>
         </menu>
         <!-- 内联创建
             store 进一步检查范围对象（在内容元素但非代码内）并存储。
@@ -199,16 +201,16 @@
                 store|ev('detail') dup rngok pass;
                 show|evo(3) dup lose(false) $('1/') env('pointerXY') menupos(_2);
                 blur|evo(3) lose(true) (null);
-                keydown|ev('key') dup end('Escape') stop slr('/li', '-k', _1) $(_1) dup pass attr('-val');
-                click(li[data-val])|evo(2) attr('-val');
+                keydown|ev('key') dup end('Escape') stop slr('/li', '-k', _1) $(_1) dup(2) pass disabled end attr('-val');
+                click(li[data-val])|evo(2) dup disabled end attr('-val');
                 esced|evo(3) (ESC) pop;
                 escpop|('cells', ESC) pop;
-                status|$$('/>li') dup disable inlable disable(false);
+                status|$$('/>li[data-val]') dup disable data('range') inlable('-val', _1) disable(false);
                 cancel|evo(3) blur"
             by="Kit.rngelem(_1)"
             to="#g-scroll|trigger('focus');
                 |data('range')|goto('show');
-                |cssSets('left top')|goto('esced');
+                |cssSets('left top')|goto('status') goto('esced');
                 |data('range')|goto('escpop');
                 |trigger('create');
                 |trigger('create');
