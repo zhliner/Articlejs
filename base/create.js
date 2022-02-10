@@ -767,6 +767,26 @@ const Children = {
         return result( summary && insertHeading(box, T.SUMMARY, summary), _el, _end );
     },
 
+
+    /**
+     * 最佳图片。
+     * 自动修改<img>为合适的类型值，因为它可能来自于内联单元。
+     * @param {Element|null} ref 参考子元素
+     * @param {Element} el 容器元素
+     * @param {Element|''} sub 子单元数据
+     */
+    [ T.PICTURE ]: function( ref, el, _, sub ) {
+        if ( sub ) {
+            if ( sub.tagName === 'IMG' ) {
+                setType( sub, T.PING );
+            }
+            if ( isChildType(el, getType(sub)) ) {
+                $.append( el, sub );
+            }
+        }
+        return result( null, el, true );
+    },
+
 };
 
 
@@ -776,21 +796,19 @@ const Children = {
 [
     T.AUDIO,
     T.VIDEO,
-    T.PICTURE,
 ]
 .forEach(function( it ) {
     /**
      * 如果数据非法，简单忽略。
-     * 注：无默认的子单元逻辑。
      * @param {Element|null} ref 插入参考（占位）
      * @param {Element} el 媒体容器元素
      * @param {Element|''} sub 资源/字幕元素
      */
     Children[ it ] = function( ref, el, _, sub ) {
-        let _tv = sub && getType( sub );
-
-        if ( isChildType(el, _tv) ) {
-            $.append( el, sub );
+        if ( sub ) {
+            if ( isChildType(el, getType(sub)) ) {
+                $.append( el, sub );
+            }
         }
         return result( null, el, true );
     };

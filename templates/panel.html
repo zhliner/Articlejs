@@ -268,7 +268,7 @@
                 先提取分隔符以方便使用，因为有两处要用（切分/恢复）。 -->
             <textarea name="attrval" spellcheck="false" class="_code" tpl-name="attr:value"
                 on="vinit|$('2/[name=sep]') val or(';') dup ev('detail') item(0) or('') pop split(_1) trim pick(0) strr('\n') join(_1);
-                    attrok|$('2/[name=sep]') val or(';') dup evo(3) val trim pop split(_1) trim pick(0) strr(' ') join(_1);
+                    attrok|$('2/[name=sep]') val or(';') dup evo(3) val trim pop split(_1) trim pick(0) strr(' ') join(_1) trim;
                     ^tpled|evo(3) remove"
                 to="|val;
                     form/|trigger('apply')"></textarea>
