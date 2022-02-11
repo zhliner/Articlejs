@@ -778,7 +778,7 @@ const Children = {
     [ T.PICTURE ]: function( ref, el, _, sub ) {
         if ( sub ) {
             if ( sub.tagName === 'IMG' ) {
-                setType( sub, T.PING );
+                setType( sub, T.PIMG );
             }
             if ( isChildType(el, getType(sub)) ) {
                 $.append( el, sub );
