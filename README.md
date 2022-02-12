@@ -4,4 +4,4 @@
 
 基于 Tpb/tQuery 框架。
 
-演示&试用请访问：<https://zhliner.github.io/coolj/>
+演示&试用请访问：<https://cooljed.github.io/>

@@ -123,7 +123,7 @@
         <nav role="toc"
             on="click(a)|avoid evo(2) paths('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView">
             <h4>大纲视图
-                <b title="刷新"
+                <b id="g-refresh" title="刷新"
                     on="click|$('#content article')"
                     by="Kit.toclist"
                     to="nav/ol|fill">↻</b>

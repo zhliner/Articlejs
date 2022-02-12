@@ -140,6 +140,16 @@ function localStyle( prefix, type, name ) {
 }
 
 
+/**
+ * 首次导入学习内容。
+ * @param {Element} btn 学习条目
+ * @param {String} evn 触发事件名
+ */
+function firstLearn( btn, evn ) {
+    if ( !__editor.content().trim() ) $.trigger( btn, evn );
+}
+
+
 // 小玩具
 //0000000000000000000000000000000000000
 
@@ -204,7 +214,7 @@ processExtend( By, 'Kit', Kit, [
 // 导出
 //////////////////////////////////////////////////////////////////////////////
 
-export { saveEditor, tickdoing };
+export { saveEditor, firstLearn, tickdoing };
 
 
 //:debug

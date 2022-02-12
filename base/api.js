@@ -27,15 +27,11 @@ let __content;
 const Api = {
     /**
      * 初始数据设置。
-     * @param  {String} outline 大纲元素根（<aside>）选择器
-     * @param  {String} editor 编辑器容器根（<div>）选择器
-     * @param  {String} content 编辑器内容根（<main>）选择器
-     * @param  {String} help 帮助面板根（<aside>）选择器
-     * @param  {String} beeptip 提示音元素（<audio>）选择器
+     * @param  {Element} content 编辑器内容根（<main>）
      * @return {void}
      */
     init( content ) {
-        __content = $.get( content );
+        __content = content;
     },
 
 

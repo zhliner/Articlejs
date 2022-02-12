@@ -7,13 +7,37 @@
  ******************************************************************************
  */
 
+body {
+    margin: 0;
+}
+body a {
+    text-decoration: none;
+}
+
+nav._top {
+    display: flex;
+    font-size: 0.88em;
+    background-color: #171717;
+    padding: 4px;
+}
+nav._top > b {
+    font-weight: normal;
+}
+nav._top > b:last-child {
+    margin-left: auto;
+    margin-right: 1em;
+}
+nav._top a {
+    color: white;
+}
+
 main {
     width: max-content;
 }
 main h1 {
     text-align: center;
-    padding-bottom: 0.5em;
-    margin-top: 0;
+    padding-bottom: 0.6em;
+    margin-top: 0.2em;
 }
 main h1::before {
     content: '';
@@ -30,18 +54,18 @@ main nav {
     gap: 1em;
     padding: 0 15px;
 }
-nav > b {
+main nav > b {
     font-style: italic;
     cursor: pointer;
     color: #3494f4;
 }
-nav label {
+main nav label {
     color: #01839d;
 }
-nav > span:nth-of-type(1) {
+main nav > span:nth-of-type(1) {
     margin-left: auto;
 }
-nav > span > a {
+main nav > span > a {
     display: inline-block;
     width: 1.5em;
     text-align: center;
@@ -50,7 +74,6 @@ nav > span > a {
     border: 1px orange dotted;
     border-radius: 10px;
     font-family: monospace;
-    text-decoration: none;
 }
 #editorBox {
     display: inline-block;
