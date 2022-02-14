@@ -43,7 +43,7 @@ div#editor {
     flex: 1 1 auto;
     display: flex;
     flex-direction: column;
-    border: 2px #258475 solid;
+    border: 1pt #116177 solid;
     border-radius: 12px 12px 5px 5px;
     position: relative;
     background-color: white;

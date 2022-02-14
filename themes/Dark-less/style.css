@@ -15,7 +15,7 @@ body {
     display: flex;
     margin: 0;
     padding: 0;
-    background-color: #333;
+    /* background-color: #333; */
 }
 body > * {
     flex-shrink: 0;
@@ -41,7 +41,7 @@ div#editor {
     flex: 1 1 auto;
     display: flex;
     flex-direction: column;
-    border: 2px #0e1e29 solid;
+    border: 1pt #0e1e29 solid;
     border-radius: 12px 12px 5px 5px;
     position: relative;
     background-color: white;
@@ -1610,8 +1610,8 @@ menu._cells code {
     flex: 0 0 auto;
     display: flex;
     height: 32px;
-    border-bottom-left-radius: inherit;
-    border-bottom-right-radius: inherit;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
     border-top: 1px #0e4354 solid;
     background-color: #062b2d;
     font-size: 12px;

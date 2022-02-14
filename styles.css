@@ -16,7 +16,7 @@ body a {
 
 nav._top {
     display: flex;
-    font-size: 0.88em;
+    font-size: 10pt;
     background-color: #171717;
     padding: 4px;
 }
@@ -25,64 +25,77 @@ nav._top > b {
 }
 nav._top > b:last-child {
     margin-left: auto;
-    margin-right: 1em;
+    margin-right: 1.2em;
+}
+nav._top svg {
+    margin-bottom: -2px;
+    margin-right: 4px;
 }
 nav._top a {
-    color: white;
+    color: gray;
 }
-
-main {
-    width: max-content;
+h1 {
+    color: #606060;
+    background-color: #171717;
+    padding-left: 1.5em;
+    padding-bottom: 0.55em;
+    margin-top: -0.6em;
+    margin-bottom: 0;
 }
-main h1 {
-    text-align: center;
-    padding-bottom: 0.6em;
-    margin-top: 0.2em;
-}
-main h1::before {
+h1::before {
     content: '';
     display: inline-block;
-    width: 72px;
-    height: 72px;
-    background-image: url('docs/images/cooljed.png');
-    background-size: 72px;
-    margin-bottom: -5px;
+    width: 80px;
+    height: 80px;
+    background-image: url('icons/cooljed.png');
+    background-size: 80px;
+    margin-bottom: -8px;
     filter: grayscale(1);
 }
 main nav {
     display: flex;
     gap: 1em;
-    padding: 0 15px;
+    background-color: #ab470d;
+    padding: 5px 1em 7px;
+    color: #dadada;
+    font-size: 11pt;
 }
 main nav > b {
-    font-style: italic;
     cursor: pointer;
-    color: #3494f4;
+    font-weight: normal;
+    font-style: italic;
+}
+main nav > b:hover {
+    text-decoration: underline;
 }
 main nav label {
-    color: #01839d;
+    font-size: 14px;
 }
 main nav > span:nth-of-type(1) {
     margin-left: auto;
+}
+main nav select {
+    background-color: #893301;
+    border: 1px #f08241 solid;
+    color: #ffc353;
+    outline: none;
 }
 main nav > span > a {
     display: inline-block;
     width: 1.5em;
     text-align: center;
-    color: orange;
     font-size: 0.7em;
     border: 1px orange dotted;
     border-radius: 10px;
     font-family: monospace;
+    color: currentColor;
 }
 #editorBox {
-    display: inline-block;
     flex: 1 1 auto;
-    width: 1050px;
-    height: 800px;
-    resize: both;
+    height: 880px;
+    resize: vertical;
     overflow: hidden;
-    padding: 8px;
+    padding: 4px 12px;
 }
 /* 编辑器最大化 */
 #editorBox._full > iframe {
@@ -91,4 +104,5 @@ main nav > span > a {
     left: 0;
     width: 100% !important;
     height: 100% !important;
+    background-color: white;
 }

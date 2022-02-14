@@ -177,7 +177,7 @@ function logoColor() {
     if ( _sel ) {
         $.remove( _sel );
     }
-    _sel = $.style( `main>h1::before{filter:grayscale(${_val--/100})}` );
+    _sel = $.style( `h1::before{filter:grayscale(${_val--/100})}` );
 }
 
 
