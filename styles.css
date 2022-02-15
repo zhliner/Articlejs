@@ -11,6 +11,7 @@ body {
     margin: 0;
 }
 body a {
+    color: currentColor;
     text-decoration: none;
 }
 
@@ -60,12 +61,10 @@ main nav {
     color: #dadada;
     font-size: 11pt;
 }
-main nav > b {
-    cursor: pointer;
-    font-weight: normal;
+main nav > a {
     font-style: italic;
 }
-main nav > b:hover {
+main nav > a:hover {
     text-decoration: underline;
 }
 main nav label {
@@ -88,7 +87,6 @@ main nav > span > a {
     border: 1px orange dotted;
     border-radius: 10px;
     font-family: monospace;
-    color: currentColor;
 }
 #editorBox {
     flex: 1 1 auto;

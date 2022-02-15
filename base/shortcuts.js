@@ -800,7 +800,7 @@ Slave: [
             ":k",       // <kbd>
             ":l",       // ...          | ...           | codelist
             ":m",       // <mark>       | math
-            ":n",       // ...          | number        | p:note
+            ":n",       // <dfn>        | number        | p:note
             ":o",       // <code:orz>   | ...           | ol
             ":p",       // <picture>    | punctuation   | p
             ":q",       // <q>
