@@ -1,8 +1,8 @@
 <div class="_plugx _coolmd" tpl-name="coolmd:root"
     on="vinit|ev('detail');
-        trans|$('/textarea') prop('defaultValue') $('/input') val int mdblock(_1)"
-    to="/textarea|$defaultValue|goto('trans');
-        /textarea|$value">
+        trans|$('/textarea') data('html') $('/input') val int mdblock(_1) dup"
+    to="|data('html')|goto('trans');
+        /textarea|$defaultValue $value">
     <!-- 调整 -->
     <div class="_ttl"
         on="change(input)"
