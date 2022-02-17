@@ -7,12 +7,36 @@
  ******************************************************************************
  */
 
-body {
-    margin: 0;
+html, body {
+    height: 100%;
 }
-body a {
+
+
+/* 全局共享
+ ****************************************************************************/
+a {
     color: currentColor;
     text-decoration: none;
+}
+header {
+    background-color: #171717;
+}
+
+
+/* 主题布局
+ ****************************************************************************/
+body {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+body > main {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+main > form {
+    flex: 1 1 auto;
 }
 
 nav._top {
@@ -20,11 +44,9 @@ nav._top {
     font-size: 10pt;
     background-color: #171717;
     padding: 4px;
+    color: gray;
 }
-nav._top > b {
-    font-weight: normal;
-}
-nav._top > b:last-child {
+nav._top > a:last-child {
     margin-left: auto;
     margin-right: 1.2em;
 }
@@ -32,18 +54,18 @@ nav._top svg {
     margin-bottom: -2px;
     margin-right: 4px;
 }
-nav._top a {
-    color: gray;
-}
-h1 {
+
+header > h1 {
     color: #606060;
-    background-color: #171717;
     padding-left: 1.5em;
     padding-bottom: 0.55em;
-    margin-top: -0.6em;
+    margin-top: -0.5em;
     margin-bottom: 0;
+
+    /* 不遮挡上部链接 */
+    display: inline-block;
 }
-h1::before {
+header > h1::before {
     content: '';
     display: inline-block;
     width: 80px;
@@ -53,6 +75,7 @@ h1::before {
     margin-bottom: -8px;
     filter: grayscale(1);
 }
+
 main nav {
     display: flex;
     gap: 1em;
@@ -88,12 +111,11 @@ main nav > span > a {
     border-radius: 10px;
     font-family: monospace;
 }
+
 #editorBox {
-    flex: 1 1 auto;
-    height: 880px;
-    resize: vertical;
-    overflow: hidden;
-    padding: 4px 12px;
+    box-sizing: border-box;
+    height: 100%;
+    padding: 5px;
 }
 /* 编辑器最大化 */
 #editorBox._full > iframe {
@@ -102,5 +124,4 @@ main nav > span > a {
     left: 0;
     width: 100% !important;
     height: 100% !important;
-    background-color: white;
 }

@@ -17,7 +17,8 @@
 body {
     display: flex;
     margin: 0;
-    padding: 0;
+    padding: 1px;
+    box-sizing: border-box;
 }
 body > * {
     flex-shrink: 0;
@@ -43,7 +44,7 @@ div#editor {
     flex: 1 1 auto;
     display: flex;
     flex-direction: column;
-    border: 1pt #116177 solid;
+    border: 1px #116177 solid;
     border-radius: 12px 12px 5px 5px;
     position: relative;
     background-color: white;
@@ -65,7 +66,7 @@ aside#outline {
     outline: none;
 }
 .___Content ._scroll:focus {
-    background-color: #aac6d5;
+    background-color: #52d887;
 }
 
 /* 鼠标滑过 */
@@ -887,7 +888,7 @@ menu._cells code {
     box-sizing: border-box;
 
     /* 聚焦辅助 */
-    margin: 0 2px 0 1pt;
+    margin: 0 2px;
 }
 
 .___Content > ._scroll {

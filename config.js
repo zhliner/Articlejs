@@ -37,8 +37,11 @@ const
         // 上载根目录
         upload: 'upload/data',
 
-        // 编辑器根模板
+        // 默认根模板
         // 相对于上面的安装根（ROOT）。
+        // 注意：
+        // 此根模板可在ROOT之下任意位置，
+        // 但其它自动导入的子模版必须在模板根目录（tplRoot）之下。
         editor: 'templates/editor.html',
 
 

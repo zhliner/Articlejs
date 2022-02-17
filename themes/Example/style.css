@@ -14,7 +14,8 @@
 body {
     display: flex;
     margin: 0;
-    padding: 0;
+    padding: 1px;
+    box-sizing: border-box;
 }
 body > * {
     flex-shrink: 0;
@@ -62,7 +63,7 @@ aside#outline {
     outline: none;
 }
 .___Content ._scroll:focus {
-    background-color: #aac6d5;
+    background-color: #6abbe7;
 }
 
 /* 鼠标滑过 */
@@ -890,7 +891,7 @@ menu._cells code {
     box-sizing: border-box;
 
     /* 聚焦辅助 */
-    margin: 0 2px 0 1pt;
+    margin: 0 2px;
 }
 
 .___Content > ._scroll {

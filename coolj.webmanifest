@@ -34,8 +34,8 @@
             "type": "image/png"
         }
     ],
-    "start_url": "./index.html",
+    "start_url": "/articlejs/",
     "display": "fullscreen",
-    "theme_color": "green",
-    "background_color": "green"
+    "theme_color": "#134460",
+    "background_color": "#a87543"
 }

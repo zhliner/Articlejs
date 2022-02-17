@@ -185,11 +185,11 @@ const CustomStruct = {
 // 结构合法性检查。
 // 数据节点为未知类型，相对于将要进入的父容器而验证。
 // 数据节点为游离态（未进入DOM）。
+// 如果无子级验证需求，简单罗列可能的类型值即可，因为上级已经知道合法子单元集。
 // 注记：
-// 仅针对不能直接判断单元类型的节点，
-// 它们通常需要借助于所在父容器元素来分析自身的类型。
+// 仅针对不能直接判断单元类型的节点，它们通常需要借助于所在父容器元素来分析自身的类型。
 //
-// 格式：{ tagName: [Object2] }
+// 格式：{ tagName: [Object2|Number] }
 //
 const StructVerify = {
     /**
@@ -288,9 +288,6 @@ const StructVerify = {
     //
     // 两种可能。
     // 类型本身受目标父容器约束，自身自由也无子级验证。
-    // 注记：
-    // 如果无子级验证需求，简单罗列可能的类型值即可。
-    // 上级验证函数已经知道合法子单元集，这里简单提供类型值即可。
     //
     IMG: [ T.PIMG, T.IMG ],
 
@@ -501,7 +498,7 @@ function _typeNoit( ref, els ) {
  * @return {Number}
  */
 function _liChild( el, box ) {
-    if ( !el || $.siblingNodes(el).length ) {
+    if ( !el || $.siblingNodes(el, false, true).length ) {
         return;
     }
     if ( el.tagName === 'A' ) {

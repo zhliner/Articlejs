@@ -159,38 +159,43 @@ const $ = window.$;
  * 间歇执行器（玩具）。
  * 如果用户执行器返回true则终止计时器。
  * @param {Number} sec 间隔秒数
+ * @param {String} slr 目标选择器
  * @param {Function} handle 执行器
  */
-function tickdoing( sec, handle = logoColor ) {
-    handle() ||
-    setTimeout( () => tickdoing(sec, handle), sec );
+function tickdoing( sec, slr, handle = logoColor ) {
+    handle( slr ) ||
+    setTimeout( () => tickdoing(sec, slr, handle), sec );
 }
 
 
 let _val = 100, _sel = null;
 
 // 点亮Logo彩色
-function logoColor() {
+function logoColor( slr ) {
     if ( _val < 0 ) {
         return true;
     }
     if ( _sel ) {
         $.remove( _sel );
     }
-    _sel = $.style( `h1::before{filter:grayscale(${_val--/100})}` );
+    _sel = $.style( `${slr}{filter:grayscale(${_val--/100})}` );
 }
 
 
 
 //
-// 导入Tpb支持。
-// 自动从<body>开始OBT构建。
+// App基础逻辑执行。
 //////////////////////////////////////////////////////////////////////////////
 
 Tpb.init( On, By )
     .build( document.body )
     .then( tr => window.console.info('build done!', tr) );
 
+
+// PWA 支持
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register( '/articlejs/pwa-sw.js' );
+}
 
 
 //

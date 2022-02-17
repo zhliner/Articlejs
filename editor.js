@@ -77,7 +77,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { ROOT, Local, Sys } from "./config.js";
+import { ROOT, Sys } from "./config.js";
 
 
 //
@@ -135,12 +135,12 @@ class Editor {
 
     /**
      * 编辑器初始化。
-     * 可传入自定义的根模板文件，相对于编辑器根。
+     * 根模板文件相对于编辑器根（如 Local.editor）。
      * @param  {Element} box 容器元素
-     * @param  {String} file 编辑器根模板文件，可选
+     * @param  {String} file 编辑器根模板文件
      * @return {Promise<Editor>}
      */
-    load( box, file = Local.editor ) {
+    load( box, file ) {
         this._ifrm.setAttribute(
             'src',
             `${ROOT}${file}`
