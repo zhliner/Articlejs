@@ -280,9 +280,8 @@ const Sys = {
     plugIns:    'install',      // 插件安装
     plugDel:    'uninstall',    // 插件卸载
 
-    // 用户接口类事件
-    importCons: 'cimport',      // 内容源码递送通知
-    recover:    'recover',      // 请求从本地存储中恢复（如果有）
+    // 用户接口事件
+    cimport:    'cimport',      // 内容源码递送触发
 
 
     // 模板名定义

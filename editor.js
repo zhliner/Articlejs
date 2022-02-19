@@ -32,20 +32,18 @@
 //      onmaximize: Function    最大化请求，接口：function( state:0|1 ): void
 //                              其中state: 0 取消最大化，1 最大化
 //      oncontent: Function     内容源码导入回调，会在编辑器构建就绪后自动触发。
-//                              接口：function(): html|null|Promise<html|null>
+//                              接口：function(): String|null|Promise<String|null>
 //                              源码会填充到编辑器内容区，null表示忽略。
 //  }
 //
 //  事件接口：
-//      用户可以对编辑器实例内的 <iframe> 元素发送事件执行一些功能。
-//      - recover   请求编辑器从本地存储中恢复内容（如果有）。
-//      - cimport   递送源码作为内容导入，该操作会进入历史栈（可被 Undo）。
+//      用户可以对编辑器实例内的 <iframe> 元素发送事件：
+//      cimport   递送源码作为内容导入，该操作会进入历史栈（可 Undo）。
 //
 //
 //  Editor接口：
 //      .load(): Promise<Editor> 编辑器初始化
 //      .frame(): Element       获取编辑器根元素（<iframe>）
-//      .reload(): Promise      重新载入编辑器
 //
 //      下面接口由编辑器实现提供
 //      .heading( html ): String        获取/设置主标题
@@ -57,6 +55,7 @@
 //      .footer( h4, html ): Strin      获取/设置文章声明
 //      .content( html ): String        获取/设置文章全部内容
 //      .toc( h4 ): String              获取文章目录源码
+//      .savedhtml: String              获取本地暂存的内容源码
 //
 //      .theme( url:String ): String    获取/设置主题
 //      .style( url:String ): String    获取/设置内容样式
@@ -170,21 +169,6 @@ class Editor {
     }
 
 
-    /**
-     * 编辑器重载。
-     * 会自动恢复当前编辑器内容。
-     * 如果传入新的模板根文件，可用于改变界面语言。
-     * @param  {String} file 编辑器根模板文件，可选
-     * @return {Promise<Editor>}
-     */
-    reload( file ) {
-        let _cons = this.content();
-        this._ifrm.Config.contenter = () => Promise.resolve( _cons );
-
-        return this.load( this._ebox, file || this._file );
-    }
-
-
     //
     // 内容存取接口
     // 注：设置的内容不进入编辑历史栈。
@@ -289,6 +273,15 @@ class Editor {
 
 
     /**
+     * 获取本地暂存的内容源码。
+     * @return {String}
+     */
+    savedhtml() {
+        return this._value( 'savedhtml' );
+    }
+
+
+    /**
      * 获取/设置编辑器主题。
      * @param  {String} url 主题样式URL
      * @return {String|this}
@@ -347,21 +340,8 @@ class Editor {
 
     /**
      * 通用取值/设置。
-     * 编辑器框架内全局 Api: {
-     *      .heading()    设置/获取标题
-     *      .subtitle()   设置/获取子标题
-     *      .abstract()   设置/获取文章提要
-     *      .article()    设置/获取主体内容
-     *      .seealso()    设置/获取另参见
-     *      .reference()  设置/获取参考文献
-     *      .footer()     设置/获取文章声明
-     *      .content()    设置/获取文章全部内容
-     *      .theme()      设置/获取编辑器主题
-     *      .style()      设置/获取内容风格
-     *      .codes()      设置/获取内容代码风格
-     * }
      * @param  {String} name 取值名
-     * @param  {...Value} rest 待设置实参序列
+     * @param  {...Value} rest 附带实参序列
      * @return {String|this}
      */
     _value( name, ...rest ) {
@@ -395,10 +375,8 @@ function editorFrame( width, height ) {
     }
 
     // 内容导入请求监听
-    _frm.addEventListener( Sys.importCons, ev => trigger(_frm.contentWindow, Sys.importCons, ev.detail) );
-
-    // 从本地存储恢复请求监听
-    _frm.addEventListener( Sys.recover, () => trigger(_frm.contentWindow, Sys.recover) );
+    // 注：设置的内容进入编辑历史栈。
+    _frm.addEventListener( Sys.cimport, ev => trigger(_frm.contentWindow, Sys.cimport, ev.detail) );
 
     return _frm;
 }

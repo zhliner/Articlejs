@@ -45,6 +45,8 @@ const
         '/articlejs/base/types.js',
         '/articlejs/config.js',
         '/articlejs/docs/intro.html',
+        '/articlejs/docs/manual.html',
+        '/articlejs/docs/article.html',
         '/articlejs/editor.js',
         '/articlejs/favicon.ico',
         '/articlejs/icons/cooljed.png',
@@ -94,6 +96,9 @@ const
         '/articlejs/themes/Example/icons.css',
         '/articlejs/themes/Example/images/icons.png',
         '/articlejs/themes/Example/style.css',
+        '/articlejs/themes/Dark-less/icons.css',
+        '/articlejs/themes/Dark-less/images/icons.png',
+        '/articlejs/themes/Dark-less/style.css',
         '/articlejs/themes/beep.ogg',
     ];
 

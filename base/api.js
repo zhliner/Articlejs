@@ -17,7 +17,7 @@ import $ from "./tpb/config.js";
 import { Local, Tips } from "../config.js";
 import * as T from "./types.js";
 import { create } from "./create.js";
-import { resetState, topInsert } from "./edit.js";
+import { resetState, topInsert, savedHtml } from "./edit.js";
 
 
 // 内容区根元素
@@ -240,6 +240,10 @@ const Api = {
         let _el = $.get( `#${Local.styleCodes}` );
         return url === undefined ? _el.href : loadStyle( _el, url );
     },
+
+
+    // 获取本地源码。
+    savedhtml: savedHtml,
 
 };
 

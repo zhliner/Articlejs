@@ -54,7 +54,7 @@
     // 上级导入通知监听。
     $.on(
         window,
-        Sys.importCons,
+        Sys.cimport,
         null,
         ev => $.trigger( $.get('main.content'), 'puthtml', ev.detail )
     );
@@ -86,6 +86,7 @@
         panel.plugins;
         panel.maximize;
         cmdline.active|ev('detail');
+        focus.pick;
         focus.content;
         toggle.path;
         escape.cancel|(ESC) call('top') pop;
@@ -106,6 +107,7 @@
         #x-plugins||click;
         #x-maximize||click;
         #g-cmdx|trigger('setv');
+        #g-scroll|trigger('focus');
         #g-scroll|trigger('focus');
         #g-path|trigger('toggle');
         -|trigger('cancel');

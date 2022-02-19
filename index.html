@@ -12,8 +12,8 @@
 <script src="base/tquery/tquery.min.js"></script>
 <script type="module">
     import coolj from "./editor.js";
-    import { Local } from "./config.js";
-    import { saveEditor, firstLearn, tickdoing } from "./index.js";
+    import { Local, Sys } from "./config.js";
+    import { saveEditor, recover, firstLearn, tickdoing } from "./index.js";
 
     let _tpl = Local.editor,
         _box = $.get( '#editorBox' ),
@@ -28,8 +28,9 @@
     coolj.create( _cfg )
         .load( _box, _tpl )
         // 恢复：样式 && 内容
-        .then( ed => saveEditor(ed) && $.trigger(_nav, 'recover') && $.trigger(ed.frame(), 'recover') && ed )
+        .then( ed => saveEditor(ed) && $.trigger(_nav, 'recover') && recover(ed, Sys.cimport) )
         .then( ed => ed.frame().contentWindow.focus() )
+        //?... 取消载入动画层。
         // 初次学习内容导入
         .then( () => firstLearn(_btn, 'click') )
         // 1小时内点亮Logo

@@ -51,7 +51,7 @@ export default {
 Global: [
     // 大纲面板切换（隐/显）
     {
-        "key":      ":f2",
+        "key":      ":f4",
         "command":  "panel.outline",
     },
 
@@ -61,9 +61,15 @@ Global: [
         "command":  "panel.slave"
     },
 
+    // 焦取独立/巡游编辑
+    {
+        "key":      ":f2",
+        "command":  "focus.pick"
+    },
+
     // 帮助面板切换（隐/显）
     {
-        "key":      ":f4",
+        "key":      ":f1",
         "command":  "panel.help"
     },
 

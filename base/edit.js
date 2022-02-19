@@ -1483,21 +1483,6 @@ function stateNewEdit() {
 
 
 /**
- * 重置编辑器状态。
- * - 编辑历史栈清空。
- * - 工具栏撤销/重做按钮重置。
- * 注：
- * 主要导出用于外部重新设置编辑器内容时。
- * @return {void}
- */
-function resetState() {
-    __History.clear();
-    $.trigger( contentElem, Sys.undoEvent, false, true );
-    $.trigger( contentElem, Sys.redoEvent, false, true );
-}
-
-
-/**
  * 构建元素路径序列。
  * 返回沿DOM树正向逐层元素信息的一个<b>封装序列。
  * @param  {Element} el 起点元素
@@ -4163,6 +4148,31 @@ function topInsert( type, el, box = contentElem ) {
 }
 
 
+/**
+ * 重置编辑器状态。
+ * - 编辑历史栈清空。
+ * - 工具栏撤销/重做按钮重置。
+ * 注：
+ * 主要导出用于外部重新设置编辑器内容时。
+ * @return {void}
+ */
+function resetState() {
+    __History.clear();
+    $.trigger( contentElem, Sys.undoEvent, false, true );
+    $.trigger( contentElem, Sys.redoEvent, false, true );
+}
+
+
+/**
+ * 提取本地暂存的源码。
+ * 主要用于上层用户执行本地恢复。
+ * @return {String}
+ */
+function savedHtml() {
+    return __EDStore.get( Sys.storeMain );
+}
+
+
 
 //
 // 上下文菜单条目可用性判断
@@ -4623,6 +4633,17 @@ export const Edit = {
             _nxt = __ESet.prev( _hot );
 
         if ( _nxt && _nxt !== _hot ) setFocus( _nxt );
+    },
+
+
+    /**
+     * 焦取独立。
+     * 暂存当前选取集并单独选取焦点元素。
+     * 再次执行时则恢复之前的暂存。
+     * 主要用于选取集的巡游编辑（焦点通过Tab键逐个巡游/检查）。
+     */
+    focusPick2x() {
+        //
     },
 
 
@@ -6984,14 +7005,6 @@ export const Kit = {
     },
 
 
-    /**
-     * 提取保存的源码。
-     */
-    savedhtml() {
-        return __EDStore.get( Sys.storeMain );
-    },
-
-
 
     //-- By 扩展 -------------------------------------------------------------
 
@@ -7728,6 +7741,7 @@ export const Kit = {
 // By: 编辑操作（部分）。
 //
 processExtend( By, 'Ed', Edit, [
+    'focusPick2x',
     'click',
     'pathTo',
     'toText',
@@ -7836,7 +7850,6 @@ customGetter( On, null, Kit, [
     'styKey',
     'cleanHTML',
     'mdline',
-    'savedhtml',
 
     // 简单操作类（非取值）。
     'cmdclear',
@@ -7846,7 +7859,7 @@ customGetter( On, null, Kit, [
 // 工具导出
 //////////////////////////////////////////////////////////////////////////////
 
-export { resetState, topInsert };
+export { resetState, topInsert, savedHtml };
 
 
 // debug:

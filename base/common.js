@@ -56,7 +56,7 @@ export class ESet extends Set {
         super();
         this._cls = mark;
 
-        // 焦点移动支持
+        // 焦点巡游支持
         this._n2 = null;
         this._p2 = null;
     }
@@ -183,6 +183,19 @@ export class ESet extends Set {
             el => this.delete( el )
         );
         return this;
+    }
+
+
+    /**
+     * 获取/设置巡游游标。
+     * @param  {[Element]} el2 元素对
+     * @return {[Element]|void}
+     */
+    cruise( el2 ) {
+        if ( el2 === undefined ) {
+            return [ this._p2, this._n2 ];
+        }
+        [this._p2, this._n2] = el2;
     }
 
 

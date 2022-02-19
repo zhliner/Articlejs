@@ -26,10 +26,8 @@ import Api from "./api.js";
 export { PlugOn, PlugBy } from "./plugins.js"
 
 
-// 元素选择器配置
-const
-    __content = 'main.content',
-    __outline = '#g-refresh';
+// 内容根元素选择器
+const __content = 'main.content';
 
 
 window.GHK = new HotKey().config( cfg.Global );
@@ -53,30 +51,16 @@ $.config({
     // bindevent: true
 });
 
-// 接口：
-// 本地恢复通知。
-// 注：会同时触发大纲更新按钮的点击事件。
-Tpb.build(
-    window,
-    {
-        on: `${Sys.recover}|savedhtml dup pass`,
-        to: `${__content}|html|fire('${__outline}', 'click')`
-    },
-    On, By
-);
-
 // 当前On/By空间
 Tpb.init( On, By )
     .config( tplMaps )
     .then( tr => tr.build(document) )
     .then( () => $.trigger(document.body, 'finish') )
     .then( () => Api.init($.get(__content)) )
-    .then( () => Sys.readyCall() )
-    .catch( e => Sys.failCall(e) )
-    // 初始内容填充
-    // 特殊值null/undefined表示不填充。
     .then( () => Sys.contenter() )
-    .then( html => html != null && $.html($.get(__content), html) );
+    .then( html => html != null && $.html($.get(__content), html) )
+    .then( () => Sys.readyCall() )
+    .catch( e => Sys.failCall(e) );
 
 
 if ( DEBUG ) {

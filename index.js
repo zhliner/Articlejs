@@ -141,9 +141,24 @@ function localStyle( prefix, type, name ) {
 
 
 /**
+ * 恢复本地暂存的源码。
+ * 如果本地没有内容则简单略过（不影响已有内容）。
+ * @param  {Editor} ed 编辑器实例
+ * @param  {String} evn 触发导入的事件名
+ * @return {Editor} ed
+ */
+function recover( ed, evn ) {
+    let _data = ed.savedhtml();
+    if ( _data ) $.trigger( ed.frame(), evn, _data );
+    return ed;
+}
+
+
+/**
  * 首次导入学习内容。
- * @param {Element} btn 学习条目
- * @param {String} evn 触发事件名
+ * @param  {Element} btn 学习条目
+ * @param  {String} evn 触发事件名
+ * @return {void}
  */
 function firstLearn( btn, evn ) {
     if ( !__editor.content().trim() ) $.trigger( btn, evn );
@@ -158,9 +173,10 @@ const $ = window.$;
 /**
  * 间歇执行器（玩具）。
  * 如果用户执行器返回true则终止计时器。
- * @param {Number} sec 间隔秒数
- * @param {String} slr 目标选择器
- * @param {Function} handle 执行器
+ * @param  {Number} sec 间隔秒数
+ * @param  {String} slr 目标选择器
+ * @param  {Function} handle 执行器
+ * @return {void}
  */
 function tickdoing( sec, slr, handle = logoColor ) {
     handle( slr ) ||
@@ -184,17 +200,16 @@ function logoColor( slr ) {
 
 
 //
-// App基础逻辑执行。
+// 用户页构建。
 //////////////////////////////////////////////////////////////////////////////
 
-Tpb.init( On, By )
-    .build( document.body )
-    .then( tr => window.console.info('build done!', tr) );
+// Tpb支持。
+Tpb.init( On, By ).build( document.body );
 
 
 // PWA 支持
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register( '/articlejs/pwa-sw.js' );
+    // navigator.serviceWorker.register( '/articlejs/pwa-sw.js' );
 }
 
 
@@ -219,7 +234,7 @@ processExtend( By, 'Kit', Kit, [
 // 导出
 //////////////////////////////////////////////////////////////////////////////
 
-export { saveEditor, firstLearn, tickdoing };
+export { saveEditor, recover, firstLearn, tickdoing };
 
 
 //:debug
