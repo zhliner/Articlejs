@@ -72,8 +72,16 @@ import { pluginsInit, pluginsInsert, pluginsDelete } from "./plugins.js";
 
 
 const
+    // 正则式过滤串：(/.../imsu)
+    // 仅用于过滤表达式，匹配节点文本内容。
+    // 需以括号包围，避免正则式内的 | 被视为分隔符。
+    // 注意：
+    // 不支持匹配测试.test()不需要的gy标志。
+    __reRegFltr = /^\(\s*\/(.*)\/([imsu]*)\s*\)$/,
+
     // 不匹配选择器：(selector)。
     // 取值：[1]
+    // 注意：此模式需在上面的__reRegFltr之后使用。
     __reExclude = /^\(([^]*?)\)$/,
 
     // 数值定位匹配
@@ -87,7 +95,8 @@ const
 
     // 表达式匹配
     // 取值：[1]
-    __reFilter = /^\{(.*)\}$/,
+    // 注：表达式内可使用 $ 对象（tQuery）。
+    __reExpcall = /^\{(.*)\}$/,
 
     // 正则表达式格式串
     __reRegExp = /^\/(.*)\/([imsugy]*)$/,
@@ -211,6 +220,8 @@ class Filter {
     /**
      * 执行指令。
      * 筛选表达式为单个过滤表示。
+     * 注记：
+     * 未使用._set成员，因此构造可无实参。
      * @param  {String} str 筛选表达式
      * @param  {[Element]} els 待过滤集
      * @return {Collector} 结果集
@@ -233,14 +244,17 @@ class Filter {
      * @return {Function} 取值函数
      */
     _handle( fmt ) {
+        if ( __reRegFltr.test(fmt) ) {
+            return this._texter( fmt );
+        }
         if ( __reExclude.test(fmt) ) {
             return this._exclude( fmt.match(__reExclude)[1] );
         }
         if ( __reNumber.test(fmt) ) {
             return this._number( fmt.match(__reNumber)[1] );
         }
-        if ( __reFilter.test(fmt) ) {
-            return this._filter( fmt.match(__reFilter)[1] );
+        if ( __reExpcall.test(fmt) ) {
+            return this._filter( fmt.match(__reExpcall)[1] );
         }
         // 选择器模式。
         return all => all.filter( fmt );
@@ -286,6 +300,20 @@ class Filter {
         end = end.trim() ? Math.trunc( end ) : undefined;
 
         return all => all.slice( beg, end );
+    }
+
+
+    /**
+     * 文本匹配过滤器。
+     * 注记：
+     * $.filter() 本身支持正则式匹配文本过滤。
+     * @param  {String} fmt 正则匹配式串
+     * @return {Function}
+     */
+    _texter( fmt ) {
+        return all => all.filter(
+            new RegExp( ...fmt.match(__reRegFltr).slice(1) )
+        );
     }
 
 
@@ -870,6 +898,7 @@ class Replace {
      * 测试构造正则式。
      * 如果不是合法的格式则视为普通字符串。
      * @param  {String} str 目标字符串
+     * @return {RegExp}
      */
     _regstr( str ) {
         if ( !__reRegExp.test(str) ) {

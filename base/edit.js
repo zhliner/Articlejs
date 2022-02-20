@@ -22,7 +22,7 @@ import { ROOT, Sys, Limit, Help, Tips, Cmdx, Local, On, By, Fx } from "../config
 import { customGetter, processExtend } from "./tpb/tpb.esm.js";
 import * as T from "./types.js";
 import { isContent, isCovert, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, childTypes, isChildType, compatibleNoit, checkStruct } from "./base.js";
-import { ESet, EHot, ECursor, History, CStorage, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, parseJSON, scriptRun, niceHtml, markdownLine, cleanInline } from './common.js';
+import { ESet, EHot, ESetHot, ECursor, History, CStorage, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, parseJSON, scriptRun, niceHtml, markdownLine, cleanInline } from './common.js';
 import { tabSpaces, rangeTextLine, indentedPart, shortIndent, highLight } from "./coding.js";
 import { children, create, tocList, convType, convData, convToType } from "./create.js";
 import { options, propertyTpl } from "./templates.js";
@@ -160,6 +160,9 @@ const
 
     // 选取焦点类实例。
     __EHot = new EHot( Sys.focusClass ),
+
+    // 焦取独立处理器。
+    __ESetX = new ESetHot( __ESet ),
 
     // 光标实现实例。
     // 仅用于内容元素的微编辑。
@@ -363,25 +366,84 @@ class ESEdit {
         this._fun = handle;
         this._vals = args;
         this._old = [...__ESet];
+        this._np2 = __ESet.cruise();
 
-        this.redo();
+        this._newsel();
     }
 
 
     /**
      * 撤销选取。
+     * 简单的撤销（非重做之后的再撤销），内部的巡游游标依然有效。
+     * 否则恢复的只是重置为null的游标。
      */
     undo() {
         __ESet.clear().pushes( this._old );
+        __ESet.cruise( this._np2 );
+
         delayFire( slavePanel, Sys.evnFollow );
     }
 
 
     /**
      * 重新选取。
+     * 重做之后内部巡游游标会被重置为null。
+     * 也即只有简单撤销时内部的游标才有延续效果。
      */
     redo() {
+        __ESet.cruise( null );
+        // 后执行，
+        // 因为_fun内可能设置游标。
+        this._newsel();
+    }
+
+
+    /**
+     * 执行选取操作。
+     */
+    _newsel() {
         this._fun( ...this._vals );
+        delayFire( slavePanel, Sys.evnFollow );
+    }
+}
+
+
+//
+// 焦取独立操作。
+//
+class PickEdit {
+    /**
+     * @param {Element} hot 焦点元素
+     */
+    constructor( hot ) {
+        this._old = [...__ESet];
+        this._np2 = __ESet.cruise();
+
+        this._new = ElemSels.pickBack( hot );
+    }
+
+
+    /**
+     * 撤销。
+     * 清除内部游标，取消切换能力。
+     */
+    undo() {
+        __ESet.clear().pushes( this._old );
+        __ESet.cruise( this._np2 );
+        __ESetX.reset();
+
+        delayFire( slavePanel, Sys.evnFollow );
+    }
+
+
+    /**
+     * 重做。
+     * 仅选取重做，不再拥有切换能力。
+     */
+    redo() {
+        __ESet.cruise( null );
+        __ESet.clear().pushes( arrVal(this._new) );
+
         delayFire( slavePanel, Sys.evnFollow );
     }
 }
@@ -1109,6 +1171,13 @@ class ElemSels {
     }
 
 }
+
+
+//
+// 焦取操作句柄。
+// 预存储以方便复用。
+//
+ElemSels.pickBack = __ESetX.pickback.bind( __ESetX );
 
 
 //
@@ -4534,7 +4603,6 @@ export function init( content, covert, pslave, pathbox, errbox, infobox, outline
 }
 
 
-
 //
 // 内容区编辑处理集。
 // 导出供创建快捷键映射集（ObjKey）。
@@ -4638,12 +4706,17 @@ export const Edit = {
 
     /**
      * 焦取独立。
-     * 暂存当前选取集并单独选取焦点元素。
-     * 再次执行时则恢复之前的暂存。
+     * - 初次调用时：暂存选取集并单独选取焦点元素。
+     * - 再次调用时：恢复之前的暂存（包括巡游态）。
      * 主要用于选取集的巡游编辑（焦点通过Tab键逐个巡游/检查）。
      */
-    focusPick2x() {
-        //
+    focusPick2() {
+        let _hot = __EHot.get();
+
+        if ( !_hot || !__ESetX.cando(_hot) ) {
+            return;
+        }
+        historyPush( new HotEdit(null), new PickEdit(_hot), new HotEdit(_hot) );
     },
 
 
@@ -7741,7 +7814,6 @@ export const Kit = {
 // By: 编辑操作（部分）。
 //
 processExtend( By, 'Ed', Edit, [
-    'focusPick2x',
     'click',
     'pathTo',
     'toText',
@@ -7854,6 +7926,15 @@ customGetter( On, null, Kit, [
     // 简单操作类（非取值）。
     'cmdclear',
 ]);
+
+
+//
+// 专项友好：
+// 考虑简单性未放在By域，否则模板中使用会多出不少代码。
+// 且只是简单选取，可看作自我操作。
+//
+customGetter( On, 'focusPick', Edit.focusPick2 );
+
 
 
 // 工具导出

@@ -96,10 +96,18 @@ export class ESet extends Set {
 
     /**
      * 清空集合。
+     * 注记：即便是空集，也会清除游标。
      * @return {this}
      */
     clear() {
-        return this.removes( this );
+        this.forEach(
+            el => $.removeClass( el, this._cls )
+        )
+        super.clear();
+        this._n2 = null
+        this._p2 = null;
+
+        return this;
     }
 
 
@@ -124,12 +132,12 @@ export class ESet extends Set {
      */
     next( el ) {
         let _els = [ ...this ],
-            _cur = this._next( _els, el ),
-            _tmp = this._n2;
+            _cur = this._next( _els, el ) || this._n2 || _els[0];
 
-        this._n2 = this._next( _els, _cur || _tmp || _els[0] );
+        this._n2 = this._next( _els, _cur );
+        this._p2 = this._prev( _els, _cur );
 
-        return _cur || _tmp || _els[0];
+        return _cur;
     }
 
 
@@ -145,12 +153,12 @@ export class ESet extends Set {
      */
     prev( el ) {
         let _els = [ ...this ],
-            _cur = this._prev( _els, el ),
-            _tmp = this._p2;
+            _cur = this._prev( _els, el ) || this._p2 || _els[_els.length-1];
 
-        this._p2 = this._prev( _els, _cur || _tmp || _els[_els.length-1] );
+        this._p2 = this._prev( _els, _cur );
+        this._n2 = this._next( _els, _cur );
 
-        return _cur || _tmp || _els[_els.length-1];
+        return _cur;
     }
 
 
@@ -188,14 +196,15 @@ export class ESet extends Set {
 
     /**
      * 获取/设置巡游游标。
-     * @param  {[Element]} el2 元素对
+     * 传递null值可以清除巡游游标。
+     * @param  {[Element]|null} el2 元素对
      * @return {[Element]|void}
      */
     cruise( el2 ) {
         if ( el2 === undefined ) {
             return [ this._p2, this._n2 ];
         }
-        [this._p2, this._n2] = el2;
+        [this._p2, this._n2] = el2 || [null, null];
     }
 
 
@@ -206,7 +215,7 @@ export class ESet extends Set {
      * 获取el下一个成员。
      * @param  {[Element]} els 目标元素集
      * @param  {Element} el 起点元素
-     * @return {Element|null}
+     * @return {Element|null|undefined}
      */
     _next( els, el ) {
         let _i = els.indexOf( el );
@@ -218,13 +227,117 @@ export class ESet extends Set {
      * 获取el的前一个成员。
      * @param  {[Element]} els 目标元素集
      * @param  {Element} el 起点元素
-     * @return {Element|null}
+     * @return {Element|null|undefined}
      */
     _prev( els, el ) {
         let _i = els.indexOf( el );
         return _i < 0 ? null : els[ _i-1 ];
     }
 
+}
+
+
+//
+// 焦取独立处理器。
+// 对目标选取集成员和焦点元素进行选取切换。
+// 1. 初次触发时，暂存目标选取成员（保持原有顺序和巡游状态），返回独选焦点元素。
+// 2. 再次触发时，恢复暂存的原始选取集，并恢复其内部巡游状态。
+// 注意：
+// 恢复时会忽略已经不在DOM节点树上的成员。
+// 这样用户在独选焦点元素后，实际上可以执行多步编辑操作，包括编辑原选取成员本身。
+// 用途：
+// 在用户批量选取多个元素（如搜索后），巡游检查每个成员并需要单独修改时很有用。
+// 不然单独的编辑需要单独选取，会破坏原有巡游逻辑。
+//
+export class ESetHot {
+    /**
+     * @param {ESet} eset 选取集实例
+     */
+    constructor( eset ) {
+        this._set = eset;
+
+        // 巡游游标对
+        this._np2 = null;
+        // 选取集暂存
+        this._tmp = null;
+    }
+
+
+    /**
+     * 焦取切换。
+     * 如果初次使用则为独选，否则为恢复。
+     * 返回最终选取的元素（集）。
+     * @param  {Element} hot 焦点元素
+     * @return {Element|[Element]}
+     */
+    pickback( hot ) {
+        return this._tmp ? this._restore() : this._pick( hot );
+    }
+
+
+    /**
+     * 是否可执行。
+     * 条件（任一）：
+     * - 选取集包含多个成员。
+     * - 选取集虽然只有一个成员，但其不是焦点元素。
+     * - 处于恢复状态时。
+     * @param  {Element} hot 焦点元素
+     * @return {Boolean}
+     */
+    cando( hot ) {
+        if ( !!this._tmp || this._set.size > 1 ) {
+            return true;
+        }
+        return this._set.size === 1 && !this._set.has(hot);
+    }
+
+
+    /**
+     * 状态重置。
+     * 主要用于编辑历史栈的撤销处理。
+     */
+    reset() {
+        this._tmp = null;
+        this._np2 = null;
+    }
+
+
+    //-- 私有辅助 ------------------------------------------------------------
+
+
+    /**
+     * 焦点独选。
+     * 会暂存原有选取集。
+     * @param  {Element} hot 焦点元素
+     * @return {Element}
+     */
+    _pick( hot ) {
+        this._tmp = [ ...this._set ];
+        this._np2 = this._set.cruise();
+
+        return this._set.clear().add( hot );
+    }
+
+
+    /**
+     * 恢复暂存的选取集。
+     * 会同时恢复内部巡游游标（也需在DOM内）。
+     * @return {[Element]}
+     */
+    _restore() {
+        this._set.clear()
+        .pushes(
+            this._tmp.filter( el => el.isConnected )
+        );
+        this._set
+        .cruise(
+            this._np2.map( el => el && el.isConnected ? el : null )
+        );
+        this._np2 = null;
+        this._tmp = null;
+
+        return [ ...this._set ];
+    }
 }
 
 
