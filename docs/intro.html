@@ -2,7 +2,8 @@
 <html>
 <head>
 <meta charset="utf-8" />
-<title>编辑器操作手册</title>
+<title>简介-快速入门</title>
+<link rel="shortcut icon" href="../favicon.ico">
 <link rel="stylesheet" href="../styles/example/main.css" />
 <link rel="stylesheet" href="../styles/example/codes.css" />
 <link rel="stylesheet" href="../base/tpb/default.css" />
@@ -17,22 +18,8 @@
     }
 </style>
 <script type="module" async>
-    import { Tpb } from "../base/tpb/tpb.esm.js";
-    // 大纲导航：
-    // 单击链接条目定位到目标章节。
-    Tpb.build(
-        document.querySelector('nav'),
-        { on: "click(a)|evo(2) paths('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView" }
-    );
-    // 列表滚动隐显
-    // 单击目录标题条子表折叠
-    Tpb.build(
-        document.querySelector('nav>ol'),
-        {
-            on: "mouseenter|('auto'); mouseleave|('hidden'); click(~h5)|evo(2) parent fold(2)",
-            to: "|css('overflow-y'); |css('overflow-y')"
-        }
-    )
+    import { tocFold } from "../index.js";
+    tocFold( $.get('nav') );
 </script>
 </head>
 <body>
@@ -62,15 +49,25 @@
         <article>
             <header>
                 <ul>
-                    <li><kbd>F2</kbd>：左侧大纲面板<em>隐显</em>切换。</li>
+                    <li><kbd>F4</kbd>：大纲面板<em>隐显</em>切换。</li>
                     <li><kbd>F3</kbd>：下方功能区主面板<em>隐显</em>切换。</li>
-                    <li><kbd>F4</kbd>：右侧帮助面板<em>隐显</em>切换。</li>
+                    <li><kbd>F2</kbd>：<strong>焦取独立</strong>：内部暂存当前已选取成员，单选焦点元素。再次<em>按键</em>则恢复暂存的选取。</li>
+                    <li><kbd>F1</kbd>：右侧帮助面板<em>隐显</em>切换。</li>
+                </ul>
+                <ul>
                     <li><kbd>F6</kbd>：内容区底部焦点元素DOM路径提示栏<em>隐显</em>切换。</li>
-                    <li><kbd>F7</kbd>：打开插件对话框（按<kbd>ESC</kbd>键可取消显示）。</li>
+                    <li><kbd>F7</kbd>：打开插件对话框（按<kbd>ESC</kbd>键可取消）。</li>
                     <li><kbd>F8</kbd>：内容区聚焦。</li>
                     <li><kbd>F9</kbd>：当前在显主面板（大纲、功能区、帮助）状态切换，方便用户充分预览内容区。</li>
                     <li><kbd>F10</kbd>：当前窗口最大化切换。</li>
-                    <li><kbd>ESC</kbd>：各种取消。支持<code>选取集</code>、<code>上下文菜单</code>、<code>内联创建菜单</code>、<code>模态框</code>、<code>修订模式</code>、<code>前置数字</code>、<code>录入框平铺</code>等。</li>
+                </ul>
+                <ul>
+                    <li><code>单击</code>：鼠标<strong>单击</strong>选取目标元素，如果单击的同时按住 <kbd>Ctrl</kbd> 键则为<em>多选/切换</em>选取。</li>
+                    <li><kbd>M</kbd>：进入<strong>修订</strong>（Modify）模式，修改目标元素内的内容。按回车（<kbd>Enter</kbd>）键确认。</li>
+                    <li><kbd>U</kbd> / <kbd>R</kbd>：各种撤销（<code>Undo</code>）与重做（<code>Redo</code>）。</li>
+                    <li><kbd>Ctrl+S</kbd>：保存文章内容到浏览器本地，重新打开或<em>刷新</em>页面即会自动载入。</li>
+                    <li><kbd>ESC</kbd>：各种<em>取消</em>。支持<code>选取集</code>、<code>上下文菜单</code>、<code>内联创建菜单</code>、<code>模态框</code>、<code>修订模式</code>、<code>前置数字</code>、<code>录入框平铺</code>等。
+                    </li>
                 </ul>
             </header>
             <section role="s1">
@@ -123,8 +120,13 @@
                         </aside>
                     </section>
                     <section role="s3">
-                        <h2>选取切换</h2>
-                        <p>空格键（<kbd>Space</kbd>）和回车键（<kbd>Enter</kbd>）对当前焦点元素进行选取切换。如果需要多选，可按住<kbd>Ctrl</kbd>键后单击目标元素，再次单击也为取消选取（切换）。</p>
+                        <h2>单选与多选</h2>
+                        <p>鼠标简单点击目标会单选目标元素，如果点击的同时按住 <kbd>Ctrl</kbd> 键则为多选/切换逻辑。</p>
+                        <ul>
+                            <li><strong>单选</strong>：选取目标元素的同时，取消其它已选取元素。</li>
+                            <li><strong>切换</strong>：针对目标元素，已选取则为取消选取，未选取则为选取。不影响其它已选取元素。</li>
+                        </ul>
+                        <p>在内容区拥有浏览器焦点时，按 <kbd>Enter</kbd> 键为单选当前焦点元素，按空格键（<kbd>Space</kbd>）键则为多选/切换。</p>
                         <p>更详细的选取操作和编辑操作请参考上方的操作手册……此略。</p>
                     </section>
                 </section>

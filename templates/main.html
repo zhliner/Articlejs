@@ -262,13 +262,13 @@
             mouseup([contenteditable])... 微编辑光标记忆，用于特殊字符插入。注：keyup-全选，focus-无点击进入。
             puthtml 整体导入内容源码（可撤销），同时滚动到顶部。
                     注：微编辑状态下无效，否则新内容中普通操作无效。
-            click(~) 在内容区为空时主动插入一个主标题。
+            click(~) 在内容区为空时插入一个主标题占位（以便开始工作）。
         -->
         <main id="content" class="content"
             on="click(*) focus(~audio,video)|avoid env('minied') end sRange end evo(1) SCAM;
                 cancel|stop env('minied') end;
                 puthtml|env('minied') end ev('detail');
-                click(~)|stopAll ('文章主标题，单击开启');
+                click(~)|stopAll ('文章主标题，单击开始');
                 mouseover(*)|env('minied') end ('_hover');
                 mouseout(*)|env('minied') end ('_hover');
                 mouseover(*)|env('minied') end $('#g-count') val end evo(1) dup einfo(true) roleinfo(_1) str('<', '>');

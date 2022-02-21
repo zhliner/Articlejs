@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <title>文章内容的规范化结构</title>
+<link rel="shortcut icon" href="../favicon.ico">
 <link rel="stylesheet" href="../styles/example/main.css" />
 <link rel="stylesheet" href="../styles/example/codes.css" />
 <link rel="stylesheet" href="../base/tpb/default.css" />
@@ -39,15 +40,17 @@
             <p>最后，内容块其实并不是最终的实体文本，最终的实体文本是纯文本或内联单元，如：重点（<code>&lt;strong&gt;</code>）、强调（<code>&lt;em&gt;</code>）、代码（<code>&lt;code&gt;</code>）、注音（<code>&lt;ruby&gt;</code>）、缩写（<code>&lt;abbr&gt;</code>）、标记（<code>&lt;mark&gt;</code>）、图片（<code>&lt;img&gt;</code>）、视频（<code>&lt;video&gt;</code>）等等。</p>
             <p><strong>注：</strong>一篇层级适当的文章通常只有<strong>3-4</strong>个层级，即：<strong>章/节/区/段</strong>。再多的层级并不常见，阅读友好性也会变差。</p>
         </header>
-        <!-- click(a) 构造章节选择器，定位显示到视口。兼容ID锚跳转（未设置avoid） -->
+        <!--动作：
+            click(a) 构造章节选择器，定位显示到视口。兼容ID锚跳转（未设置avoid）。
+            click(~h5) 单击子表标题本身（非<a>）折叠切换。 -->
         <nav role="toc"
-            on="click(a)|evo(2) paths('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView">
+            on="click(a)|evo(2) paths('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView;
+                click(~h5)|evo(2) parent fold(2)">
             <h4>【目 录】</h4>
-            <!-- click 子表标题（非<a>）折叠切换 -->
+            <!-- 滚动条友好隐藏 -->
             <ol role="cascade"
                 on="mouseenter|('auto');
-                    mouseleave|('hidden');
-                    click(~h5)|evo(2) parent fold(2)"
+                    mouseleave|('hidden')"
                 to="|css('overflow-y');
                     |css('overflow-y')">
                 <li>

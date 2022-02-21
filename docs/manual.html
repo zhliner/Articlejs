@@ -2,7 +2,8 @@
 <html>
 <head>
 <meta charset="utf-8" />
-<title>编辑器操作详解</title>
+<title>编辑器操作手册（详解）</title>
+<link rel="shortcut icon" href="../favicon.ico">
 <link rel="stylesheet" href="../styles/example/main.css" />
 <link rel="stylesheet" href="../styles/example/codes.css" />
 <link rel="stylesheet" href="../base/tpb/default.css" />
@@ -17,22 +18,9 @@
     }
 </style>
 <script type="module" async>
-    import { Tpb } from "../base/tpb/tpb.esm.js";
-    // 大纲导航：
-    // 单击链接条目定位到目标章节。
-    Tpb.build(
-        document.querySelector('nav'),
-        { on: "click(a)|evo(2) paths('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView" }
-    );
-    // 列表滚动隐显
-    // 单击目录标题条子表折叠
-    Tpb.build(
-        document.querySelector('nav>ol'),
-        {
-            on: "mouseenter|('auto'); mouseleave|('hidden'); click(~h5)|evo(2) parent fold(2)",
-            to: "|css('overflow-y'); |css('overflow-y')"
-        }
-    )
+    import { tocFold, tocScroll } from "../index.js";
+    tocFold( $.get('nav') );
+    tocScroll( $.get('nav>ol') );
 </script>
 </head>
 <body>
@@ -231,9 +219,10 @@
                     </section>
                     <section role="s3">
                         <h2>按键选取</h2>
-                        <p>如果焦点元素已经存在（<em>鼠标点选</em>），通过简单的键盘按键，我们可以实现更多的选取操作。</p>
+                        <p>如果焦点元素已经存在（<em>鼠标点选</em>），通过简单的键盘按键，我们可以实现更多的操作。</p>
                         <ul>
-                            <li><kbd>Space</kbd> 或 <kbd>Enter</kbd>：<strong>选取切换</strong>。焦点元素选取或取消选取。不影响其它已选取元素，类似 <kbd>Ctrl</kbd> + <code>单击</code> 的效果。</li>
+                            <li><kbd>Enter</kbd>：<strong>单选</strong>。单选当前焦点元素，如果当前焦点元素已为单选则无效果。类似于鼠标 <code>单击</code>。</li>
+                            <li><kbd>Space</kbd>：<strong>选取切换</strong>。焦点元素选取或取消选取。不影响其它已选取元素，类似 <code>Ctrl</code> + <code>单击</code> 的效果。</li>
                             <li><kbd>Shift</kbd> + <em>箭头键</em>：<strong>单选游走</strong>。移动焦点的同时改选到目标元素，其它选取被取消，类似鼠标<code>单击</code>的效果。</li>
                         </ul>
                         <p role="tips"><strong>提示</strong>：支持 <kbd>Shift</kbd> + <kbd>T</kbd> 单选游走到焦点元素的<strong>顶元素</strong>。顶元素含义见后。</p>

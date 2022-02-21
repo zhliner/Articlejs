@@ -4819,6 +4819,21 @@ export const Edit = {
 
 
     /**
+     * 键盘单选（Enter）。
+     * 如果选取集成员只有一个且就是焦点元素则无动作。
+     */
+    only() {
+        let _el = __EHot.get();
+
+        if ( !_el ||
+            (__ESet.size === 1 && __ESet.first() === _el) ) {
+            return;
+        }
+        historyPush( ...selectOne(_el, 'only') );
+    },
+
+
+    /**
      * 集合成员反选。
      */
     reverse() {

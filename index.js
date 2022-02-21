@@ -141,6 +141,34 @@ function localStyle( prefix, type, name ) {
 
 
 /**
+ * 目录子表折叠动作。
+ * - 单击链接条目定位到目标章节。
+ * - 单击目录标题条子表折叠子表。
+ * @param  {Element} root 目标列表根
+ * @return {void}
+ */
+function tocFold( root ) {
+    Tpb.build( root, {
+        on: `click(a)|evo(2) paths('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView;
+            click(~h5)|evo(2) parent fold(2)`
+    });
+}
+
+
+/**
+ * 目录滚动条自动隐藏动作。
+ * @param  {Element} root 目录列表根
+ * @return {void}
+ */
+function tocScroll( root ) {
+    Tpb.build( root, {
+        on: "mouseenter|('auto'); mouseleave|('hidden')",
+        to: "|css('overflow-y'); |css('overflow-y')"
+    });
+}
+
+
+/**
  * 恢复本地暂存的源码。
  * 如果本地没有内容则简单略过（不影响已有内容）。
  * @param  {Editor} ed 编辑器实例
@@ -209,7 +237,7 @@ Tpb.init( On, By ).build( document.body );
 
 // PWA 支持
 if ('serviceWorker' in navigator) {
-    // navigator.serviceWorker.register( '/articlejs/pwa-sw.js' );
+    navigator.serviceWorker.register( '/articlejs/pwa-sw.js' );
 }
 
 
@@ -234,7 +262,7 @@ processExtend( By, 'Kit', Kit, [
 // 导出
 //////////////////////////////////////////////////////////////////////////////
 
-export { saveEditor, recover, firstLearn, tickdoing };
+export { saveEditor, recover, firstLearn, tickdoing, tocFold, tocScroll };
 
 
 //:debug

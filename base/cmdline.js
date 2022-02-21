@@ -24,12 +24,12 @@
 //  支持二阶检索选择器（斜线分隔上/下阶选择器），此时以焦点元素为起点。
 //  注：格式参考 Util.find()，无条件多元素检索。
 //
-//  支持竖线分隔的过滤表达式（见下）。
+//  同时支持过滤表达式，在选择器末尾用竖线（|）分隔即可。
 //
 //
 //  - 过滤（|）
 //  以当前选取集为总集，过滤出目标元素集。
-//  支持选择器、数组范围/下标、以及过滤函数的筛选形式。
+//  支持选择器，正则匹配式、数组范围/下标、以及过滤函数的筛选形式。
 //      String      选择器。
 //      (String)    不匹配选择器，类似 $.not(...)。
 //      (/.../imsu) 正则表达式（匹配节点文本内容）。
@@ -37,6 +37,9 @@
 //      [a,b,c]     数组下标定点。
 //      {function}  过滤表达式，参数名固定。接口：function(v, i, c): Boolean
 //                  注：同Tpb:To.Query语法，表达式无需return语句。
+//
+//  支持多级递进过滤，多个过滤表达式之间以管道符分隔。
+//
 //
 //  - 搜索（/）
 //  搜索词以当前选取集内文本节点为上下文，不支持跨节点词汇的搜索。注：节点被视为意义域。
@@ -171,7 +174,7 @@ class Select {
      * 获取目标元素集。
      * @param  {String} slr 选择器
      * @param  {Element} hot 焦点元素（起点）
-     * @param  {Element} ctx 查询上下文
+     * @param  {Element} ctx 全局上下文
      * @return {[Element]}
      */
     _find( slr, hot, ctx ) {
@@ -934,13 +937,13 @@ class Replace {
 
 
 /**
- * 连续过滤。
+ * 连续递进过滤。
  * 比如通过管道符（|）的选取集过滤。
- * @param {[String]} strs 过滤标识串集
+ * @param {[String]} ss 过滤标识串集
  * @param {[Element]} els0 初始集合
  */
-function filters( strs, els0 ) {
-    return strs.reduce(
+function filters( ss, els0 ) {
+    return ss.reduce(
         (els, flr) => new Filter().execOne( flr, els ), els0
     );
 }
