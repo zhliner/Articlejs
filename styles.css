@@ -58,9 +58,10 @@ nav._top svg {
 header > h1 {
     color: #606060;
     padding-left: 1.5em;
-    padding-bottom: 0.55em;
+    padding-bottom: 1.35vh;
     margin-top: -0.5em;
     margin-bottom: 0;
+    font-weight: normal;
 
     /* 不遮挡上部链接 */
     display: inline-block;
@@ -80,7 +81,7 @@ main nav {
     display: flex;
     gap: 1em;
     background-color: #ab470d;
-    padding: 5px 1em 7px;
+    padding: 5px 1em 6px;
     color: #dadada;
     font-size: 11pt;
 }
@@ -115,7 +116,7 @@ main nav > span > a {
 #editorBox {
     box-sizing: border-box;
     height: 100%;
-    padding: 5px;
+    padding: 2pt 4pt 4pt;
 }
 /* 编辑器最大化 */
 #editorBox._full > iframe {
@@ -124,4 +125,24 @@ main nav > span > a {
     left: 0;
     width: 100% !important;
     height: 100% !important;
+}
+
+
+/* 笔记本小屏 */
+@media (max-height: 800px)
+{
+    header > h1 {
+        font-size: 1.5em;
+    }
+    main nav {
+        padding: 4px 1em;
+    }
+    main nav, main nav label {
+        font-size: 10pt;
+    }
+    header > h1::before {
+        width: 64px;
+        height: 64px;
+        background-size: 64px;
+    }
 }

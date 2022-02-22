@@ -14,8 +14,6 @@
 body {
     display: flex;
     margin: 0;
-    padding: 1px;
-    box-sizing: border-box;
 }
 body > * {
     flex-shrink: 0;
@@ -32,12 +30,12 @@ body > hr {
     width: 3px;
     border: 1px #fff solid;
     border-radius: 3px;
-    background-color: #5f9ea0;
+    background-color: #707e7e;
     cursor: ew-resize;
 }
 
 /* 编辑器容器 */
-div#editor {
+div.Editor {
     flex: 1 1 auto;
     display: flex;
     flex-direction: column;
@@ -47,8 +45,8 @@ div#editor {
     background-color: white;
 }
 /* 大纲&帮助面板 */
-aside#help,
-aside#outline {
+aside.Help,
+aside.Outline {
     width: 240px;
     min-width: 180px;
     background-color: #f9f9f9;
@@ -176,11 +174,16 @@ aside#outline {
 /* [ 全局默认 ]
  ****************************************************************************/
 
-/* 兼容 */
+ .___Panel {
+    font-size: 12pt;
+}
 .___Panel * {
     line-height: 150%;
     margin: 0;
     padding: 0;
+}
+.___Panel li > h5 {
+    font-size: 1em;
 }
 
 .___Panel form {
@@ -212,9 +215,6 @@ aside#outline {
     padding: 1px 5px;
 }
 
-.___Panel {
-    font-size: 12pt;
-}
 .___Panel input[type=text],
 .___Panel input[type=url],
 .___Panel input[type=search] {
@@ -632,24 +632,24 @@ menu._cells code {
 /* [ 顶层 ]
  ****************************************************************************/
 
-#outline > nav > h4,
-#help > nav {
+.Outline > nav > h4,
+.Help > nav {
     height: 44px;
     box-sizing: border-box;
 }
 
 /* 级联表 */
-#outline ol[role=cascade],
-#outline ol[role=cascade] ol {
+.Outline ol[role=cascade],
+.Outline ol[role=cascade] ol {
     counter-reset: numer;
     padding: 0;
     list-style-type: none;
 }
-#outline ol[role=cascade] h5 {
+.Outline ol[role=cascade] h5 {
     margin: 0;
     font-weight: normal;
 }
-#outline ol[role=cascade] li::before {
+.Outline ol[role=cascade] li::before {
     position: absolute;
     top: 0;
     left: 0;
@@ -657,51 +657,51 @@ menu._cells code {
     counter-increment: numer;
     white-space: nowrap;
 }
-#outline ol[role=cascade] li {
+.Outline ol[role=cascade] li {
     position: relative;
 }
 
 /* 1. */
-#outline ol[role=cascade] > li {
+.Outline ol[role=cascade] > li {
     /* 缩进，与序号宽度适配 */
     margin-left: 2.2em;
 }
-#outline ol[role=cascade] > li::before {
+.Outline ol[role=cascade] > li::before {
     width: 1.2em;
     margin-left: -1.2em;
 }
 
 /* 1.2 */
-#outline ol[role=cascade] > li>ol > li {
+.Outline ol[role=cascade] > li>ol > li {
     margin-left: 2.0em;
 }
-#outline ol[role=cascade] > li>ol > li::before {
+.Outline ol[role=cascade] > li>ol > li::before {
     width: 2.0em;
     margin-left: -2.0em;
 }
 
 /* 1.2.3 */
-#outline ol[role=cascade] > li>ol > li>ol > li {
+.Outline ol[role=cascade] > li>ol > li>ol > li {
     margin-left: 3.0em;
 }
 
-#outline ol[role=cascade] > li>ol > li>ol > li::before {
+.Outline ol[role=cascade] > li>ol > li>ol > li::before {
     width: 3.0em;
     margin-left: -3.0em;
 }
 
 /* 1.2.3.4 */
-#outline ol[role=cascade] > li>ol > li>ol > li>ol li {
+.Outline ol[role=cascade] > li>ol > li>ol > li>ol li {
     margin-left: 4.0em;
 }
 
-#outline ol[role=cascade] > li>ol > li>ol > li>ol li::before {
+.Outline ol[role=cascade] > li>ol > li>ol > li>ol li::before {
     width: 4.0em;
     margin-left: -4.0em;
 }
 
 /* 大纲栏 */
-#outline nav[role=toc] {
+.Outline nav[role=toc] {
     border-radius: inherit;
     font-size: 10pt;
     height: 100%;
@@ -710,11 +710,11 @@ menu._cells code {
 }
 
 /* 目录级联编号 */
-#outline nav[role=toc] > ol[role=cascade] {
+.Outline nav[role=toc] > ol[role=cascade] {
     height: calc(100% - 70px);
     overflow-y: auto;
 }
-#outline nav[role=toc] h4 {
+.Outline nav[role=toc] h4 {
     font-size: 1.1em;
     padding: 12px 1em 10px;
     border-bottom: 1px #bbb inset;
@@ -724,7 +724,7 @@ menu._cells code {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
 }
-#outline nav[role=toc] h4 > b {
+.Outline nav[role=toc] h4 > b {
     float: right;
     font-family: monospace;
     padding: 2px 8px;
@@ -734,53 +734,53 @@ menu._cells code {
     margin-right: -3px;
     color: green;
 }
-#outline nav[role=toc] h4 > b:hover {
+.Outline nav[role=toc] h4 > b:hover {
     background-color: #b3ebb8;
     border-radius: 16px;
 }
-#outline nav[role=toc] > ol {
+.Outline nav[role=toc] > ol {
     margin: 0;
     padding: 10px 3px;
 }
-#outline nav[role=toc] li {
+.Outline nav[role=toc] li {
     margin-top: 1px;
     padding-left: 4px;
     color: #333;
 }
-#outline nav[role=toc] li,
-#outline nav[role=toc] h5,
-#outline nav[role=toc] a {
+.Outline nav[role=toc] li,
+.Outline nav[role=toc] h5,
+.Outline nav[role=toc] a {
     line-height: 150%;
 }
 
-#outline nav[role=toc] a {
+.Outline nav[role=toc] a {
     color: #36a;
     text-decoration: none;
 }
 
-#outline nav[role=toc] a:hover {
+.Outline nav[role=toc] a:hover {
     text-decoration: underline;
 }
 
 /* 子表折叠 */
-#outline nav[role=toc] li[data-pbo~=folded] {
+.Outline nav[role=toc] li[data-pbo~=folded] {
     background-color: #e8f2f2;
     border-radius: 4px 2em 0 0;
 }
-#outline nav[role=toc] li > h5::after {
+.Outline nav[role=toc] li > h5::after {
     content: '－';
     float: right;
     margin-right: 1em;
     color: green;
 }
-#outline nav[role=toc] li[data-pbo~=folded] > h5::after {
+.Outline nav[role=toc] li[data-pbo~=folded] > h5::after {
     content: '＋';
     color: #e9a279;
 }
 
 
 /* 帮助栏 */
-#help > ._icons {
+.Help > ._icons {
     padding: 5px;
     border-bottom: 1px #bbb inset;
     background-color: #f0f0f0;
@@ -789,21 +789,21 @@ menu._cells code {
     border-bottom-right-radius: 0;
     display: flex;
 }
-#help > ._icons > b {
+.Help > ._icons > b {
     margin: auto 4px;
     font-size: 1.1em;
 }
-#help > ._icons > b._top {
+.Help > ._icons > b._top {
     font-weight: bold;
 }
-#help > ._icons > ._about {
+.Help > ._icons > ._about {
     padding: 0;
     width: 24px;
     margin-left: auto;
     border-radius: 18px 0;
     color: #090;
 }
-#help > ._icons > ._about:hover {
+.Help > ._icons > ._about:hover {
     border-color: transparent;
     box-shadow: 0.5px 0.6px 1px #999;
 }
@@ -966,7 +966,7 @@ menu._cells code {
 .Slave {
     flex: 0 0 auto;
     min-height: 240px;
-    height: 256px;
+    height: 28vh;
     background-color: #f0efef;
     display: flex;
     flex-direction: column;

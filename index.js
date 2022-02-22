@@ -237,7 +237,7 @@ Tpb.init( On, By ).build( document.body );
 
 // PWA 支持
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register( '/articlejs/pwa-sw.js' );
+    // navigator.serviceWorker.register( '/articlejs/pwa-sw.js' );
 }
 
 
