@@ -229,7 +229,7 @@
             主区切换前即更新到目标元素。
             follow  特性名清单跟随更新：保留相同，不同则清理或补足。
             change  插入适配的内容模板。注：修改不会被自动应用。
-            _change 提取元素特性值发送到编辑框。
+            attrto  提取元素特性值发送到编辑框。
             addnew  添加一个新特性（临时），如果已经存在则忽略。
             select  选取接收的值匹配的选单（新建后）。
             blank   特性整体更新后空白主区替代。
@@ -237,14 +237,14 @@
         <select name="attrs" size="5" class="_list" title="删除〔Delete〕"
             on="follow|evo(3) children ev('detail');
                 change|evo(3) val $case('on by to', null) $switch('obts', 'empty', 'value') str('attr:') node(_1);
-                _change|evo(3) val dup pass sel0 pop attrs(_1);
+                attrto|evo(3) val dup pass sel0 pop attrs(_1);
                 addnew|ev('detail') dup(2) $$('/option') prop('value') inside(_) end pop elem('option');
                 select|ev('detail');
                 blank|tpl('attr:empty');
                 keydown|iskey('Delete') pass evo(3) val dup pass evo(3) prop('selected') remove"
             by="Kit.attrlist(_1) pop elem('option')"
             to="|append|goto('change');
-                form/._main>*|replace|goto('_change');
+                form/._main>*|replace|goto('attrto');
                 form/._main>*|trigger('vinit');
                 |append|pop fire(3, 'select');
                 |val|change;
@@ -264,14 +264,20 @@
             <!--特性编辑：
                 vinit   初始设置值，简单分号切分换行友好。
                 attrok  提取编辑值（适当构造），发送到表单应用到内容元素上。
+                detach  被切换掉时隐藏分隔符选项（仅此文本框需要该选项）。
+                nodeok  被替换回来时显示分隔符选项。
                 注记：
                 先提取分隔符以方便使用，因为有两处要用（切分/恢复）。 -->
             <textarea name="attrval" spellcheck="false" class="_code" tpl-name="attr:value"
                 on="vinit|$('2/[name=sep]') val or(';') dup ev('detail') item(0) or('') pop split(_1) trim pick(0) strr('\n') join(_1);
                     attrok|$('2/[name=sep]') val or(';') dup evo(3) val trim pop split(_1) trim pick(0) strr(' ') join(_1) trim;
+                    detach;
+                    nodeok;
                     ^tpled|evo(3) remove"
                 to="|val;
-                    form/|trigger('apply')"></textarea>
+                    form/|trigger('apply');
+                    ._body/#_chsep|trigger('hide');
+                    ._body/#_chsep|trigger('show')"></textarea>
             <!--OBT属性集：
                 vinit   总设置通知，接收数据为一个3元数组。暂存到当前元素。
                 keydown 1.在当前行之后创建一个新行并聚焦。
@@ -366,9 +372,11 @@
         </div>
         <aside>
             <div class="_option"
-                on="change(input)"
-                to="form/[name=attrs]|trigger('_change')">
-                <label>
+                on="change(input)|$('._body/textarea') val arr"
+                to="form/._main>textarea|trigger('vinit')">
+                <labe id="_chsep"
+                    on="show|evo(3) hide(false);
+                        hide|evo(3) hide(true)">
                     <input type="text" name="sep" class="_char" value=";" />分隔符
                 </label>
             </div>

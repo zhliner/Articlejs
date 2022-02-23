@@ -25,9 +25,12 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     line-height: 180%;
 }
 .content img,
-.content video {
+.content video,
+.content object,
+.content embed {
     display: inline-block;
     margin: 0;
+    max-width: 100%;
 }
 
 
