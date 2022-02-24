@@ -959,7 +959,7 @@ menu._cells code {
 .Slave {
     flex: 0 0 auto;
     min-height: 240px;
-    height: 256px;
+    height: 28vh;
     background-color: #efede6;
     display: flex;
     flex-direction: column;
