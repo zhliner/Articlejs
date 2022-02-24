@@ -1517,7 +1517,10 @@ let
     slavePanel = null,
 
     // 当前微编辑对象暂存
-    currentMinied = null;
+    currentMinied = null,
+
+    // 出错提示音
+    beepTips = null;
 
 
 
@@ -3705,6 +3708,8 @@ function help( msgid, el = null ) {
 
     // 进阶：帮助ID嵌入到提示链接中。
     $.trigger( $.get('a', errContainer), 'setv', [hid, msg, msg] );
+
+    Fx.beeptip && beepTips.play();
 }
 
 
@@ -3737,15 +3742,17 @@ function statusInfo( msg ) {
 
 
 /**
- * 输出错误提示。
- * 依然抛出原有错误以阻止流程继续。
+ * 错误提示。
+ * 返回的错误对象由上级决定抛出或略过。
  * @param  {String} msg 输出消息
  * @param  {Value} data 关联数据
- * @return {void}
+ * @return {Error} 封装的错误对象
  */
 function error( msg, data ) {
     $.trigger( linkElem(errContainer, data), 'on' );
     $.trigger( $.get('a', errContainer), 'setv', [null, msg, msg] );
+
+    Fx.beeptip && beepTips.play();
 
     return new Error( msg );
 }
@@ -4567,6 +4574,7 @@ function _tableNoit( ref, els ) {
 /**
  * 初始化全局数据。
  * 用于编辑器设置此模块中操作的全局目标。
+ * 实参为元素选择器。
  * @param {String} content 编辑器内容根（<main>）
  * @param {String} pathbox 路径蓄力容器
  * @param {String} pslave 主面板根元素
@@ -4575,8 +4583,9 @@ function _tableNoit( ref, els ) {
  * @param {String} midtool 工具栏动态按钮区
  * @param {String} modal 模态框根容器
  * @param {String} contab 主面板内容标签容器
+ * @param {String} beep 声音提示元素（出错时）
  */
-export function init( content, covert, pslave, pathbox, errbox, infobox, outline, midtool, modal, contab ) {
+export function init( content, covert, pslave, pathbox, errbox, infobox, outline, midtool, modal, contab, beep ) {
     contentElem   = $.get( content );
     covertShow    = $.get( covert );
     slavePanel    = $.get( pslave );
@@ -4587,6 +4596,7 @@ export function init( content, covert, pslave, pathbox, errbox, infobox, outline
     midtoolElem   = $.get( midtool );
     modalDialog   = $.get( modal );
     slaveInsert   = $.get( contab );
+    beepTips      = $.get( beep );
 
     // 命令行处理器。
     Object.assign( __Cmder, {
