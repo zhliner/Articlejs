@@ -407,7 +407,7 @@ const _VIEWS = [
 
 //
 // 受限行块单元集。
-// 少部分可置于文章顶层（与<article>平级）的单元内容。
+// 适用部分用途较明确的行块，作为其内部嵌套的小块。
 //
 const _BLOLIMIT = [ BLOCKQUOTE, ASIDE, UL, OL ];
 

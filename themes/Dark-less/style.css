@@ -8,12 +8,12 @@
  *
  *****************************************************************************/
 
+@import '../normalize.css';
 @import 'icons.css';
 
 
 body {
     display: flex;
-    margin: 0;
 }
 body > * {
     flex-shrink: 0;
@@ -32,6 +32,7 @@ body > hr {
     border-radius: 3px;
     background-color: #111;
     cursor: ew-resize;
+    height: auto;
 }
 
 /* 编辑器容器 */
@@ -62,7 +63,7 @@ aside.Outline {
     background-color: #282820;
 }
 .___Content ._scroll:focus {
-    background-color: #af6202;
+    background-color: #e2631a;
 }
 .___Content main.content {
     margin: 0 1pt;
@@ -259,6 +260,7 @@ aside.Outline {
 }
 .___Panel textarea {
     font-size: 12pt;
+    border: 1px gray solid;
     line-height: 30px;
     background: local url(images/txtline.png) repeat #1d4649;
 }

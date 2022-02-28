@@ -19,3 +19,14 @@
 .___Content svg ._selected {
     stroke: #27cbec;
 }
+
+/* 激活覆盖 */
+.___Content ._scroll {
+    background-color: white;
+}
+.___Content ._scroll:focus {
+    background-color: orange;
+}
+.___Content main.content {
+    margin: 0 2px;
+}

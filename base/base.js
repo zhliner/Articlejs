@@ -79,10 +79,10 @@ const OnlyChild = new Set([
 
 //
 // 定制结构判断取值。
-// 适用：存在于DOM树中已有的节点。
+// 可能为游离节点，也可能存在于DOM树中。
 // {tagName: function(Element): Number}
 // 注记：
-// 优先使用字符串标签名判断，避免类型取值循环可能带来的安全隐患。
+// 优先使用字符串标签名判断，避免类型取值循环可能带来的问题。
 //
 const CustomStruct = {
     /**
@@ -162,6 +162,9 @@ const CustomStruct = {
      * @return {Number} 单元值
      */
     SOURCE( el, box ) {
+        if ( !box ) {
+            throw new Error( `<source>'s parent is ${box}` );
+        }
         return box.tagName === 'PICTURE' ? T.SOURCE2 : T.SOURCE1;
     },
 
@@ -290,6 +293,13 @@ const StructVerify = {
     // 类型本身受目标父容器约束，自身自由也无子级验证。
     //
     IMG: [ T.PIMG, T.IMG ],
+
+
+    //
+    // 两种资源类型。
+    // 无条件适用父容器（<picture|audio|video>）。
+    //
+    SOURCE: [ T.SOURCE1, T.SOURCE2 ],
 
 };
 

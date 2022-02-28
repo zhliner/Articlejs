@@ -97,6 +97,7 @@ const
         '/articlejs/themes/Example/images/icons.png',
         '/articlejs/themes/Example/style.css',
         '/articlejs/themes/beep.ogg',
+        '/articlejs/themes/normalize.css',
     ];
 
 
@@ -123,12 +124,15 @@ async function respondCache( ev, name ) {
     if ( _resp ) {
         return _resp;
     }
-    _resp = await fetch( ev.request );
     console.log( `[Service Worker] Caching new resource: ${ev.request.url}` );
+    // 丢弃原有请求的状态直接使用.url，
+    // 否则刷新fetch可能会出错（beep.ogg）。
+    _resp = await fetch( ev.request.url );
 
-    let cache = await caches.open( name );
-    cache.put( ev.request, _resp.clone() );
-
+    if ( _resp.ok ) {
+        let cache = await caches.open( name );
+        cache.put( ev.request, _resp.clone() );
+    }
     return _resp;
 }
 
