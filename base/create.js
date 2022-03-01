@@ -129,6 +129,7 @@ const Tags = {
     // 定制结构（无role）。
     [ T.CODELI ]:       'li',
     [ T.ALI ]:          'li',
+    [ T.AH4 ]:          'h4',
     [ T.AH5 ]:          'h5',
     [ T.XH5LI ]:        'li',
     [ T.XOLH5LI ]:      'li',
@@ -557,17 +558,20 @@ const Children = {
      * 注记：下阶专用函数构建目录内容。
      * @param {Element|null} ref 参考子元素
      * @param {Element} toc 目标根元素
-     * @param {String} h4 目录显示标签
+     * @param {Element} h4a 目录标签（名称）
      * @param {Element} ol 编号级联表
      */
-    [ T.TOC ]: function( ref, toc, {h4}, ol ) {
+    [ T.TOC ]: function( ref, toc, {h4a}, ol ) {
         let [_ol, _end] = appendChild(
             ref,
             toc,
             ol,
             () => elem( T.TOCCASCADE )
         );
-        return result( h4 && insertHeading(toc, T.H4, h4), _ol, _end );
+        if ( h4a ) {
+            $.prepend( toc, elem(T.HR) );
+        }
+        return result( h4a && insertHeading(toc, T.AH4, h4a), _ol, _end );
     },
 
 
@@ -821,6 +825,7 @@ const Children = {
 [
     [ T.CODELI,     T.CODE ],
     [ T.ALI,        T.A ],
+    [ T.AH4,        T.A ],
     [ T.AH5,        T.A ],
 ]
 .forEach(function( its ) {
@@ -1267,6 +1272,7 @@ const Builder = {
     // T.THEAD,
     // T.TBODY,
     // T.TFOOT,
+    // T.AH4,
     // T.AH5,
     // T.TOCCASCADE,
     // T.FIGCONBOX,
@@ -1488,6 +1494,7 @@ function insertHeading( box, tval, data ) {
         return $.replace( _hx, data );
     }
     // 非法标题元素取内容。
+    // 如果元素已合法，外部可封装为数组来保持。
     $.fill( _hx, data.nodeType ? $.contents(data) : data );
 
     return _hx;
@@ -1826,6 +1833,7 @@ function tocH5li( h2 ) {
         { href: h2.id ? `#${h2.id}` : null },
         h2.innerText
     );
+    // 让<a>元素保持（非取内容），封装为数组。
     return build( elem(T.XOLAH5LI), { h5a: [_a] }, elem(T.OL) );
 }
 
@@ -2179,6 +2187,7 @@ function build( el, opts, data, more ) {
  *      h1:         {Value}     页面主标题
  *      h4:         {Value}     行块小标题
  *      h5:         {Value}     级联表小标题
+ *      h4a:        {Element}   目标标签项
  *      h5a:        {Element}   级联表标题链接
  *      explain:    {Value}     图片讲解
  *      h2:         {Value}     片区（<section>）标题

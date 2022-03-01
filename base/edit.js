@@ -7235,9 +7235,10 @@ export const Kit = {
      */
     export2( evo ) {
         let _box = cleanElem( contentElem ),
-            _art = $.get( 'article', _box );
+            _art = $.get( 'article', _box ),
+            _h4a = create( T.AH4, null, evo.data );
 
-        topInsert( T.TOC, create(T.TOC, {h4: evo.data}, _art), _box );
+        topInsert( T.TOC, create(T.TOC, {h4a: _h4a}, _art), _box );
 
         return $.html( _box );
     },
