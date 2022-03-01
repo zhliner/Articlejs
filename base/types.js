@@ -150,12 +150,13 @@ export const
     // 注记：无需LICODE设计，容器非CONTENT即可。
     CODELI          = 418,  // 代码表条目（li/code） {value}
     ALI             = 419,  // 链接列表项（li/a）
-    AH5             = 420,  // 链接小标题（h5/a）
-    XH5LI           = 421,  // 级联表标题项（li/h5, ul）
-    XOLH5LI         = 422,  // 级联表有序标题项（li/h5, ol）
-    XOLAH5LI        = 423,  // 级联表有序链接标题项（li/[h5/a], ol）
-    TOCCASCADE      = 424,  // 目录级联表（ol:cascade/[li/a]）
-    FIGCONBOX       = 425,  // 插图内容块（span/img, i:explain）
+    AH4             = 420,  // 目录标签项（h4/a）
+    AH5             = 421,  // 链接小标题（h5/a）
+    XH5LI           = 422,  // 级联表标题项（li/h5, ul）
+    XOLH5LI         = 423,  // 级联表有序标题项（li/h5, ol）
+    XOLAH5LI        = 424,  // 级联表有序链接标题项（li/[h5/a], ol）
+    TOCCASCADE      = 425,  // 目录级联表（ol:cascade/[li/a]）
+    FIGCONBOX       = 426,  // 插图内容块（span/img, i:explain）
     //
     // 行块结构元素
     /////////////////////////////////////////////
@@ -295,6 +296,7 @@ const Properties = {
 
     [ CODELI ]:         STRUCT | STRUCTX | SEALED,
     [ ALI ]:            STRUCT | STRUCTX | CONTENT, // 宽容
+    [ AH4 ]:            STRUCT | SINGLE | FIXED1 | FIXED2 | CONTENT,
     [ AH5 ]:            STRUCT | SINGLE | FIXED1 | FIXED2 | CONTENT,
     [ XH5LI ]:          STRUCT | STRUCTX | SEALED,
     [ XOLH5LI ]:        STRUCT | STRUCTX | SEALED,
@@ -524,6 +526,7 @@ export const ChildTypes = {
 
     [ CODELI ]:         [ CODE ],
     [ ALI ]:            [ A ],
+    [ AH4 ]:            [ A ],
     [ AH5 ]:            [ A ],
     [ XH5LI ]:          [ H4, UL ],
     [ XOLH5LI ]:        [ H4, OL ],
@@ -535,7 +538,7 @@ export const ChildTypes = {
     /////////////////////////////////////////////
     [ HGROUP ]:         [ H1, H3 ],
     [ ABSTRACT ]:       [ H4, P, ..._BLOLIMIT ],
-    [ TOC ]:            [ H4, TOCCASCADE ],
+    [ TOC ]:            [ AH4, HR, TOCCASCADE ],
     [ REFERENCE ]:      [ H4, OL ],
     [ SEEALSO ]:        [ H4, UL ],
     [ HEADER ]:         [ H4, P, TIPS, NOTE, ..._BLOLIMIT, ULX, OLX ],

@@ -116,7 +116,7 @@
             cut|env('minied') end avoid sels text trims(' ') trim join('\n');
             paste|env('minied') end avoid clipboard trim dup pass split('\n') env('paste:append');
             focus|env('minied') end wRange hasRange('/main') end $('/main') nodeRange(true) addRange;
-            copy|env('minied') end sRange end avoid sels text trims(' ') trim join('\n') pop clipboard;
+            copy|env('minied') end sRange(false) end avoid sels text trims(' ') trim join('\n') pop clipboard;
             keydown|env('minied') end ev('shiftKey') pass env('paste:append', true);
             keyup|env('minied') end env('paste:append', null);
             _focus|env('minied') end evo(3) focus"
@@ -257,18 +257,19 @@
             click(*) 单击相关操作。avoid取消链接单击跳转。
                      注：按Shift单击并不会有浏览器聚焦，因此需主动聚焦。
             focus(audio,video) 单击选取在音/视频元素上无效，故借助聚焦（但无键盘按键信息）。
-            cancel  选取集取消（ESC）。
-            mouseup 弹出内联单元创建表。划选完整嵌套，非空，发送Range。同时存储鼠标指针和滚动条位置。
+            cancel   选取集取消（ESC）。
+            mouseup  弹出内联单元创建表。划选完整嵌套，非空，发送Range。同时存储鼠标指针和滚动条位置。
+            _mouseup 用于程序激发弹出菜单（上下文菜单选取元素）。
             mouseover(*),mouseout(*)|...('_hover') 提供样式定位依据。
             mouseleave|end 重置状态栏，除非已有计数指定。
             mousedown|...avoid 避免 Shift+单击 变成划选（已经有划选除外）。
-            mouseup([contenteditable])... 微编辑光标记忆，用于特殊字符插入。注：keyup-全选，focus-无点击进入。
+            click([contenteditable])... 微编辑光标记忆，用于特殊字符插入。delay确认选区为单击点，否则可能为容器本身。
             puthtml 整体导入内容源码（可撤销），同时滚动到顶部。
                     注：微编辑状态下无效，否则新内容中普通操作无效。
             click(~) 在内容区为空时插入一个主标题占位（以便开始工作）。
         -->
         <main id="content" class="content"
-            on="click(*) focus(~audio,video)|avoid env('minied') end sRange end evo(1) SCAM;
+            on="click(*) focus(~audio,video)|avoid env('minied') end sRange(true) pass evo(1) SCAM;
                 cancel|stop env('minied') end;
                 puthtml|env('minied') end ev('detail');
                 click(~)|stopAll ('文章主标题，单击开始');
@@ -276,11 +277,11 @@
                 mouseout(*)|env('minied') end ('_hover');
                 mouseover(*)|env('minied') end $('#g-count') val end evo(1) dup einfo(true) roleinfo(_1) str('<', '>');
                 mouseleave|env('minied') end $('#g-count') val end;
-                mouseup|stop env('minied') end ev('pageX pageY') env('pointerXY', _1) sRange dup pass;
-                _mouseup|env('minied') end sRange dup pass;
+                mouseup|stop env('minied') end ev('pageX pageY') env('pointerXY', _1) sRange(null) dup pass;
+                _mouseup|env('minied') end sRange(null) dup pass;
                 contextmenu|env('minied') end avoid ev('pageX pageY') env('pointerXY', _1);
-                mousedown|env('minied') end sRange(true) vnot ev('shiftKey') both pop avoid;
-                mouseup([contenteditable]) keyup([contenteditable]) input focus([contenteditable])|env('minied') pass sRange pop xRange stop"
+                mousedown|env('minied') end sRange(true) ev('shiftKey') both pop avoid;
+                click([contenteditable]) keyup([contenteditable]) input|env('minied') pass delay sRange pop xRange stopAll"
             by="Ed.click(_1);
                 Kit.ecancel;
                 Kit.puthtml (0);

@@ -419,6 +419,7 @@
             <!--反馈信息：
                 ok      结构正常。设置提示并取消聚焦能力。
                         3秒后隐藏文本，便于再次检查时反馈更清晰（不变的提示缺乏表达力）。
+                        注：内容可能在3秒前已被reset事件清空。
                 err     结构错误。设置_err类名、提示文本、赋予聚焦能力。
                         detail: [String]|null
                 reset   清除消息、类名，取消可聚焦。在内容区选取变化时使用。
@@ -435,7 +436,7 @@
                     click|evo(3) dup fulled end blur;
                     focus|evo(3) full;
                     blur|evo(3) full(false)"
-                to="|@tabindex @html removeClass|delay(3000) $('/i') hide;
+                to="|@tabindex @html removeClass|delay(3000) $('/i') dup pass hide;
                     |@tabindex @html removeClass;
                     |@html addClass @tabindex;
                     |trigger('focus')"></pre>

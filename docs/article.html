@@ -52,7 +52,7 @@
             <p><strong>注：</strong>一篇层级适当的文章通常只有<strong>3-4</strong>个层级，即：<strong>章/节/区/段</strong>。再多的层级并不常见，阅读友好性也会变差。</p>
         </header>
         <nav role="toc"
-            on="click(~h4)|$('/ol') lose(2) ('auto');
+            on="click(~h4)|evo(3) fold(2) ('auto');
                 click(h4>a)|$('1/h1') intoView"
             to="|toggleStyle('height')">
             <h4><a>【目 录】</a></h4>

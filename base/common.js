@@ -1500,11 +1500,11 @@ export function cleanInline( el ) {
     for ( const nd of el.childNodes ) {
         let _t = nd.nodeType;
 
-        if ( _t === 1 ) {
-            _buf.push( cleanInline(nd) );
-        }
-        else if ( _t === 3 || _t === 8 ) {
+        if ( _t === 3 || _t === 8 || nd.tagName === 'svg' ) {
             _buf.push( nd );
+        }
+        else if ( _t === 1 ) {
+            _buf.push( cleanInline(nd) );
         }
     }
     if ( _buf.length ) {
