@@ -16,17 +16,24 @@
         width: 800px;
         margin-left: 21em;
     }
+    main > nav > hr {
+        cursor: ew-resize;
+    }
 </style>
 <script type="module" async>
-    import { tocFold } from "../index.js";
+    import { tocFold, tocFoldSub, tocWidth, tocScroll } from "../index.js";
+
     tocFold( $.get('nav') );
+    tocFoldSub( $.get('nav>ol') );
+    tocWidth( $.get('nav>hr'), 'body', 30 );
 </script>
 </head>
 <body>
     <main class="content">
         <h1>快速入门</h1>
         <nav role="toc">
-            <h4>目录</h4>
+            <h4><a>目 录</a></h4>
+            <hr />
             <ol role="cascade">
                 <li>
                     <h5><a>内容区和功能区</a></h5>
@@ -37,7 +44,7 @@
                             <h5><a>普通模式</a></h5>
                             <ol>
                                 <li><a>焦点移动</a></li>
-                                <li><a>选取切换</a></li>
+                                <li><a>单选与多选</a></li>
                             </ol>
                         </li>
                     </ol>
@@ -66,8 +73,7 @@
                     <li><kbd>M</kbd>：进入<strong>修订</strong>（Modify）模式，修改目标元素内的内容。按回车（<kbd>Enter</kbd>）键确认。</li>
                     <li><kbd>U</kbd> / <kbd>R</kbd>：各种撤销（<code>Undo</code>）与重做（<code>Redo</code>）。</li>
                     <li><kbd>Ctrl+S</kbd>：保存文章内容到浏览器本地，重新打开或<em>刷新</em>页面即会自动载入。</li>
-                    <li><kbd>ESC</kbd>：各种<em>取消</em>。支持<code>选取集</code>、<code>上下文菜单</code>、<code>内联创建菜单</code>、<code>模态框</code>、<code>修订模式</code>、<code>前置数字</code>、<code>录入框平铺</code>等。
-                    </li>
+                    <li><kbd>ESC</kbd>：各种<em>取消</em>。支持<code>选取集</code>、<code>上下文菜单</code>、<code>内联创建菜单</code>、<code>模态框</code>、<code>修订模式</code>、<code>前置数字</code>、<code>录入框平铺</code>等。</li>
                 </ul>
             </header>
             <section role="s1">

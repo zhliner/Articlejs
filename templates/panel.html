@@ -99,7 +99,7 @@
                 input.select|ev('detail') slr('/','-k', _1) $(_1) dup pass prop('value')"
             to="2/._main|fill;
                 |val|change">
-            <optgroup label="实体类">
+            <optgroup label="实体单元" data-v="1">
                 <option tpl-node="
                     option:audio,
                     option:video,
@@ -111,7 +111,7 @@
                     option:br,
                     option:wbr"></option>
             </optgroup>
-            <optgroup label="含属性类">
+            <optgroup label="文本&属性" data-v="2">
                 <option tpl-node="
                     option:a,
                     option:times,
@@ -123,7 +123,7 @@
                     option:bdo,
                     option:ruby"></option>
             </optgroup>
-            <optgroup label="纯文本类">
+            <optgroup label="纯文本类" data-v="3">
                 <option tpl-node="
                     option:strong,
                     option:em,
@@ -139,6 +139,9 @@
                     option:var,
                     option:code,
                     option:orz"></option>
+            </optgroup>
+            <optgroup label="表单控件" data-v="4">
+                <option></option>
             </optgroup>
         </select>
     </div>

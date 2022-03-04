@@ -16,18 +16,28 @@
         width: 800px;
         margin-left: 21em;
     }
+    main > nav > hr {
+        cursor: ew-resize;
+    }
 </style>
 <script type="module" async>
-    import { tocFold, tocScroll } from "../index.js";
+    import { tocFold, tocFoldSub, tocWidth, tocScroll } from "../index.js";
+
+    let _casc = $.get( 'nav>ol' );
+
     tocFold( $.get('nav') );
-    tocScroll( $.get('nav>ol') );
+    tocFoldSub( _casc );
+    tocScroll( _casc );
+    tocWidth( $.get('nav>hr'), 'body', 30 );
+
 </script>
 </head>
 <body>
     <main class="content">
         <h1>编辑器操作详解</h1>
         <nav role="toc">
-            <h4>目录</h4>
+            <h4><a>目 录</a></h4>
+            <hr />
             <ol role="cascade">
                 <li><a>全局热键</a></li>
                 <li>

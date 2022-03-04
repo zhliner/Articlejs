@@ -141,14 +141,31 @@ function localStyle( prefix, type, name ) {
 
 
 /**
+ * 目录折叠（整个）。
+ * - 单击目录标签名（<a>）定位到文章主标题。
+ * - 单击标签本身（<h4>）折叠整个目录。
+ * @param {Element} nav 目录根元素
+ */
+function tocFold( nav ) {
+    Tpb.build( nav, {
+        on: `click(~h4)|evo(3) fold(2) ('auto');
+            click(h4>a)|$('1/h1') intoView`,
+
+        // 覆盖外部固定高度样式。
+        to: `|toggleStyle('height')`
+    });
+}
+
+
+/**
  * 目录子表折叠动作。
  * - 单击链接条目定位到目标章节。
  * - 单击目录标题条子表折叠子表。
- * @param  {Element} root 目标列表根
+ * @param  {Element} casc 目录列表根
  * @return {void}
  */
-function tocFold( root ) {
-    Tpb.build( root, {
+function tocFoldSub( casc ) {
+    Tpb.build( casc, {
         on: `click(a)|evo(2) paths('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView;
             click(~h5)|evo(2) parent fold(2)`
     });
@@ -157,13 +174,43 @@ function tocFold( root ) {
 
 /**
  * 目录滚动条自动隐藏动作。
- * @param  {Element} root 目录列表根
+ * @param  {Element} casc 目录列表根
  * @return {void}
  */
-function tocScroll( root ) {
-    Tpb.build( root, {
+function tocScroll( casc ) {
+    Tpb.build( casc, {
         on: "mouseenter|('auto'); mouseleave|('hidden')",
         to: "|css('overflow-y'); |css('overflow-y')"
+    });
+}
+
+
+/**
+ * 目录宽度可调动作。
+ * 注记：
+ * 控制根用于鼠标移动时带动目录宽度变化，以及释放鼠标时取消移动绑定。
+ * 拖动目标应当在控制根之内，鼠标按下时激活控制根的拖动处理（注册绑定）。
+ * @param {Element} hr 拖动目标
+ * @param {String} root 主体控制根选择器（不支持二阶选择器）。
+ * @param {Number} space 与内容区间距（像素）
+ */
+function tocWidth( hr, root, space ) {
+    let _box = $.get( root );
+
+    // 移动&取消控制根。
+    // 文章主体左边距跟着变化（目录在左侧）。
+    Tpb.build( _box, {
+        on: `@mousemove:h|movementX(2) dup pass;
+            @mouseup|movementX(null);
+            margin_ml|ev('detail') dup pop(2) width css('left') int push(${space}) sum(3) add('px')`,
+        to: `nav[role=toc]|width(true)|target pop goto('margin_ml');
+            |off('mousemove');
+            main.content|%marginLeft`
+    });
+    // 拖动目标。
+    Tpb.build( hr, {
+        on: `mousedown|$('nav/') css('position') eq('fixed') pass avoid`,
+        to: `${root}|bind('mousemove:h') once('mouseup')`
     });
 }
 
@@ -237,7 +284,11 @@ Tpb.init( On, By ).build( document.body );
 
 // PWA 支持
 if ('serviceWorker' in navigator) {
-    // navigator.serviceWorker.register( '/articlejs/pwa-sw.js' );
+    navigator.serviceWorker.getRegistrations()
+        .then( regs => {
+            for ( const reg of regs ) reg.unregister();
+            // navigator.serviceWorker.register( '/articlejs/pwa-sw.js' );
+        });
 }
 
 
@@ -262,7 +313,10 @@ processExtend( By, 'Kit', Kit, [
 // 导出
 //////////////////////////////////////////////////////////////////////////////
 
-export { saveEditor, recover, firstLearn, tickdoing, tocFold, tocScroll };
+export {
+    saveEditor, recover, firstLearn, tickdoing,
+    tocFoldSub, tocFold, tocScroll, tocWidth
+};
 
 
 //:debug
