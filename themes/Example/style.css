@@ -714,6 +714,7 @@ menu._cells code {
 .Outline nav[role=toc] > ol[role=cascade] {
     height: calc(100% - 70px);
     overflow-y: auto;
+    scrollbar-gutter: stable;
 }
 .Outline nav[role=toc] h4 {
     font-size: 1.1em;

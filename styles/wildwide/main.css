@@ -287,9 +287,12 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 .content nav[role=toc] li > h5::after {
     content: '-';
     float: right;
-    margin-right: 0.8em;
+    margin-right: 0.6em;
     color: green;
     font-family: monospace;
+}
+.content nav[role=toc] > h4::after {
+    margin-right: 1.8em;
 }
 .content nav[role=toc][data-pbo=folded] > h4::after,
 .content nav[role=toc] li[data-pbo=folded] > h5::after {

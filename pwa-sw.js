@@ -50,7 +50,7 @@ const
         '/articlejs/editor.js',
         '/articlejs/favicon.ico',
         '/articlejs/icons/cooljed.png',
-        '/articlejs/icons/icon-192.png',
+        '/articlejs/icons/icon-168.png',
         '/articlejs/index.html',
         '/articlejs/index.js',
         '/articlejs/plugins/coolmd/extend.js',

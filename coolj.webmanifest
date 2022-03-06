@@ -29,13 +29,18 @@
             "type": "image/png"
         },
         {
+            "src": "icons/icon-168.png",
+            "sizes": "168x168",
+            "type": "image/png"
+        },
+        {
             "src": "icons/icon-192.png",
             "sizes": "192x192",
             "type": "image/png"
         }
     ],
     "start_url": "/articlejs/",
-    "display": "fullscreen",
+    "display": "standalone",
     "theme_color": "#134460",
     "background_color": "#a87543"
 }

@@ -283,7 +283,7 @@ Tpb.init( On, By ).build( document.body );
 
 
 // PWA 支持
-if ('serviceWorker' in navigator) {
+if ( 'serviceWorker' in navigator ) {
     navigator.serviceWorker.getRegistrations()
         .then( regs => {
             for ( const reg of regs ) reg.unregister();
