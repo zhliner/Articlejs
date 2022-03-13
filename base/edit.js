@@ -17,7 +17,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import $, { OBTA, TplrName, TplsPool } from "./tpb/config.js";
+import $, { TplrName, TplsPool } from "./tpb/config.js";
 import { ROOT, Sys, Limit, Help, Tips, Cmdx, Local, On, By, Fx } from "../config.js";
 import { customGetter, processExtend } from "./tpb/tpb.esm.js";
 import * as T from "./types.js";
@@ -145,14 +145,11 @@ const
     ]),
 
     // OBT复合特性名。
-    // 'on by to'
-    __obtAttr = `${OBTA.on} ${OBTA.by} ${OBTA.to}`,
+    __obtAttr = 'on by to',
 
     // OBT 特性名检查。
-    // 用于特性名检查构造复合名（__obtAttr）。
     __obtNames = new Set([
-        // 'on', 'by', 'to', 'on by to'
-        OBTA.on, OBTA.by, OBTA.to, __obtAttr
+        'on', 'by', 'to', __obtAttr
     ]),
 
     // 元素选取集实例。

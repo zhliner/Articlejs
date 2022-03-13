@@ -472,7 +472,7 @@ export const ChildTypes = {
     // 内联内容元素
     /////////////////////////////////////////////
     [ A ]:              [ $TEXT, ..._INLALL ],
-    [ Q ]:              [ $TEXT, A, ..._INLALL, SVG, IMG ],
+    [ Q ]:              [ $TEXT, A, ..._INLALL ],
     [ ABBR ]:           [ $TEXT, ..._REVIEW ],
     [ DEL ]:            [ $TEXT, A, ..._INLTEXT, ..._INLVIEW ],
     [ INS ]:            [ $TEXT, A, ..._INLTEXT, ..._INLVIEW ],

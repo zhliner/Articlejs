@@ -21,19 +21,23 @@
     }
 </style>
 <script type="module" async>
-    import { Tpb } from "../base/tpb/tpb.esm.js";
+    import { Tpb, BaseOn, BaseBy } from "../base/tpb/tpb.esm.js";
     Tpb
     .init()
     .build( document.body );
+
+    window.On = BaseOn;
+    window.By = BaseBy;
 </script>
 </head>
-<!--目录宽度可调整：
-    目录与主体内容间距增强40px。 -->
+<!--目录宽度可调：
+    仅在目录为左侧固定时有效。
+    主体内容左侧边距与目录宽度同步增加（两者30px间距）。 -->
 <body lang="zh-cn"
-    on="@mousemove:plus|movementX(2) dup pass;
-        @mouseup|movementX(null);
-        margin_ml|ev('detail') dup pop(2) width css('left') int (30) sum(3) add('px')"
-    to="nav[role=toc]|width(true)|target pop goto('margin_ml');
+    on="@mousemove:1|movementX(2) dup pass dup;
+        @mouseup:1|movementX(null);
+        margin_ml|$('main.content') css('margin-left') int ev('detail') add(_1) add('px')"
+    to="nav[role=toc]|width(true)|pop goto('margin_ml');
         |off('mousemove');
         main.content|%marginLeft">
     <main class="content">
@@ -59,7 +63,7 @@
             <!--宽度可调整：
                 配合<body>定义实现，仅在目录固定时有效。 -->
             <hr on="mousedown|$('nav/') css('position') eq('fixed') pass avoid"
-                to="body|bind('mousemove:plus') once('mouseup')" />
+                to="body|bind('mousemove:1') once('mouseup:1')" />
             <!--行为：
                 mouseenter 滚动条显示
                 mouseleave 滚动条友好隐藏

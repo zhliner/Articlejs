@@ -192,25 +192,24 @@ function tocScroll( casc ) {
  * 拖动目标应当在控制根之内，鼠标按下时激活控制根的拖动处理（注册绑定）。
  * @param {Element} hr 拖动目标
  * @param {String} root 主体控制根选择器（不支持二阶选择器）。
- * @param {Number} space 与内容区间距（像素）
  */
-function tocWidth( hr, root, space ) {
+function tocWidth( hr, root ) {
     let _box = $.get( root );
 
     // 移动&取消控制根。
     // 文章主体左边距跟着变化（目录在左侧）。
     Tpb.build( _box, {
-        on: `@mousemove:h|movementX(2) dup pass;
-            @mouseup|movementX(null);
-            margin_ml|ev('detail') dup pop(2) width css('left') int push(${space}) sum(3) add('px')`,
-        to: `nav[role=toc]|width(true)|target pop goto('margin_ml');
+        on: `@mousemove:h|movementX(2) dup pass dup;
+            @mouseup:x|movementX(null);
+            margin_ml|$('main.content') css('margin-left') int ev('detail') add(_1) add('px')`,
+        to: `nav[role=toc]|width(true)|pop goto('margin_ml');
             |off('mousemove');
             main.content|%marginLeft`
     });
     // 拖动目标。
     Tpb.build( hr, {
         on: `mousedown|$('nav/') css('position') eq('fixed') pass avoid`,
-        to: `${root}|bind('mousemove:h') once('mouseup')`
+        to: `${root}|bind('mousemove:h') once('mouseup:x')`
     });
 }
 

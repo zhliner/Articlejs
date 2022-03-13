@@ -231,6 +231,7 @@
         <!--特性选单：
             主区切换前即更新到目标元素。
             follow  特性名清单跟随更新：保留相同，不同则清理或补足。
+                    注意延迟change，因为右侧录入框可能尚未激活（处于:disabled）。
             change  插入适配的内容模板。注：修改不会被自动应用。
             attrto  提取元素特性值发送到编辑框。
             addnew  添加一个新特性（临时），如果已经存在则忽略。
@@ -246,7 +247,7 @@
                 blank|tpl('attr:empty');
                 keydown|iskey('Delete') pass evo(3) val dup pass evo(3) prop('selected') remove"
             by="Kit.attrlist(_1) pop elem('option')"
-            to="|append|goto('change');
+            to="|append|fire(10, 'change');
                 form/._main>*|replace|goto('attrto');
                 form/._main>*|trigger('vinit');
                 |append|pop fire(3, 'select');
@@ -265,7 +266,7 @@
             <!-- 空白占位 -->
             <p class="_empty" tpl-name="attr:empty"></p>
             <!--特性编辑：
-                vinit   初始设置值，简单分号切分换行友好。
+                vinit   初始设置值，简单分隔符切分换行友好。
                 attrok  提取编辑值（适当构造），发送到表单应用到内容元素上。
                 detach  被切换掉时隐藏分隔符选项（仅此文本框需要该选项）。
                 nodeok  被替换回来时显示分隔符选项。
@@ -374,8 +375,9 @@
             </div>
         </div>
         <aside>
+            <!--change 注意接收者需要一个值数组 -->
             <div class="_option"
-                on="change(input)|$('._body/textarea') val arr"
+                on="change(input)|$('._body/textarea') val trim dup pass arr"
                 to="form/._main>textarea|trigger('vinit')">
                 <labe id="_chsep"
                     on="show|evo(3) hide(false);
