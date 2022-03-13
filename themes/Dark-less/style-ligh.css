@@ -1,0 +1,32 @@
+/*! $id: Dark-less/style2.css 2021.12.14 Cooljed.Theme $
+ +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ *
+ *  主题：光明之夜（内容区亮色版）
+ *
+ *  @name: Dark-less
+ *  @author: 风林子 zhliner@gmail.com
+ *
+ *****************************************************************************/
+
+@import 'style.css';
+
+
+.___Content ._selected {
+    color: #333;
+    background-color: #ffffb8;
+}
+
+.___Content svg ._selected {
+    stroke: #27cbec;
+}
+
+/* 激活覆盖 */
+.___Content ._scroll {
+    background-color: white;
+}
+.___Content ._scroll:focus {
+    background-color: orange;
+}
+.___Content main.content {
+    margin: 0 2px;
+}

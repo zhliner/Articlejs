@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>HTML元素集示例（全）</title>
+<meta charset="utf-8" />
+<meta http-equiv="no-cache">
+<script src="../base/tquery/tquery.js"></script>
+<script src="./htmlTags.js"></script>
+<style>
+    body {
+        font-size: 11pt;
+    }
+    canvas {
+        border: 1px #999 solid;
+    }
+    /* 注：colgroup支持的样式极少 */
+    .columnA {
+        width: auto;
+    }
+    .columnB {
+        width: 120px;
+        /* text-align: center; */
+    }
+    fieldset {
+        width: 30em;
+    }
+    object {
+        border: 1px #999 solid;
+        height: 80px;
+        width: 200px;
+    }
+</style>
+<script>
+    // let buf = [],
+    //     els = {};
+    // $(function() {
+        // tags.forEach( tag => els[tag] = $.get(tag) );
+        // for (const k of Object.keys(els)) {
+        //     let el = els[k];
+        //     namesCaller(el)
+        //     .forEach(
+        //         n => el['on'+n] = eventsRaised.bind(null, buf)
+        //     );
+        // }
+        // setTimeout( calls.bind(Object.values(els)), 5000 );
+    // });
+</script>
+</head>
+<body>
+
+<aside>
+    <nav>
+        <ol>
+            <li>aside/nav/ol/li: 有序列表</li>
+            <li>aside/nav/ol/li: 有序列表</li>
+            <li>aside/nav/ol/li: 有序列表</li>
+        </ol>
+    </nav>
+</aside>
+
+<main>
+<menu>
+    <li>menu/li 菜单条目</li>
+    <li>menu/li 菜单条目</li>
+</menu>
+
+<pre>
+<a href="#">a: 链接</a>
+<abbr>abbr: 缩写</abbr>
+<cite>cite: 来源</cite>
+<code>code: 代码</code>
+<del>del: 删除</del>
+<dfn>dfn: 术语定义</dfn>
+<strong>strong: 重点</strong>
+<em>em: 强调</em>
+<b>b: 粗体</b>
+<i>i: 斜体</i>
+<ins>ins: 插入</ins>
+<kbd>kbd: 键盘输入</kbd>
+<q>q: 引用</q>
+<s>s: 不再相关</s>
+<samp>samp: 程序输出</samp>
+<span>span: 行内单元</span>
+<mark>mark: 标记</mark>
+X<sub>sub</sub>
+X<sup>sup</sup>
+<time>time: 时间</time>
+<u>u: 下划线标注</u>
+<var>var: 变量</var>
+X<small>small: 附注</small>
+<data value="[机器可读物品编码]">data: 某物品</data>
+<label>progress: </label><progress value="70" max="100">70 %</progress>
+<label>meter: </label><meter low="69" high="80" max="100" value="84"></meter>
+<bdi>bdi: 双向隔离元素（自动文本方向）</bdi>
+<bdo>bdo: 双向方向覆盖</bdo>
+</pre>
+
+<label>ruby/rp,rt,rtc:</label>
+<ruby>漢字
+    <rp>（</rp>
+    <rt>hàn zhì</rt>
+    <rp>）</rp>
+    <rtc>象形文字</rtc>
+</ruby>
+<br>
+<label>img: </label><img width="64" src="logo.jpg" alt="Logo" />
+<br>
+<label>picture/source,img:</label>
+<picture>
+    <source srcset="folder.svg" type="image/svg+xml">
+    <img src="logo.jpg" alt="Logo">
+</picture>
+<br>
+<label>audio/source,track:</label>
+<audio controls="controls">
+    <source src="horse.ogg" type="audio/ogg" />
+    <track kind="captions" srclang="en" label="English">
+</audio>
+<br>
+<label>video/source,track:</label>
+<video controls="controls">
+    <source src="movie.ogg" type="video/ogg" />
+    <track kind="captions" srclang="en" label="English">
+</video>
+<br>
+
+<figure>
+    <figcaption>figure/figcaption: 插图标题</figcaption>
+    <img width="300" src="logo.jpg" alt="Logo">
+</figure>
+
+<div>div: 通用块容器</div>
+
+<header>header: 页头</header>
+<footer>footer: 页脚</footer>
+
+<h1>h1: 标题</h1>
+<h2>h2: 标题</h2>
+<h3>h3: 标题</h3>
+<h4>h4: 标题</h4>
+<h5>h5: 标题</h5>
+<h6>h6: 标题</h6>
+<hgroup>
+    <h1>hgroup/h1: 标题</h1>
+    <h2>hgroup/h2: 标题</h2>
+</hgroup>
+<hr>
+</main>
+
+<object>
+    <param value="object/param">
+</object>
+
+<section>
+    <p>section/p: 普通的片区段落。</p>
+</section>
+<ul>
+    <li>ul/li: 无序列表</li>
+    <li>ul/li: 无序列表</li>
+    <li>ul/li: 无序列表</li>
+</ul>
+
+<dl>
+    <dt>dl/dt: 描述列表标题</dt>
+    <dd>dl/dd: 描述列表数据条目</dd>
+</dl>
+
+<label>details/summary,p:</label>
+<details>
+    <summary>详细内容的标题</summary>
+    <p>这是详细的内容描述，可以是多个段落。</p>
+</details>
+
+<label>table/caption,(colgroup/col),(thead/tr/th),(tbody/tr/td),(tfoot/tr/td):</label>
+<table border="1">
+    <caption>caption: 表标题</caption>
+    <colgroup>
+        <col class="columnA" span="2" />
+        <col class="columnB" span="2" />
+    </colgroup>
+    <thead>
+        <tr>
+            <th>th: 表头</th>
+            <th>th: 表头</th>
+            <th>th: 表头</th>
+            <th>th: 表头</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>td: 内容</td>
+            <td>td: 内容</td>
+            <td>td: 内容</td>
+            <td>td: 内容</td>
+        </tr>
+        <tr>
+            <td>td: 内容</td>
+            <td>td: 内容</td>
+            <td>td: 内容</td>
+            <td>td: 内容</td>
+        </tr>
+    </tbody>
+    <tfoot>
+        <tr>
+            <td>td: 表脚</td>
+            <td>td: 表脚</td>
+            <td>td: 表脚</td>
+            <td>td: 表脚</td>
+        </tr>
+    </tfoot>
+</table>
+
+<blockquote>blockquote: 块引用</blockquote>
+<address>address: 地址</address>
+<article>article: 文章容器</article>
+
+<map>
+    <area href="#" />
+</map>
+
+<label>form/*: </label>
+<form>
+    <fieldset>
+        <legend>Title</legend>
+        <label><input name="radio2" type="radio" value="input:radio1" /> Click me</label>
+        <label><input name="radio2" type="radio" value="input:radio2" />input radio2 </label>
+        <label><input name="radio2" type="radio" value="input:radio3" disabled />input radio3 </label>
+        <label><input type="checkbox" value="input:checkbox" />input checkbox</label>
+    </fieldset>
+    <select multiple>
+        <optgroup>
+            <option value="select/option-1">option value 1</option>
+            <option value="select/option-2">option value 2</option>
+        </optgroup>
+        <optgroup>
+            <option value="select/option-3">option value 3</option>
+        </optgroup>
+    </select>
+    <br>
+    <input type="text" value="input:text" />
+    <output name="output2">output value</output>
+    <br>
+    <textarea name="test" id="test" cols="80" rows="10">textarea: 文本输入</textarea>
+    <br>
+    <button type="button"><img src="folder.svg"></button>
+    <button type="reset">重置</button>
+    <button type="submit">提交</button>
+</form>
+
+<div>
+    <label>canvas: 画布</label><br>
+    <canvas></canvas>
+</div>
+<div>
+    <label>iframe: 嵌入框架</label><br>
+    <iframe src=""></iframe>
+</div>
+
+</body>
+</html>

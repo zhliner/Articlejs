@@ -1,0 +1,17 @@
+<div class="_plugx _coolmd" tpl-name="coolmd:root"
+    on="vinit|ev('detail');
+        trans|$('/textarea') data('html') $('/input') val int mdblock(_1) dup"
+    to="|data('html')|goto('trans');
+        /textarea|$defaultValue $value">
+    <!-- 调整 -->
+    <div class="_ttl"
+        on="change(input)"
+        to="1/|trigger('trans')">
+        <b>转换结果：</b>
+        <label>
+            顶层章节间距
+            <input type="number" name="rows" class="_num" value="3" title="空行数" min="1" />
+        </label>
+    </div>
+    <textarea class="_code" spellcheck="false"><!-- 简单填充 --></textarea>
+</div>

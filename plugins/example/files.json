@@ -1,0 +1,6 @@
+{
+    "root":     "index.html",
+    "maps":     "maps.json",
+    "style":    "styles.css",
+    "extend":   "extend.js"
+}

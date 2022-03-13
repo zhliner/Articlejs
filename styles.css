@@ -1,0 +1,148 @@
+/*! user.css 2021.10.22. ArticleJS $
+ +++++++++++++++++++++++++++++++++++++
+ *  用户页样式
+ *
+ *  @author 风林 zhliner@gmail.com
+ *
+ ******************************************************************************
+ */
+
+html, body {
+    height: 100%;
+}
+
+
+/* 全局共享
+ ****************************************************************************/
+a {
+    color: currentColor;
+    text-decoration: none;
+}
+header {
+    background-color: #171717;
+}
+
+
+/* 主题布局
+ ****************************************************************************/
+body {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+body > main {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+main > form {
+    flex: 1 1 auto;
+}
+
+nav._top {
+    display: flex;
+    font-size: 10pt;
+    background-color: #171717;
+    padding: 4px;
+    color: gray;
+}
+nav._top > a:last-child {
+    margin-left: auto;
+    margin-right: 1.2em;
+}
+nav._top svg {
+    margin-bottom: -2px;
+    margin-right: 4px;
+}
+
+header > h1 {
+    color: #606060;
+    padding-left: 1.5em;
+    padding-bottom: 1.35vh;
+    margin-top: -0.5em;
+    margin-bottom: 0;
+    font-weight: normal;
+
+    /* 不遮挡上部链接 */
+    display: inline-block;
+}
+header > h1::before {
+    content: '';
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+    background-image: url('icons/cooljed.png');
+    background-size: 80px;
+    margin-bottom: -8px;
+    filter: grayscale(1);
+}
+
+main nav {
+    display: flex;
+    gap: 1em;
+    background-color: #ab470d;
+    padding: 5px 1em 6px;
+    color: #dadada;
+    font-size: 11pt;
+}
+main nav > a {
+    font-style: italic;
+}
+main nav > a:hover {
+    text-decoration: underline;
+}
+main nav label {
+    font-size: 14px;
+}
+main nav > span:nth-of-type(1) {
+    margin-left: auto;
+}
+main nav select {
+    background-color: #893301;
+    border: 1px #f08241 solid;
+    color: #ffc353;
+    outline: none;
+}
+main nav > span > a {
+    display: inline-block;
+    width: 1.5em;
+    text-align: center;
+    font-size: 0.7em;
+    border: 1px orange dotted;
+    border-radius: 10px;
+    font-family: monospace;
+}
+
+#editorBox {
+    box-sizing: border-box;
+    height: 100%;
+    padding: 2pt 4pt 4pt;
+}
+/* 编辑器最大化 */
+#editorBox._full > iframe {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+
+/* 笔记本屏 */
+@media (max-height: 900px)
+{
+    header > h1 {
+        font-size: 1.5em;
+    }
+    main nav {
+        padding: 4px 1em;
+    }
+    main nav, main nav label {
+        font-size: 10pt;
+    }
+    header > h1::before {
+        width: 64px;
+        height: 64px;
+        background-size: 64px;
+    }
+}

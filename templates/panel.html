@@ -1,0 +1,1015 @@
+<!--主面板区
+----------------------------------------------------------------------------->
+
+<!--录入：
+    submit  向具体的单元根发送创建通知。
+            目标含._prop以兼容微编辑插入（此时._body无create）。
+    insert  插入已创建的元素/集（detail），通用。
+    instop  插入顶层固定单元。
+    insfix  插入区块内固定性单元，如：标题、表头、导言等。
+    instbd  插入表体<tbody>元素（特例）。
+    update  跟随更新，来源：内容区选取变化、标签页切换。
+-->
+<form class="Input" tpl-name="slave:input"
+    on="submit|avoid;
+        update|sels;
+        insert|ev('detail') checked('before') value('level');
+        instop|ev('detail') value('level');
+        insfix|ev('detail') value('level');
+        instbd|ev('detail') checked('merge') value('level')"
+    by="-;-;
+        Kit.inserts(_2);
+        Kit.topinsert(_1);
+        Kit.fixinsert(_1);
+        Kit.instbody(_2)"
+    to="(/._body, ._prop)|trigger('create');
+        /#con-level|trigger('renew');
+        #g-scroll|trigger('focus');
+        #g-scroll|trigger('focus');
+        #g-scroll|trigger('focus');
+        #g-scroll|trigger('focus')">
+    <div class="_roll">
+        <!--插入位置：
+            ev:detail 已选取元素的集合。
+            renew 选单更新。非延迟避免闪烁。
+            section 片区单元内容混杂检查（标记_mixed类名）。
+            click focus 快捷操作友好。 -->
+        <div id="con-level" class="_minibar"
+            on="renew|ev('detail') $('/input') val('level') inslist(_1);
+                section|('_mixed') $('/input') val('level') ismixed;
+                click(input)|$('1/select') focus sels"
+            to="1/select|fill|change(10) goto('section');
+                1/select|toggleClass(_1);
+                |trigger('renew')">
+            <label title="平级插入">
+                <input type="radio" name="level" value="siblings" checked /><i id="l-siblings"></i>
+            </label>
+            <label title="向内插入">
+                <input type="radio" name="level" value="children"><i id="l-children"></i>
+            </label>
+        </div>
+        <!--动态选单
+            input.select 快捷键选取。从data-k特性取值触发（仅部分）。
+            change 空选单时采用empty模板，str 用前缀构造最终模板名。
+            备忘：
+            勿用scroll聚焦。内容区切换选取后选单重构会激发本事件，使内容区失焦（不友好）。 -->
+        <select id="input-items" name="items" size="5" class="_list"
+            on="change|evo(3) val or('empty') str('input:') tpl(_1);
+                input.select|ev('detail') slr('/','-k', _1) $(_1) dup pass prop('value')"
+            to="form/._body|replace;
+                |val|goto('change')">
+            <!-- 动态更新：与目标关联的合法单元。 -->
+        </select>
+    </div>
+    <div class="_body _Empty" tpl-name="input:empty">
+        <p on="^obted|(KM.slaveResize)" to="/code:first-child|text">
+            <code>[Alt]</code> + 拖动改变面板高度<br>
+            <code>[ Alt+F ]</code> 录入框最大化<br>
+            <code>[ Ctrl+Enter ]</code> 录入框内直接提交<br>
+            <code>[ Alt+Ctrl+Enter ]</code> 录入框内直接提交并取消最大化<br>
+        </p>
+    </div>
+</form>
+
+
+<!-- 微编辑 -->
+<form class="Input Minied" tpl-name="slave:minied"
+    on="submit|avoid;
+        insert|ev('detail') prop('outerHTML') xRange addRange edbox pop exeCmd('insertHTML', _1)"
+    to="/._main>._prop|trigger('create')">
+    <div class="_roll">
+        <!-- 先插入右侧主区，再更新选单以使change有效。 -->
+        <div class="_minibar"
+            on="click(input)|evo(2) attr('-val') node(_1);
+                click(input)|evo(2) val node(_1)"
+            to="2/._body|replace;
+                1/select|replace|focus change">
+            <label title="内联元素">
+                <input type="radio" name="ctype" value="item:inlines" data-val="minied:inlines" checked /><i id="l-element"></i>
+            </label>
+            <label title="文本字符">
+                <input type="radio" name="ctype" value="item:ctypes" data-val="minied:chars" /><i id="l-schar"></i>
+            </label>
+        </div>
+        <!--固定选单
+            input.select 快捷键选取。从data-k特性取值触发。
+            change str 用前缀（inlines:）构造模板名。 -->
+        <select name="inlines" size="5" class="_list _inlines" tpl-name="item:inlines"
+            on="change|evo(3) val dup pass str('inlines:') tpl(_1);
+                input.select|ev('detail') slr('/','-k', _1) $(_1) dup pass prop('value')"
+            to="2/._main|fill;
+                |val|change">
+            <optgroup label="实体单元" data-v="1">
+                <option tpl-node="
+                    option:audio,
+                    option:video,
+                    option:picture,
+                    option:img,
+                    option:svg,
+                    option:meter,
+                    option:space,
+                    option:br,
+                    option:wbr"></option>
+            </optgroup>
+            <optgroup label="文本&属性" data-v="2">
+                <option tpl-node="
+                    option:a,
+                    option:times,
+                    option:q,
+                    option:abbr,
+                    option:del,
+                    option:ins,
+                    option:dfn,
+                    option:bdo,
+                    option:ruby"></option>
+            </optgroup>
+            <optgroup label="纯文本类" data-v="3">
+                <option tpl-node="
+                    option:strong,
+                    option:em,
+                    option:cite,
+                    option:small,
+                    option:sub,
+                    option:sup,
+                    option:mark,
+                    option:samp,
+                    option:kbd,
+                    option:s,
+                    option:u,
+                    option:var,
+                    option:code,
+                    option:orz"></option>
+            </optgroup>
+            <optgroup label="表单控件" data-v="4">
+                <option></option>
+            </optgroup>
+        </select>
+    </div>
+    <div class="_body" tpl-source="minied:inlines"> [主栏：单元属性] </div>
+</form>
+
+
+<!--样式：
+    style 接收各子区发来的信息（[name,value]），设置内容区元素样式。
+    erase 接收名称序列，擦除部分内联样式。应当激发主面板状态更新。
+    submit 如果子区有提交逻辑，提交转发为子区修改（modify）事件，各子区因应而为。
+    update 跟随更新：来源：内容区选取变化、标签页切换、样式按钮切换、清除/格式刷操作。 -->
+<form class="Style" tpl-name="slave:style"
+    on="style|sels ev('detail');
+        erase|sels ev('detail');
+        submit|avoid;
+        update|stop sels"
+    by="Ed.setStyle(_);
+        Ed.eraseStyle(_1)"
+    to="#g-scroll|trigger('focus');
+        #g-scroll|trigger('focus')|fire(3, 'update');
+        /._body|trigger('modify');
+        /._body|trigger('follow')">
+    <!--click(b)：
+        - 切换模板。
+        - 表达按下，跟随更新。-->
+    <div class="_icons"
+        on="click(b)|evo(2) attr('-tpl') node(_1);
+            click(b)|$$('/b')"
+        to="1/._body|replace;
+            =|only('_press')|fire('form/', 'update')">
+        <!--直接执行：
+            click stop 避免触发上层行为。-->
+        <b title="样式刷"
+            on="click|stop efocus dup pass"
+            by="Ed.brushStyle"
+            to="#g-scroll|trigger('focus')|fire('form/', 'update')">
+            <i id="b-brush"></i>
+        </b>
+        <b data-tpl="style:align" title="对齐"><i id="b-align"></i></b>
+        <b data-tpl="style:fontview" title="字形" class="_press"><i id="b-fontview"></i></b>
+        <b data-tpl="style:width" title="宽/高度"><i id="b-width"></i></b>
+        <b data-tpl="style:fontsize" title="字号"><i id="b-fontsize"></i></b>
+        <b data-tpl="style:margin" title="内/外边距"><i id="b-margin"></i></b>
+        <b data-tpl="style:color" title="颜色"><i id="b-colors"></i></b>
+        <!-- 直接执行 -->
+        <b title="擦除全部"
+            on="click|stop sels"
+            by="Ed.clearStyle"
+            to="#g-scroll|trigger('focus')|fire('form/', 'update')">
+            <i id="b-erase"></i>
+        </b>
+    </div>
+    <div class="_body" tpl-source="style:fontview"> [字形] </div>
+</form>
+
+
+<!--特性：
+    submit 明确提交才会聚焦到内容区。 -->
+<form class="Attr" tpl-name="slave:attr"
+    on="apply|ev('detail') $('/select') val;
+        delattr|ev('detail');
+        submit|avoid;
+        update|sels dup len eq(1) $if('valid', 'invalid')"
+    by="Ed.attrUpdate(_1);
+        Ed.deleteAttr"
+    to="#g-scroll|trigger('focus');
+        #g-scroll|trigger('focus');
+        /._main>*|trigger('attrok');
+        (/>div)|trigger(_1)">
+    <div class="_roll"
+        on="valid|sel0 attrns obtname (null);
+            invalid|(true)"
+        to="(/input, select)|$disabled trigger('follow');
+            (/input, select)|$disabled">
+        <div class="_name">
+            <!--说明：
+                添加on/by/to任一特性会被合并为"on by to"复合名称。
+                键入Enter也可完成添加（而非提交表单）。-->
+            <input type="text" name="attr" value=""
+                on="keydown|iskey('Enter') pass avoid evo(3) next click" />
+            <!-- ✚✛ -->
+            <input type="button" value="✛" class="_add"
+                on="click|evo(3) prev val trim obtname"
+                to="2/select|trigger('addnew')" />
+        </div>
+        <!--特性选单：
+            主区切换前即更新到目标元素。
+            follow  特性名清单跟随更新：保留相同，不同则清理或补足。
+                    注意延迟change，因为右侧录入框可能尚未激活（处于:disabled）。
+            change  插入适配的内容模板。注：修改不会被自动应用。
+            attrto  提取元素特性值发送到编辑框。
+            addnew  添加一个新特性（临时），如果已经存在则忽略。
+            select  选取接收的值匹配的选单（新建后）。
+            blank   特性整体更新后空白主区替代。
+            keydown 支持即时删除条目（友好）。 -->
+        <select name="attrs" size="5" class="_list" title="删除〔Delete〕"
+            on="follow|evo(3) children ev('detail');
+                change|evo(3) val $case('on by to', null) $switch('obts', 'empty', 'value') str('attr:') node(_1);
+                attrto|evo(3) val dup pass sel0 pop attrs(_1);
+                addnew|ev('detail') dup(2) $$('/option') prop('value') inside(_) end pop elem('option');
+                select|ev('detail');
+                blank|tpl('attr:empty');
+                keydown|iskey('Delete') pass evo(3) val dup pass evo(3) prop('selected') remove"
+            by="Kit.attrlist(_1) pop elem('option')"
+            to="|append|fire(10, 'change');
+                form/._main>*|replace|goto('attrto');
+                form/._main>*|trigger('vinit');
+                |append|pop fire(3, 'select');
+                |val|change;
+                form/._main>*|replace;
+                form/|trigger('delattr')|goto('blank')">
+            <!-- <option>[name]</option> -->
+        </select>
+    </div>
+    <div class="_body"
+        on="valid|(0, null);
+            invalid|(1, true)"
+        to="(/[type=submit], textarea)|$disabled disable;
+            (/[type=submit], textarea)|$disabled disable">
+        <div class="_main">
+            <!-- 空白占位 -->
+            <p class="_empty" tpl-name="attr:empty"></p>
+            <!--特性编辑：
+                vinit   初始设置值，简单分隔符切分换行友好。
+                attrok  提取编辑值（适当构造），发送到表单应用到内容元素上。
+                detach  被切换掉时隐藏分隔符选项（仅此文本框需要该选项）。
+                nodeok  被替换回来时显示分隔符选项。
+                注记：
+                先提取分隔符以方便使用，因为有两处要用（切分/恢复）。 -->
+            <textarea name="attrval" spellcheck="false" class="_code" tpl-name="attr:value"
+                on="vinit|$('2/[name=sep]') val or(';') dup ev('detail') item(0) or('') pop split(_1) trim pick(0) add('\n') join(_1);
+                    attrok|$('2/[name=sep]') val or(';') dup evo(3) val trim pop split(_1) trim pick(0) add(' ') join(_1) trim;
+                    detach;
+                    nodeok;
+                    ^tpled|evo(3) remove"
+                to="|val;
+                    form/|trigger('apply');
+                    ._body/#_chsep|trigger('hide');
+                    ._body/#_chsep|trigger('show')"></textarea>
+            <!--OBT属性集：
+                vinit   总设置通知，接收数据为一个3元数组。暂存到当前元素。
+                keydown 1.在当前行之后创建一个新行并聚焦。
+                keydown 2.删除当前行（不可撤销）。
+                keydown 3.Ctrl+ArrowUp|ArrowDown 上下移动当前行。
+                        evo(2) blur 先失焦，之后的移动不会带来窗口滚动（浏览器行为）。注意需在条目交换之前（失焦有保存行为）。
+                        delay focus 延迟再聚焦才有效。
+                        注记：聚焦窗口前后插入元素时会导致文档窗口滚动。
+                blur    参照组<textarea>失焦保存。
+                attrok  构造OBT值序列，发送到表单应用到目标元素上。
+                主控编辑：
+                Enter          创建一个新的空行。
+                Ctrl+Shift+Del 删除当前行内容（可撤销），或空行本身（不可撤销）。注：分两段逻辑更友好。
+                Ctrl + ↑↓      上下移动当前行，关联行随动。
+            -->
+            <div class="_obts" tpl-name="attr:obts"
+                on="keydown(li)|iskey('Enter') pass scam pass avoid evo(2) data('on by to');
+                    keydown(li)|iskey('Delete') scam(KM.obtRowDel) both pass avoid stopAll evo(2) dup text vnot jump(3) select exeCmd('delete') exit data('on by to');
+                    keydown(li)|ev('key') inside('ArrowUp', 'ArrowDown') scam(KM.obtRowMove) both pass avoid stop evo(2) ev('key') data('on by to') evo(2) blur;
+                    blur(textarea)|evo(1) val trim $('/ol') attr('-i') evo(2) attr('name') data(_1) pop;
+                    vinit|ev('detail') obtsplit;
+                    attrok|data('on by to') obtval;
+                    ^tpled|evo(3) remove"
+                by="Kit.obtline(_) ('_hot');
+                    Kit.obtdel(_) remove;
+                    Kit.obtswap(_2) dup pass spread"
+                to="=|removeClass after|focus;
+                    (/label>textarea)||clear;
+                    =|nodex(_1)|delay focus(10);
+                    -|set(_1);
+                    |data('on by to')|fire('/ol', 'active');
+                    form/|trigger('apply')">
+                <!--主控编辑框：
+                    当前编辑行设置 _hot 类名以便区分。
+                    active  创建列表清单，从上级取值逐一赋值并聚焦到目标行。
+                            维持用户编辑的行数（如果可以）。
+                    focus   聚焦表示将要编辑该行，要求OBT另2组定位到相同行。100毫秒延迟随动感友好。
+                    blur    失焦保存当前编辑条目（OBT配置组内）。
+                    switch  转换为主控列表：首先恢复所属OBT分组<label>，自身脱离DOM。数据原样传递 detail:<label>
+                    removed 脱离DOM后，替换为目标OBT分组<label>。激活主控列表。
+                    pastes.json 智能粘贴：内容以换行切分，分别粘贴到连续的兄弟单元内。 -->
+                <ol data-i="0" data-x="true" data-n="on" spellcheck="false" class="_code" obt-src="obts/pastes.json" tpl-name="obts:master"
+                    on="active|evo(3) attrs('-i -x -n') spread $('1/') pop data(_1) dup len evo(3) prop('childElementCount') pack(2) max elem('li', _1);
+                        focus(li)|evo(2) siblingNth sub(1) dup;
+                        focus(li)|evo(2) hasClass('_hot') end $$('/li');
+                        blur(li)|evo(1) text trim evo(3) attr('-i') evo(3) attr('-n') $('1/') pop data(_1) pop;
+                        switch|ev('detail') evo(3) attr('-n') str('obts:') node(_1);
+                        removed|ev('detail') dup attr('-n')"
+                    to="|fill $text $contenteditable|target pop item(_1) dup pop(2) focus select;
+                        |@-i|pop fire('1/>label', 'index', 100);
+                        =|only('_hot');
+                        -|set(_1);
+                        |replace|pop goto('removed');
+                        |@-n replaceWith|goto('active')">
+                    <!-- 初始默认9条 -->
+                    <li contenteditable="true"></li>
+                    <li contenteditable="true"></li>
+                    <li contenteditable="true"></li>
+                    <li contenteditable="true"></li>
+                    <li contenteditable="true"></li>
+                    <li contenteditable="true"></li>
+                    <li contenteditable="true"></li>
+                    <li contenteditable="true"></li>
+                    <li contenteditable="true"></li>
+                </ol>
+                <!--自动对应参考：
+                    index   接收定位索引号，提取目标行显示供参考。
+                    click   切换当前特性为主控列表，并聚焦到当前行。递送数据：self:<label>
+                    obted   主控表占用，延迟移出DOM。 -->
+                <label data-n="on" tpl-name="obts:on"
+                    on="index|ev('detail') evo(3) attr('-n') $('1/') pop data(_1) pop item(_1);
+                        click(b)|evo(3);
+                        ^tpled|evo(3) remove"
+                    to="/textarea|val;
+                        1/ol|trigger('switch')">
+                    <b title="单击切换">on</b>
+                    <textarea name="on" spellcheck="false" rows="1" class="_code"></textarea>
+                </label>
+                <label data-n="by" tpl-name="obts:by"
+                    on="^tpled|tpl('obts:on')"
+                    to="|cloneEvents">
+                    <b title="单击切换">by</b>
+                    <textarea name="by" spellcheck="false" rows="1" class="_code"></textarea>
+                </label>
+                <label data-n="to" tpl-name="obts:to"
+                    on="^tpled|tpl('obts:on')"
+                    to="|cloneEvents">
+                    <b title="单击切换">to</b>
+                    <textarea name="to" spellcheck="false" rows="1" class="_code"></textarea>
+                </label>
+            </div>
+        </div>
+        <aside>
+            <!--change 注意接收者需要一个值数组 -->
+            <div class="_option"
+                on="change(input)|$('._body/textarea') val trim dup pass arr"
+                to="form/._main>textarea|trigger('vinit')">
+                <labe id="_chsep"
+                    on="show|evo(3) hide(false);
+                        hide|evo(3) hide(true)">
+                    <input type="text" name="sep" class="_char" value=";" />分隔符
+                </label>
+            </div>
+            <hr tpl-node="common:submit" />
+        </aside>
+    </div>
+</form>
+
+
+<!--源码：
+    仅支持内容区单个元素的源码显示。
+    内容区多元素选取时，源码录入框失效。 -->
+<form class="Source" tpl-name="slave:source"
+    on="submit|avoid $('/textarea') val;
+        update|sels dup len eq(1) $if('valid', 'invalid')"
+    by="Ed.htmlUpdate"
+    to="#g-scroll|trigger('focus');
+        (/>*)|trigger(_1)">
+    <div class="_body _main"
+        on="invalid|(true, null);
+            valid|ev('detail') item(0) cleanHTML (false)"
+        to="/textarea|val $disabled;
+            /textarea|$disabled val">
+        <!--状态切换
+            失效：设置disabled，清空内容。
+            生效：移除disalbed，填充发送来的源码。
+            注记：源码编辑并不常见，因此未提供友好性（如自动缩进）。 -->
+        <textarea name="html" spellcheck="false" class="_code"></textarea>
+    </div>
+    <aside
+        on="invalid|(1, true);
+            valid|(0, false)"
+        to="(/button)|$disabled disable|fire('/pre', 'reset');
+            (/button)|$disabled disable|fire('/pre', 'reset')">
+        <div class="_option"
+            on="click(button)|sel0 $('form/textarea') val trim dup pass"
+            by="Kit.checkhtml(_1) dup $if('err', 'ok')"
+            to="/pre|trigger(_1)">
+            <button type="button">结构检查</button>
+            <!--反馈信息：
+                ok      结构正常。设置提示并取消聚焦能力。
+                        3秒后隐藏文本，便于再次检查时反馈更清晰（不变的提示缺乏表达力）。
+                        注：内容可能在3秒前已被reset事件清空。
+                err     结构错误。设置_err类名、提示文本、赋予聚焦能力。
+                        detail: [String]|null
+                reset   清除消息、类名，取消可聚焦。在内容区选取变化时使用。
+                错误时：
+                focus   获取焦点后即平铺显示。
+                blur    失焦时取消平铺最大化。
+                click   友好已聚焦单击（可能由ESC键取消平铺）。
+                注记：
+                信息封装在<i>内便于样式控制。 -->
+            <pre class="_info"
+                on="ok|('_err', '<i>Good!</i>', null);
+                    reset|stop ('_err', '', null);
+                    err|(0, '_err') ev('detail') wrap('<i>') prop('outerHTML') join('\n');
+                    click|evo(3) dup fulled end blur;
+                    focus|evo(3) full;
+                    blur|evo(3) full(false)"
+                to="|@tabindex @html removeClass|delay(3000) $('/i') dup pass hide;
+                    |@tabindex @html removeClass;
+                    |@html addClass @tabindex;
+                    |trigger('focus')"></pre>
+        </div>
+        <hr tpl-node="common:submit" />
+    </aside>
+</form>
+
+
+<!--脚本
+    submit 执行代码，如果结果非假，打开结果模态框并递送结果数据。
+    nodeok focus 友好：存储代码框光标便于历史代码插入。
+    shcode 历史记录模态框回送数据传入。 -->
+<form class="Script" tpl-name="slave:script"
+    on="submit|avoid $('/pre._code') text value('runbox itext ihtml');
+        nodeok(~)|evo(3);
+        shcode|ev('detail')"
+    by="Ed.runScript(_) dup pass node('script:result');
+        Kit.spinit"
+    to="#g-modal|trigger('open')|pop fire('#g-modal>._script', 'result');
+        /pre._code||focus;
+        /pre._code|trigger('codes')">
+    <div class="_env"
+        on="click([name=runbox])|$('/fieldset') remove evo(2) val str('run:') node(_1) evo(2) parent pop"
+        to="-|after">
+        <label title="in Worker">
+            <input type="radio" name="runbox" value="sandbox" checked />沙盒内执行
+        </label>
+        <fieldset class="_opts" tpl-name="run:sandbox"
+            on="nodeok click(input)|$$('/label') attr('-tip') $$('/input') val arr2j(_1) join('\n')"
+            to="2/pre|@-tip">
+            <legend>数据：</legend>
+            <label title="选取集文本" data-tip="TEXT 已选取元素文本集">
+                <input type="checkbox" name="itext" />TEXT
+            </label>
+            <label title="选取集源码" data-tip="HTML 已选取元素源码集 (outerHTML)">
+                <input type="checkbox" name="ihtml" />HTML
+            </label>
+        </fieldset>
+        <label class="_warn">
+            <input type="radio" name="runbox" value="editor" />编辑器内运行
+        </label>
+        <fieldset class="_warn" data-tip="$$ 已选取元素集 (Collector)&#10;_  编辑器内容区根容器" tpl-name="run:editor"
+            on="nodeok|evo(1) attr('-tip');
+                ^tpled|evo(3) remove"
+            to="2/pre|@-tip">
+            <legend>警告：</legend>
+            <p>跨越内容区修改节点可能带来破坏，导致编辑器不可用或内容丢失！</p>
+        </fieldset>
+    </div>
+    <div class="_body">
+        <div class="_main"
+            on="^nodeok|('return 结果数据')"
+            to="/pre|@-tip">
+            <!--注意！
+                脚本可以改变DOM（会进入历史栈），但不应当创建新节点，
+                否则Redo时会丢失原来新建的节点引用。
+                注记：
+                系统监听包括节点改变、特性、样式、属性改变，但不包含类名改变。 -->
+            <pre tpl-node="!prop:codes" /></pre>
+        </div>
+        <aside>
+            <!--脚本记录：
+                - 执行之后计入脚本历史。
+                - 提供历史条目的置顶和删除能力（简单复用和清理）。
+                - 普通段包含前缀 yyyy-mm-dd[n]: 便于浏览，置顶段可自定义标签。
+                功能：
+                - 非管理模式下，单击某一条记录，自动插入脚本框内光标处。 -->
+            <div class="_cmds">
+                <b title="脚本历史"
+                    on="click|tpl('script:history')"
+                    to="#g-modal|trigger('open')"><i id="l-history"></i></b>
+                <b title="执行结果"
+                    on="click|tpl('script:result')"
+                    to="#g-modal|trigger('open')"><i id="l-result"></i></b>
+                <input type="hidden" name="tabs" value="4" />
+            </div>
+            <div class="_submit">
+                <button type="submit">执行</button>
+            </div>
+        </aside>
+    </div>
+</form>
+
+
+
+<!--转换条目（子菜单）
+    data-val 待转换目标单元名。
+    <kbd>    单字符快捷键直达。
+    注：仅包含完整的单元（不含中间结构）。
+----------------------------------------------------------------------------->
+
+<!-- 内联单元 -->
+<menu role="submenu" class="_cells" tpl-name="menu:inlines">
+    <li data-k="a" data-val="a" title="<a>"><b><a>链接</a></b><kbd>a</kbd></li>
+    <li data-k="c" data-val="code" title="<code>"><b><code>代码</code></b><kbd>c</kbd></li>
+    <li data-k="s" data-val="strong" title="<strong>"><b><strong>重点</strong></b><kbd>s</kbd></li>
+    <li data-k="e" data-val="em" title="<em>"><b><em>强调</em></b><kbd>e</kbd></li>
+    <li data-val="sup" title="上标<sup>"><b>O<sup>2</sup></b><kbd></kbd></li>
+    <li data-val="sub" title="下标<sub>"><b>O<sub>2</sub></b><kbd></kbd></li>
+    <li data-k="q" data-val="q" title="<q>"><b><q>引用</q></b><kbd>q</kbd></li>
+    <li data-k="t" data-val="time" title="<time>"><b><time>时间</time></b><kbd>t</kbd></li>
+    <li data-k="i" data-val="ins" title="<ins>"><b><ins>插入</ins></b><kbd>i</kbd></li>
+    <li data-k="d" data-val="del" title="<del>"><b><del>删除</del></b><kbd>d</kbd></li>
+    <li data-k="k" data-val="kbd" title="<kbd>"><b><kbd>键盘字</kbd></b><kbd>k</kbd></li>
+    <li data-val="small" title="<small>"><b><small>注脚</small></b><kbd></kbd></li>
+    <li data-val="abbr" title="<abbr>"><b><abbr>缩写</abbr></b><kbd></kbd></li>
+    <li data-k="m" data-val="mark" title="<mark>"><b><mark>标记</mark></b><kbd>m</kbd></li>
+    <li data-k="r" data-val="ruby" title="<ruby>">
+        <b><ruby>注音
+                <rp>(</rp><rt>zhù yīn</rt><rp>)</rp>
+            </ruby></b>
+        <kbd>r</kbd>
+    </li>
+    <li data-k="o" data-val="orz" title="表情<code:orz>"><b><code role="orz">(^_^)</code></b><kbd>o</kbd></li>
+    <li data-k="n" data-val="dfn" title="<dfn>"><b><dfn>定义条目</dfn></b><kbd>n</kbd></li>
+    <li data-val="samp" title="<samp>"><b><samp>样本</samp></b><kbd></kbd></li>
+    <li data-val="cite" title="<cite>"><b><cite>来源</cite></b><kbd></kbd></li>
+    <li data-val="s" title="<s>"><b><s>失效</s></b><kbd></kbd></li>
+    <li data-k="v" data-val="var" title="<var>"><b><var>变量</var></b><kbd>v</kbd></li>
+    <li data-k="u" data-val="u" title="<u>"><b><u>注记</u></b><kbd>u</kbd></li>
+    <li data-k="b" data-val="bdo" title="<bdo dir=rtl>"><b><bdo dir="rtl">有向文本</bdo></b><kbd>b</kbd></li>
+    <li data-pbo="disabled">&nbsp;</li>
+    <!-- 注：不支持，只可划选创建 -->
+    <!-- <li data-val="b" title="<b>"><b>特用&lt;b&gt;</b><kbd></kbd></li> -->
+    <!-- <li data-val="i" title="<i>"><b>特用&lt;i&gt;</b><kbd></kbd></li> -->
+</menu>
+
+
+<!-- 行块单元（仅部分） -->
+<menu role="submenu" tpl-name="menu:blocks">
+    <li data-val="p" title="<p>"><b>段落</b><kbd>p</kbd></li>
+    <li data-k="n" data-val="note" title="<p:note>"><b>注解</b><kbd>n</kbd></li>
+    <li data-k="t" data-val="tips" title="<p:tips>"><b>提示</b><kbd>t</kbd></li>
+    <li data-val="pre" title="<pre>"><b>预排版</b><kbd></kbd></li>
+    <li data-val="address" title="<address>"><b>地址</b><kbd></kbd></li>
+    <li data-k="u" data-val="ul" title="<ul>"><b>无序列表</b><kbd>u</kbd></li>
+    <li data-k="o" data-val="ol" title="<ol>"><b>有序列表</b><kbd>o</kbd></li>
+    <li data-val="ulx" title="<ul:ulx>"><b>无序级联表</b><kbd></kbd></li>
+    <li data-val="olx" title="<ol:olx>"><b>有序级联表</b><kbd></kbd></li>
+    <li data-k="c" data-val="cascade" title="<ol:cascade>"><b>级联编号表</b><kbd>c</kbd></li>
+    <li data-k="b" data-val="blockquote" title="<blockquote>"><b>块引用</b><kbd>b</kbd></li>
+    <li data-k="a" data-val="aside" title="<aside>"><b>批注</b><kbd>a</kbd></li>
+    <li data-val="details" title="<details>"><b>详细内容</b><kbd></kbd></li>
+    <!-- 注：不可为转换目标，因为无<dt>源（逻辑上）。 -->
+    <!-- <li data-k="d" data-val="dl" title="<dl>"><b>描述列表</b><kbd>d</kbd></li> -->
+</menu>
+
+<!-- 空占位菜单（replace） -->
+<menu role="submenu" tpl-name="menu:empty" data-pbo="hidden">
+</menu>
+
+
+
+<!--模态框区
+----------------------------------------------------------------------------->
+<!-- 确定/重置 -->
+<div class="_btn2" tpl-name="modal:okreset">
+    <button type="submit">确定</button>
+    <button type="reset">重置</button>
+</div>
+
+
+<!-- 确定/取消 -->
+<div class="_btn2" tpl-name="modal:okcancel">
+    <button type="submit">确定</button>
+    <button type="button">取消</button>
+</div>
+
+<!-- 单确定 -->
+<div class="_submit" tpl-name="modal:ok">
+    <button type="submit">确定</button>
+</div>
+
+<!-- 单重置 -->
+<div class="_btn2" tpl-name="modal:reset">
+    <button type="reset">重置</button>
+</div>
+
+
+<!--通用模态页（如插件应用）
+    state   获取数据为一个三元数组：[应用数据, 节点（集）, 标题条文本]
+            其中应用数据会作为vinit通知（非冒泡）的附带数据发送。
+    _node   填充应用的根节点（集）。同时会向新插入的节点集发送一个vinit通知。
+    submit  屏蔽提交即可。 -->
+<form class="_page" tpl-name="modal:page"
+    on="state|ev('detail') spread;
+        _node|ev('detail') spread;
+        submit|avoid"
+    to="/h4|text|pack(2) pop goto('_node');
+        /main|fill|pop fire('/main>*', 'vinit', 0, false)">
+    <header>
+        <h4>[标题]</h4>
+        <b class="_close" title="关闭">✕</b>
+    </header>
+    <main></main>
+    <hr tpl-node="modal:reset" />
+</form>
+
+
+<!--模态框：属性
+    submit  提交后向具体的属性列表发送bulid事件。
+    reset   非表单控件手动重置（如 <pre>），由特定的<ul>自行实现。
+    apply   具体的列表bulid后回送应用事件，传递修改操作函数。
+    state   初始状态更新：插入特定属性编辑根，转到label。
+    label   更新属性框标题条，激发属性集取值初始化事件 vinit。 -->
+<form class="_usual" tpl-name="modal:prop"
+    on="apply|ev('detail') spread;
+        submit|avoid;
+        reset|avoid;
+        state|ev('detail') node(_1);
+        label|$('/._prop') attr('-label')"
+    by="Ed.propUpdate(_)"
+    to="/._close|trigger('click')|fire('#g-scroll', 'focus');
+        /._list>ul|trigger('build');
+        /._list>ul|trigger('reset');
+        />._list|fill|goto('label');
+        /h4|text|fire('/._list>ul', 'vinit')">
+    <header>
+        <h4>[标题]</h4>
+        <b class="_close" title="关闭">✕</b>
+    </header>
+    <p class="_note" data-pbo="lost">[可选的说明/提示]</p>
+    <div class="_list" data-pbo="">
+        <!-- <ul> -->
+    </div>
+    <input type="hidden" name="tabs" value="4">
+    <hr tpl-node="modal:okreset" />
+</form>
+
+<!-- 模态框：单行 -->
+<form class="_small" tpl-name="modal:small"
+    on="submit|avoid">
+    <header>
+        <h4>[标题]</h4>
+        <b class="_close" title="关闭">✕</b>
+    </header>
+    <p><input type="text" name="txtline" /></p>
+    <hr tpl-node="modal:okreset" />
+</form>
+
+
+<!-- 模态框：消息 -->
+<form class="_message" tpl-name="modal:message"
+    on="submit|avoid">
+    <header>
+        <h4>[标题]</h4>
+        <b class="_close" title="关闭">✕</b>
+    </header>
+    <p class="_note">
+        [消息内容]
+    </p>
+    <hr tpl-node="modal:ok" />
+</form>
+
+
+<!--插件面板：
+    install     插件安装。简单插入传递来的目标插件按钮即可。
+    uninstall   插件卸载。移除传递来的插件按钮。
+    init        初始插件清单插入。-->
+<form class="_page _plugins" onsubmit="return false" tpl-name="modal:plugins"
+    on="init install|ev('detail') dup pass;
+        uninstall|ev('detail') dup pass remove"
+    to="/div._list|append">
+    <header>
+        <h4>插件集</h4>
+        <b class="_close" title="关闭">✕</b>
+    </header>
+    <!--分栏列表：
+        点击图标即执行目标插件。
+        插件配置存储在内部的引用池中，此处仅为UI表达。 -->
+    <div class="_list"
+        on="_run|ev('detail');
+            click(button)"
+        by="Ed.pluginsRun node('modal:page') pack(2)"
+        to="#g-modal|trigger('open');
+            #g-modal|trigger('cancel')|evo(2) pop goto('_run')">
+        <!-- <button title="提示说明">
+            <img src="/plugins/example/logo.png">
+        </button> -->
+    </div>
+</form>
+
+
+<!--脚本历史：
+    submit  搜索过滤，空串搜索显示全部。
+    nodeok  初始载入/展示置顶代码清单，一次即可。
+    edok    管理编辑完成后，置顶区重构。
+    click   删除目标条目。 -->
+<form class="_page _script" tpl-name="script:history"
+    on="submit|avoid value('words') $('/#nav-misc');
+        ^nodeok(~) edok|$('/#nav-tops');
+        ^obted|$('/#sh-redo') $('/#sh-tops') $('/#sh-list') $$('/nav') spread;
+        click(li>b[role=del])|stop evo(2) parent dup attr('-sid')"
+    by="Kit.shsearch(_1);
+        Kit.shtops;
+        Kit.shinit(_4);
+        Kit.delsh(_1)">
+    <header>
+        <h4>脚本历史</h4>
+        <b class="_close" title="关闭">✕</b>
+    </header>
+    <!--操作定义：
+        click     code 单击代码确认提取。
+        mousemove 定义上下区高度调整。$$('/>*') 确定为3个元素。
+        _tophei   跟随设置置顶区高度。
+        keydown   label 键入Enter也确认编辑（上下两区共享）。
+    -->
+    <main class="_history"
+        on="@mouseup|movementY(null);
+            @mousemove|movementY evo(3) $$('/>*') spread;
+            click(li>code)|stop evo(2) attr('title');
+            _tophei|ev('detail');
+            keydown(li>label)|ev('key') pass('Enter') avoid evo(2) blur"
+        by="-;
+            Kit.sh2panel(_4) spread add('px');
+            Kit.shcode"
+        to="|off('mousemove');
+            /._down|%max-height|pop goto('_tophei');
+            .Modal/|trigger('cancel');
+            /._top|height">
+        <!--内置限高：避免初始即溢出。
+            click   li>b  置顶/取消置顶操作，同时激发下区状态同步。stopAll避免立即触发反向操作。
+            click   label 单击即可编辑。
+            blur    label 失焦即编辑确认，同时激发下区名称同步。
+            edsync  相同条目的名称编辑同步（从下区来）。
+            topsync 相同条目的置顶状态同步（从下区来）。-->
+        <div class="_top" style="height: 35%;"
+            on="click(li>b[role=top])|stopAll evo(2) parent attr('-sid');
+                click(li>b[role=untop])|stopAll evo(2) parent attr('-sid');
+                blur(li>label)|evo(2) parent attr('-sid') evo(2) text;
+                click(li>label)|stop evo(2) attr('contenteditable') eq('true') end (true);
+                edsync|ev('detail') spread slr('li', '-sid', _1) str('/', '>label') $(_1) dup pass pop;
+                topsync|ev('detail') spread pick(-2) push slr('li', '-sid', _1) str('/', '>b:first-of-type') $(_1) dup pass pop"
+            by="Kit.topsh dup pass ('untop') dup;
+                Kit.untop dup pass ('top') dup;
+                Kit.shlabel(_1) dup pass (false);"
+            to="=|@role|pack(2) pop fire('1/._down', 'topsync');
+                =|@role|pack(2) pop fire('1/._down', 'topsync');
+                =|$contenteditable|pop fire('1/._down', 'edsync');
+                =|$contenteditable|focus select;
+                -|$text;
+                -|@role">
+            <div class="_bar">
+                <label>置顶区</label>
+                <!--管理时显示，完成后隐藏（hidden）
+                    on edin 进入编辑分两步：
+                    先重置重构（shIndex），然后再绑定编辑跟踪（shEdin）。 -->
+                <span id="_urbox" data-pbo="hidden"
+                    on="off|evo(3) hide $('main/');
+                        on|$$('main/nav');
+                        edin|evo(3) hide(false) $('main/');
+                        reset|$$('/b') disable;"
+                    by="Kit.shEdok;
+                        Kit.shIndex;
+                        Kit.shEdin"
+                    to="|trigger('reset')|fire('main/._search', 'on', 0) fire('form/', 'submit') fire('form/', 'edok');
+                        (main/._list)|triggers('update')|goto('edin');
+                        |trigger('reset')|fire('main/._search', 'off')">
+                    <!--撤销：成功后会激活Redo。-->
+                    <b id="sh-undo" title="撤消" data-pbo="disabled"
+                        on="click|evo(3) disabled end;
+                            state|evo(1) ev('detail') disable(_1);
+                            enable|evo(1) disable(0)"
+                        by="Kit.shUndo"
+                        to="|trigger('state');
+                            #sh-redo|trigger('enable')">↶</b>
+                    <!--重做：成功后会激活Undo。-->
+                    <b id="sh-redo" title="重做" data-pbo="disabled"
+                        on="click|evo(3) disabled end;
+                            state|evo(1) ev('detail') disable(_1);
+                            enable|evo(1) disable(0)"
+                        by="Kit.shRedo"
+                        to="|trigger('state');
+                            #sh-undo|trigger('enable')">↷</b>
+                </span>
+                <!--编辑管理：
+                    click avoid 避免提交逻辑。
+                    bstate 管理状态切换。 -->
+                <button type="button" data-op="off"
+                    on="click|avoid (['on', 'off']) ('_edit') (['管理', '完成']);
+                        bstate|evo(3) attr('-op')"
+                    to="|^text toggleClass ^-op|goto('bstate');
+                        1/span|trigger(_1)">管理</button>
+            </div>
+            <!--置顶区代码清单 -->
+            <ul id="sh-tops" class="_list" tpb-for
+                on="update|ev('detail')"
+                to="|replace">
+                <li _data-sid="$.shid">
+                    <label _="($.name || '---')">[片段名称]</label>
+                    <code _title="$.code" _="$.code|cut($.$.cmax)">[代码：单击提取并导入脚本录入框]</code>
+                    <time _="$.time|date('yyyy-MM-dd hh:mm')">[时间戳]</time>
+                    <b data-pbo="lost" _data-pbo="$.$.edit ? null : 'lost'" role="untop" title="取消置顶"><i></i></b>
+                    <b data-pbo="lost" _data-pbo="$.$.edit ? null : 'lost'" role="del">删除</b>
+                </li>
+            </ul>
+            <!--分页主控：
+                click 更新到目标页次。由By全权处理，因为需要可撤销。
+                page  当前页更新。事件接收者，非延迟。
+                state 导航信息更新。事件接收者，非延迟。值格式：[[Number2], [Boolean4]]
+                注：
+                事件会被搜索区导航完整克隆，注意选择器通用。-->
+            <nav id="nav-tops"
+                on="click(b)|evo(2) dup disabled end attr('-m') evo(3) pop;
+                    page|ev('detail');
+                    state|ev('detail') spread"
+                by="Kit.shpage(_1)"
+                to="-;
+                    1/._list|trigger('update');
+                    (/>b)|disable|pop fire('/code', 'update', 0)">
+                <!-- data-m 对应页操作方法 -->
+                <b data-m="first" title="首页"><i id="l-tobeg"></i></b>
+                <b data-m="prev" title="前一页"><i id="l-prevpage"></i></b>
+                <b data-m="next" title="后一页"><i id="l-nextpage"></i></b>
+                <b data-m="last" title="末页"><i id="l-toend"></i></b>
+                <!--text: empied 事件-->
+                <code
+                    on="update|stop ev('detail')"
+                    to="(/i)|text">(<i>1</i>/<i>0</i>)</code>
+            </nav>
+        </div>
+        <!--拖动：调整上下区域高度
+            上区：CSS:height
+            下区：CSS:max-height -->
+        <hr on="mousedown|avoid"
+            to="main/|bind('mousemove') once('mouseup')" />
+        <!--下区行为：
+            click   li>b  置顶/取消置顶操作，同时激发置顶区状态同步。
+            click   label 单击即可编辑。
+            blur    label 失焦即编辑确认。
+            edsync  相同条目的名称编辑同步（从置顶区来）。
+            topsync 相同条目的置顶状态同步（从置顶区来）。-->
+        <div class="_down"
+            on="click(li>b[role=top])|stopAll evo(2) parent attr('-sid');
+                click(li>b[role=untop])|stop evo(2) parent attr('-sid');
+                blur(li>label)|evo(2) parent attr('-sid') evo(2) text;
+                click(li>label)|stop evo(2) attr('contenteditable') eq('true') end (true);
+                edsync|ev('detail') spread slr('li', '-sid', _1) str('/', '>label') $(_1) dup pass pop;
+                topsync|ev('detail') spread pick(-2) push slr('li', '-sid', _1) str('/', '>b:first-of-type') $(_1) dup pass pop"
+            by="Kit.topsh dup pass ('untop') dup;
+                Kit.untop dup pass ('top') dup;
+                Kit.shlabel(_1) dup pass (false)"
+            to="=|@role|pack(2) pop fire('1/._top', 'topsync');
+                =|@role|pack(2) pop fire('1/._top', 'topsync');
+                =|$contenteditable|pop fire('1/._top', 'edsync');
+                =|$contenteditable|focus select;
+                -|$text;
+                -|@role">
+            <div class="_search"
+                on="on|stop evo(3) disable(0) (false);
+                    off|stop evo(3) disable (true)"
+                to="(/>*)|$disabled;
+                    (/>*)|$disabled">
+                <input type="search" name="words" placeholder="空格：AND； 逗号：OR" />
+                <button type="submit"></button>
+            </div>
+            <!--搜索结果清单
+                label:title 置顶或曾经置顶的条目有效。 -->
+            <ol id="sh-list" class="_list" tpb-for
+                on="update|ev('detail')"
+                to="|replace">
+                <li _data-sid="$.shid">
+                    <label _="($.name || '---')">[片段名称]</label>
+                    <code _title="$.code" _="$.code|cut($.$.cmax)">[代码：单击提取导入]</code>
+                    <time _="$.time|date('yyyy-MM-dd hh:mm')">[时间戳]</time>
+                    <b data-pbo="lost" _data-pbo="$.$.edit ? null : 'lost'" _role="$.top ? 'untop' : 'top'" _title="$.top ? '取消置顶' : '置顶'"><i></i></b>
+                    <b data-pbo="lost" _data-pbo="$.$.edit ? null : 'lost'" role="del">删除</b>
+                </li>
+            </ol>
+            <!-- 复用：#nav-tops 绑定的事件处理 -->
+            <nav id="nav-misc"
+                on="^obted|$$('2/#nav-tops>*') $('2/#nav-tops');
+                    ^obted|(true)"
+                to="|cloneEvents append(true, true);
+                    (/>b)|disable"></nav>
+        </div>
+    </main>
+</form>
+
+
+<!--执行结果：
+    submit  插入文本或节点，微编辑下无效果通过。
+    reset   表单重置时手动重置部分内容。
+    result  上级递送的执行结果：{type:'value|error', data:String}。
+    shsave  脚本历史存储（有值才执行）。
+    state   表单初始状态设置：微编辑下内容插入不可用。
+    submit  微编辑状态下插入纯文本结果。
+-->
+<form class="_page _script" tpl-name="script:result"
+    on="submit|avoid $('/pre') text value('type where');
+        shsave|ev('detail') dup pass;
+        reset;
+        result|ev('detail') its('code data type') spread;
+        state|env('minied') bool;
+        submit|env('minied') pass $('/pre') text html xRange addRange edbox dup pop(2) exeCmd('insertHTML', _1) focus"
+    by="Ed.insResult(_);
+        Kit.shsave"
+    to="1/|trigger('cancel');
+        -;
+        (/pre, ._type)|trigger('reset');
+        /pre|trigger(_1)|pop goto('shsave');
+        /fieldset|trigger('disable')">
+    <header>
+        <h4>脚本执行结果</h4>
+        <b class="_close" title="关闭">✕</b>
+    </header>
+    <main class="_result">
+        <!--结果框：
+            value 设置正常的结果内容，同时存储备份。
+            reset 提取初始存储的源码重置。
+            error 错误信息手动连接源码封装。
+            obted 代码编辑框友好操作克隆（不含记录焦点的事件，否则会覆盖原插入点）。
+            keyup 补充Shift键释放效果。注：因该事件也为焦点记录而未克隆。 -->
+        <pre class="_err" data-bak="" contenteditable
+            on="reset|evo(3) prop('-bak');
+                value|ev('detail') str html dup ('_err');
+                error|ev('detail') str html str('<label>错误：</label><i>', '</i>') dup ('_err');
+                ^obted|tpl('prop:codes');
+                keyup|env('paste.shift', false)"
+            to="|html;
+                |removeClass prop('-bak') html;
+                |addClass prop('-bak') html;
+                |cloneEvents('keydown paste')">
+<label>错误：</label><i>this is a error massage.</i>
+</pre>
+        <!-- 仅部分禁用（tabs保留） -->
+        <fieldset
+            on="disable|ev('detail') dup $$('/>span') pop disable(_1)"
+            to="(input[name=type], select)|$disabled">
+            <legend>内容插入</legend>
+            <!-- reset 手动切换节点替换。 -->
+            <span class="_type"
+                on="click(input)|evo(2) val str('where:') node(_1);
+                    reset|$('input') click"
+                to="1/._where|replace">
+                <i>类型：</i>
+                <label title="text"><input type="radio" name="type" value="text" checked />文本</label>
+                <label title="html"><input type="radio" name="type" value="html" />节点</label>
+            </span>
+            <span class="_where" tpl-name="where:text">
+                <i>位置：</i>
+                <!-- 友好：空值可用于简单关闭对话框 -->
+                <select name="where">
+                    <option value=""> ------ </option>
+                    <option title="内部填充">fill</option>
+                    <option title="内部末尾">append</option>
+                    <option title="内部前端">prepend</option>
+                </select>
+            </span>
+            <span class="_where" tpl-name="where:html"
+                on="^tpled|evo(3) remove">
+                <i>位置：</i>
+                <select name="where">
+                    <option value=""> ------ </option>
+                    <option title="内部填充">fill</option>
+                    <option title="替换目标">replace</option>
+                    <option title="内部末尾">append</option>
+                    <option title="内部前端">prepend</option>
+                    <option title="目标之前">before</option>
+                    <option title="目标之后">after</option>
+                </select>
+                <em class="_tips">提示：注意源码结构的合法性！</em>
+            </span>
+            <label title="编辑时用">制表符
+                <input type="text" name="tabs" class="_char" value="4" title="空格数">
+            </label>
+        </fieldset>
+    </main>
+    <hr tpl-node="modal:okreset" />
+</form>

@@ -1,0 +1,506 @@
+<!-- 工具栏 -->
+<div class="___Panel Tools" tpl-name="main:tools"
+    on="click|$('#g-scroll') focus">
+    <div class="_start _icons">
+        <!--click|stop 保持现有焦点不转移。
+            toggle 切换事件，也接收外部通知。-->
+        <b id="x-outline" title="大纲〔F2〕" class="_press"
+            on="click|stop;
+                toggle|$$('#outline,#lineLeft') lose(2) ('_press')"
+            to="|trigger('toggle')|fire('body', 'pcheck');
+                |toggleClass">
+            <i id="b-outline"></i>
+        </b>
+        <b id="x-slave" title="功能区〔F3〕" class="_press"
+            on="click|stop;
+                toggle|$('#main-slave') lose(2) ('_press')"
+            to="|trigger('toggle')|fire('body', 'pcheck');
+                |toggleClass">
+            <i id="b-slave"></i>
+        </b>
+    </div>
+    <hr>
+    <div class="_middle _icons">
+        <!-- 动态：微编辑下隐藏 -->
+        <span id="tools-usual" class="_usual _icons" data-pbo=""
+            on="hide|evo(3) lose;
+                show|evo(3) lose(false)">
+            <b title="文本化"
+                on="click"
+                by="Ed.toText"><i id="b-totext"></i></b>
+            <b title="内容提升"
+                on="click"
+                by="Ed.unWrap"><i id="b-conup"></i></b>
+            <hr>
+        </span>
+        <!--撤销：
+            state 执行状态设置：true不可继续，false可继续。同时会激活Redo。
+            注记：出于简化，用apply指令直接调用（而非by）。-->
+        <b id="tools-undo" title="撤消〔u〕" data-pbo="disabled"
+            on="state|evo(1) ev('detail') disable(_1);
+                click|evo(3) disabled end (Kit) call('undo');
+                enable|evo(1) disable(0)"
+            to="#tools-redo|trigger('enable')"><i id="b-undo"></i></b>
+        <!--重做：
+            state 同上。同时会激活Undo。-->
+        <b id="tools-redo" title="重做〔r〕" data-pbo="disabled"
+            on="state|evo(1) ev('detail') disable(_1);
+                click|evo(3) disabled end (Kit) call('redo');
+                enable|evo(1) disable(0)"
+            to="#tools-undo|trigger('enable')"><i id="b-redo"></i></b>
+    </div>
+    <div class="_end _icons">
+        <b id="x-plugins" title="插件〔F7〕"
+            on="click|tpl('modal:plugins')"
+            to="#g-modal|trigger('open')">
+            <i id="b-plugins"></i>
+        </b>
+        <!-- data-max: 0 普通窗口；1 已最大化。 -->
+        <b id="x-maximize" title="最大化〔F10〕" data-max="0"
+            on="click|(['最大化〔F10〕', '向下还原〔F10〕']) ([0, 1]);
+                send|(Sys.maximizer) evo(3) attr('-max') exec(_1) ('_fulled')"
+            to="|toggleAttr('-max') toggleAttr('title')|goto('send');
+                body|toggleClass">
+            <i id="b-maximize"></i>
+        </b>
+    </div>
+</div>
+
+
+<!--内容区
+    cancel  取消微编辑（按ESE）
+    medok   确认微编辑（Sys.medOk）
+    medin   进入微编辑（Sys.medIn）
+    medin|delay 跳过绑定keydown后紧跟触发退出（Tab既为进入也为退出）。
+                注：快捷键进入时已延迟触发状态栏信息重置（#g-scroll:CHK）。
+    info|focus  确认后聚焦根容器，便于键盘控。
+    esced       向ESC栈添加一条记录。
+    escpop      从ESC栈移除一条记录。
+    @paste      微编辑粘贴纯文本，清理多余空白（空格替换）。
+    @keydown    微编辑确认（退出即解绑）。stop 避免上层快捷键操作（放过Shift和Fn+ESC系列）。
+    @keydown:x  屏蔽浏览器内置的3个编辑快捷键。兼容性：windows, MacOS。
+-->
+<div class="___Content" tpl-name="main:content"
+    on="@keydown|iskey(2) scam('shift') either end stop ev('key') pass('Enter', 'Tab') avoid ev('key') SCAM;
+        cancel|env('minied') pass stop;
+        medok|env('minied') pass stop;
+        medin|env('minied') end stop delay;
+        info|$('#g-scroll') focus;
+        esced|evo(3) (ESC) pop;
+        escpop|('med', ESC) pop;
+        @paste|avoid clipboard trims(' ') html exeCmd('insertHTML', _1);
+        @keydown:x|SCAM('ctrl', 'meta') pass iskey(6) pass avoid"
+    by="Kit.medpass(_1);
+        Kit.medcancel"
+    to="-;
+        |off('keydown paste')|goto('escpop');
+        |off('keydown paste')|goto('escpop');
+        |bind('keydown paste keydown:x')|goto('esced');
+        #g-count|trigger('reset');
+        -|add('med')|env('minied', true);
+        -|apply('delete')|env('minied', false) goto('info')">
+    <!--滚动封装：
+        注：不设计在<main>上，避免聚焦影响。
+        keydown 普通模式快捷键操作（key, count），会重置状态栏提示。
+        keyup   状态栏数字设置（非数字无效）。
+        focus   设置选取范围到内部以捕获copy|cut事件。若范围已在内部则忽略，不影响用户划选。
+        copy    Range忽略用户已选取不规则选区的情况（交由浏览器复制逻辑），trims清理内容中的换行，规范换行符用途。
+        paste   普通模式下的粘贴。
+        keydown|ev('shiftKey') 设置末尾追加式粘贴标记。
+        keyup|env('paste:append', null) 清除追加粘贴标记（重置）。
+        _focus  内容区聚焦（微编辑除外，否则影响光标）。使得上下文菜单显示时，操作非菜单快捷键可取消菜单。
+    -->
+    <div id="g-scroll" class="_scroll" tabindex="0"
+        on="keydown|env('minied') end (CHK) acmsk $('#g-count') val int hotKey(_2) pass stop;
+            keyup|env('minied') end (/^[\d.-]$/) ev('key') test(_1) pass $('#g-count') val ev('key') add(_1);
+            cut|env('minied') end avoid sels text trims(' ') trim join('\n');
+            paste|env('minied') end avoid clipboard trim dup pass split('\n') env('paste:append');
+            focus|env('minied') end wRange hasRange('/main') end $('/main') nodeRange(true) addRange;
+            copy|env('minied') end sRange(false) end avoid sels text trims(' ') trim join('\n') pop clipboard;
+            keydown|env('minied') end ev('shiftKey') pass env('paste:append', true);
+            keyup|env('minied') end env('paste:append', null);
+            _focus|env('minied') end evo(3) focus"
+        by="-;-;
+            Ed.deletes pass pop clipboard;
+            Ed.paste(_1)"
+        to="#g-count|trigger('reset')|fire(3, '_focus');
+            #g-count|trigger('setv');
+            -;-;
+            #g-count|trigger('reset')">
+        <!--上下文菜单
+            cmenudo 菜单条目处理，发送_focus不影响微编辑焦点（minied进入时）。
+                    即时失焦（blur）以取消菜单，保证ESC栈顺序正常。
+            keydown 快捷处理直达，ESC按下或子菜单隐藏时忽略（自然由普通模式处理）。
+            click(li[data-op])  主菜单条目操作（禁用时忽略）。
+            click(li[data-val]) 子菜单条目操作。
+            show    菜单显示位置计算/设置。
+            submenu 转换子菜单类型判断并导入。
+            status  设置菜单条目可用性（注：先disable）。
+            blur    失焦即隐藏菜单，也由按ESC键触发。
+            注记：
+            顶层菜单项的快捷键可直接使用（无需先弹出），故用方括号包围提示以示区别。
+        -->
+        <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pbo="lost"
+            on="cmenudo|evo(3) blur ev('detail');
+                convert|ev('detail');
+                show|evo(3) dup lose(false) $('1/') env('pointerXY') menupos(_2);
+                submenu|convtype $case('inlines', 'blocks', null) $switch('menu:inlines', 'menu:blocks', 'menu:empty') node(_1);
+                click(li[data-op])|evo(2) dup disabled end attr('-op');
+                keydown|ev('key') eq('Escape') $('/#m-conv') folded either end stop ev('key') slr('/#m-conv li', '-k', _1) $(_1) dup pass attr('-val');
+                click(#m-conv li[data-val])|evo(2) attr('-val');
+                blur|evo(3) lose(true) ('cmenu', ESC) pop;
+                esced|evo(3) (ESC) pop;
+                status|$$('/>li') dup disable cmable disable(false);
+                cancel|evo(3) blur"
+            by="Kit.cmenudo;
+                Kit.convert"
+            to="#g-scroll|trigger('_focus');
+                #g-scroll|trigger('focus');
+                |cssSets('left top')|goto('status') goto('submenu') goto('esced');
+                /menu|replace;
+                |trigger('cmenudo');
+                |trigger('convert');
+                |trigger('convert');
+                -|apply('delete')|fire('#g-scroll', '_focus');
+                -|add('cmenu')|fire(3, 'focus')">
+            <li data-op="minied"><b id="l-minied">修改</b><kbd>[m/M]</kbd></li>
+            <hr>
+            <!-- 300:延迟显示，400:延迟隐藏
+                注：sm-1/sm-0 只是一个存储键，非用于事件绑定。 -->
+            <li id="m-conv" role="menubar" data-pbo="folded"
+                on="@sm-1|evo(3) dup(2) disabled end fold(0) submenu;
+                    @sm-0|evo(3) fold(1);
+                    mouseenter|data('tk-0') timeOut(null) evo(3) chain('sm-1') timeOut(300);
+                    mouseleave|data('tk-1') timeOut(null) evo(3) chain('sm-0') timeOut(400)"
+                to="/menu|cssSets(_1);
+                    -;
+                    |data('tk-1');
+                    |data('tk-0')">
+                <h5><b id="l-convert">转换</b></h5>
+                <menu tpl-source="menu:inlines"></menu>
+            </li>
+            <hr>
+            <li data-op="toup"><b id="l-toup">升级</b><kbd>[Alt_←]</kbd></li>
+            <li data-op="todown"><b id="l-todown">降级</b><kbd>[Alt_→]</kbd></li>
+            <hr>
+            <li data-op="delete"><b id="l-delete">删除</b><kbd>[Delete]</kbd></li>
+            <hr>
+            <li data-op="range" title="创建范围"><b id="l-select">选取</b><kbd>[Alt_s]</kbd></li>
+            <li data-op="property"><b id="l-property">属性</b><kbd>[p]</kbd></li>
+        </menu>
+        <!-- 内联创建
+            store 进一步检查范围对象（在内容元素但非代码内）并存储。
+            show  显示菜单并压入ESC取消栈，提取单击位置相关存储值计算菜单显示位置。
+                  to|focus 聚焦菜单，延时避免滚动框跳动。
+            keydown 快捷键直达（data-k），stop避免上层快捷键触发。
+            click   单击条目创建。[data-val] 排除占位<li>。
+            blur    菜单失焦即隐藏，保证快捷键的当前场景合适。注记：不聚焦内容区避免取消划选文本。
+            cancel  简单失焦调用。注记：与blur分开定义，否则会两次触发相同流程。
+            esced/escpop  向ESC栈添加/移除一条记录。
+            status  检查范围内的子节点可否被目标类型包含（设置可用/禁用）。
+        -->
+        <menu id="g-cells" class="_cells" tabindex="0" data-pbo="lost"
+            on="create|data('range') ev('detail');
+                store|ev('detail') dup rngok pass;
+                show|evo(3) dup lose(false) $('1/') env('pointerXY') menupos(_2);
+                blur|evo(3) lose(true) (null);
+                keydown|ev('key') dup end('Escape') stop slr('/li', '-k', _1) $(_1) dup(2) pass disabled end attr('-val');
+                click(li[data-val])|evo(2) dup disabled end attr('-val');
+                esced|evo(3) (ESC) pop;
+                escpop|('cells', ESC) pop;
+                status|$$('/>li[data-val]') dup disable data('range') inlable('-val', _1) disable(false);
+                cancel|evo(3) blur"
+            by="Kit.rngelem(_1)"
+            to="#g-scroll|trigger('focus');
+                |data('range')|goto('show');
+                |cssSets('left top')|goto('status') goto('esced');
+                |data('range')|goto('escpop');
+                |trigger('create');
+                |trigger('create');
+                -|add('cells')|fire(3, 'focus');
+                -|apply('delete')">
+            <!--注记:
+                包含href特性的<a>元素有聚焦能力，单击后会让菜单失焦。-->
+            <li data-k="a" data-val="a" title="<a>"><b><a>链接</a></b><kbd>a</kbd></li>
+            <li data-k="c" data-val="code" title="<code>"><b><code>代码</code></b><kbd>c</kbd></li>
+            <li data-k="s" data-val="strong" title="<strong>"><b><strong>重点</strong></b><kbd>s</kbd></li>
+            <li data-k="e" data-val="em" title="<em>"><b><em>强调</em></b><kbd>e</kbd></li>
+            <li data-val="sup" title="上标<sup>"><b>O<sup>2</sup></b><kbd></kbd></li>
+            <li data-val="sub" title="下标<sub>"><b>O<sub>2</sub></b><kbd></kbd></li>
+            <li data-k="q" data-val="q" title="<q>"><b><q>引用</q></b><kbd>q</kbd></li>
+            <li data-k="t" data-val="time" title="<time>"><b><time>时间</time></b><kbd>t</kbd></li>
+            <li data-k="i" data-val="ins" title="<ins>"><b><ins>插入的</ins></b><kbd>i</kbd></li>
+            <li data-k="d" data-val="del" title="<del>"><b><del>删除的</del></b><kbd>d</kbd></li>
+            <li data-k="k" data-val="kbd" title="<kbd>"><b><kbd>键盘字</kbd></b><kbd>k</kbd></li>
+            <li data-val="small" title="<small>"><b><small>注脚</small></b><kbd></kbd></li>
+            <li data-val="abbr" title="<abbr>"><b><abbr>缩写</abbr></b><kbd></kbd></li>
+            <li data-k="m" data-val="mark" title="<mark>"><b><mark>标记</mark></b><kbd>m</kbd></li>
+            <li data-k="r" data-val="ruby" title="<ruby>">
+                <b><ruby>注音
+                    <rp>(</rp><rt>zhù yīn</rt><rp>)</rp>
+                    </ruby></b>
+                <kbd>r</kbd>
+            </li>
+            <li data-k="o" data-val="orz" title="表情<code:orz>"><b><code role="orz">(^_^)</code></b><kbd>o</kbd></li>
+            <li data-k="n" data-val="dfn" title="<dfn>"><b><dfn>定义条目</dfn></b><kbd>n</kbd></li>
+            <li data-val="samp" title="<samp>"><b><samp>样本</samp></b><kbd></kbd></li>
+            <li data-val="cite" title="<cite>"><b><cite>来源</cite></b><kbd></kbd></li>
+            <li data-val="s" title="<s>"><b><s>失效</s></b><kbd></kbd></li>
+            <li data-k="v" data-val="var" title="<var>"><b><var>变量</var></b><kbd>v</kbd></li>
+            <li data-k="u" data-val="u" title="<u>"><b><u>注记</u></b><kbd>u</kbd></li>
+            <li data-k="b" data-val="bdo" title="<bdo dir=rtl>"><b><bdo dir="rtl">有向文本</bdo></b><kbd>b</kbd></li>
+            <li data-pbo="disabled">&nbsp;</li>
+            <li data-val="b" title="<b>"><b>特用&lt;b&gt;</b><kbd></kbd></li>
+            <li data-val="i" title="<i>"><b>特用&lt;i&gt;</b><kbd></kbd></li>
+        </menu>
+        <!--内容区：
+            click(*) 单击相关操作。avoid取消链接单击跳转。
+                     注：按Shift单击并不会有浏览器聚焦，因此需主动聚焦。
+            focus(audio,video) 单击选取在音/视频元素上无效，故借助聚焦（但无键盘按键信息）。
+            cancel   选取集取消（ESC）。
+            mouseup  弹出内联单元创建表。划选完整嵌套，非空，发送Range。同时存储鼠标指针和滚动条位置。
+            _mouseup 用于程序激发弹出菜单（上下文菜单选取元素）。
+            mouseover(*),mouseout(*)|...('_hover') 提供样式定位依据。
+            mouseleave|end 重置状态栏，除非已有计数指定。
+            mousedown|...avoid 避免 Shift+单击 变成划选（已经有划选除外）。
+            click([contenteditable])... 微编辑光标记忆，用于特殊字符插入。delay确认选区为单击点，否则可能为容器本身。
+            puthtml 整体导入内容源码（可撤销），同时滚动到顶部。
+                    注：微编辑状态下无效，否则新内容中普通操作无效。
+            click(~) 在内容区为空时插入一个主标题占位（以便开始工作）。
+        -->
+        <main id="content" class="content"
+            on="click(*) focus(~audio,video)|avoid env('minied') end sRange(true) pass evo(1) SCAM;
+                cancel|stop env('minied') end;
+                puthtml|env('minied') end ev('detail');
+                click(~)|stopAll ('文章主标题，单击开始');
+                mouseover(*)|env('minied') end ('_hover');
+                mouseout(*)|env('minied') end ('_hover');
+                mouseover(*)|env('minied') end $('#g-count') val end evo(1) dup einfo(true) roleinfo(_1) str('<', '>');
+                mouseleave|env('minied') end $('#g-count') val end;
+                mouseup|stop env('minied') end ev('pageX pageY') env('pointerXY', _1) sRange('') dup pass;
+                _mouseup|env('minied') end sRange('') dup pass;
+                contextmenu|env('minied') end avoid ev('pageX pageY') env('pointerXY', _1);
+                mousedown|env('minied') end sRange(true) ev('shiftKey') both pop avoid;
+                click([contenteditable]) keyup([contenteditable]) input|env('minied') pass delay sRange pop xRange stopAll"
+            by="Ed.click(_1);
+                Kit.ecancel;
+                Kit.puthtml (0);
+                Kit.heading"
+            to="#g-count|trigger('reset')|fire('#g-scroll', 'focus');
+                #g-count|trigger('reset');
+                ._scroll/|scrollTop|fire('#g-count', 'reset') fire('#g-scroll', 'focus') fire('#g-refresh', 'click');
+                -;
+                =|addClass;
+                =|removeClass;
+                #status-info|trigger('info');
+                #g-count|trigger('reset');
+                #g-cells|trigger('store');
+                #g-cells|trigger('store');
+                #g-cmenu|trigger('show')">
+        </main>
+    </div>
+    <div class="_state">
+        <!-- detail: outerHTML|'' -->
+        <span id="g-covert" class="_tips" data-pbo="lost"
+            on="tips|ev('detail') dup vnot evo(3) pop lose(_1)"
+            to="/b|text">
+            <b><!-- 不可视焦点元素信息 --></b>
+        </span>
+        <!--元素路径：
+            click(b)  单击选取/聚焦支持。
+            mouseenter elemSelf 提示元素特性结构友好。
+            mouseenter/mouseleave 路径关联目标友好指示。
+            empty  鼠标停留路径单元时，键盘移动焦点会有指向（_point）残留，清除之。
+            click(b:last-child) 微编辑时找回编辑目标。
+            toggle 隐显切换（快捷键操作）。
+            注记：
+            路径信息更新由程序（edit.js）直接执行。
+        -->
+        <div id="g-path" class="_path"
+            on="click(b)|env('minied') end evo(2) source SCAM;
+                mouseenter(b)|evo(2) dup attr('title') end source elemSelf evo(2) pop;
+                mouseenter(b)|('_point') evo(2) source pop;
+                mouseleave(b)|stop ('_point') evo(2) source pop;
+                empty|$('/b:hover') dup pass pop;
+                click(b:last-child)|env('minied') pass evo(2) source intoView(2);
+                toggle|evo(3) lose(2)"
+            by="Ed.pathTo(_1) $$('/b')"
+            to="=|only('_press')|fire('#g-count', 'reset') fire('body', 'focus.content');
+                -|@title;
+                -|addClass;
+                -|removeClass;
+                -|trigger('mouseleave', true)">
+            <!-- <b> -->
+        </div>
+    </div>
+</div>
+
+
+<!--功能面板：
+    mousedown 面板高度调整。
+    keydown   面板快捷键处理。
+    nodeok(~form) 从其他选项卡切换回来时自动更新（因为选取集可能已变）。
+    update        内容区选取变化，主面板跟随更新触发（不冒泡）。无数据递送，由表单自主负责。
+    input.submit  直接快捷提交，保持录入框焦点。
+    input.submit2 同上直接提交，如果录入框铺满则恢复普通状态。
+    input.full    文本录入和表格录入最大化平铺。
+    keydown([data-pbo~=fulled]) 友好支持ESC键取消最大化平铺。stop阻止上级ESC栈功能。
+    escape.cancel 拦截可平铺控件的多余ESC操作，避免取消选取集影响历史栈。
+    注：
+    (~form)   限定是必要的，否则更深子单元（如<select>）的nodeok冒泡会带来死循环。
+    tabindex  使保存键（Ctrl+s）随时有效。 -->
+<div id="main-slave" class="___Panel Slave" tabindex="0" tpl-name="main:slave"
+    on="@mousemove|movementY neg;
+        @mouseup|movementY(null);
+        mousedown|scam(KM.slaveResize) pass stop avoid;
+        nodeok(~form) update;
+        input.submit(~textarea, th,td, ._code, li)|evo(2) is(':read-write') pass;
+        input.submit2([data-pbo~=fulled])|evo(2) full(false);
+        input.full(~textarea, pre._code)|stopAll evo(2) full(2);
+        input.full(~th, td, li[contenteditable])|evo(2) pop $('._list, ._obts/') full(2);
+        keydown|(SHK) acmsk ev('key') hotKey(_2) pop stop;
+        keydown([data-pbo~=fulled])|ev('key') pass('Escape') stop evo(2) full(false);
+        escape.cancel|evo(1) is('textarea, pre._code, td, th') pop stop"
+    to="|height(true);
+        |off('mousemove');
+        |bind('mousemove') once('mouseup');
+        /form|trigger('update');
+        /form|trigger('submit')|fire(2, 'focus');
+        /form|trigger('submit')|fire(2, 'focus')">
+    <div class="_tabs"
+        on="click(b)|evo(2) attr('-tpl') tpl(_1);
+            click(b)|evo(2) hasClass('_press') end $$('/b')"
+        to="1/form|replace;
+            =|only('_press')">
+        <!--edtype 设置编辑类型：
+            更新模板名，如果当前在显示则激发载入。 -->
+        <b id="g-contab" data-tpl="slave:input" class="_press"
+            on="edtype|ev('detail');
+                doit|evo(3) dup hasClass('_press') pass click"
+            to="|@-tpl|goto('doit')">内容</b>
+        <b data-tpl="slave:style">样式</b>
+        <b data-tpl="slave:attr">特性</b>
+        <b data-tpl="slave:source">源码</b>
+        <b data-tpl="slave:script">脚本</b>
+        <b class="_close"
+            on="click|stop"
+            to="#b-slave||click">
+            <i id="l-close" title="关闭"></i>
+        </b>
+    </div>
+    <form tpl-source="slave:input"> [内容面板] </form>
+</div>
+
+
+<!-- 状态栏 -->
+<div class=" ___Panel Status" tpl-name="main:status">
+    <!-- 友好：提示焦点元素outerHTML -->
+    <div class="_info">
+        <!-- 即时信息 -->
+        <span id="status-info" title=""
+            on="info|ev('detail')"
+            to="|attribute('text title')"></span>
+        <!--计数暂存
+            reset: 清空值，提供选取集大小默认显示。
+            setv:  设置值并提供该值的显示。ESC按键值添加（无重复）。 -->
+        <input id="g-count" name="count" type="hidden"
+            on="reset|esize str('[ ', ' ]') ('');
+                setv|ev('detail') dup;
+                cancel|('info', ESC) pop;
+                esced|evo(3) (ESC) pop"
+            to="|val|pop fire('#status-info', 'info');
+                |val|pop fire('#status-info', 'info', 0) goto('esced');
+                -|apply('delete')|fire(3, 'reset');
+                -|add('info')" />
+    </div>
+    <!--指令符：
+        > 选择器，焦点元素为起点
+        | 选取集过滤，支持 PB:To 的 []{} 语法
+        / 文本搜索（选取/替换）
+        : 普通命令
+        = 简单计算 -->
+    <div class="_cmdx">
+        <span class="_code" tabindex="0" data-pbo="lost"
+            on="click(b)|evo(1) text;
+                blur|evo(3) lose"
+            to="1/code|trigger('setv')">
+            <b title="选择器模式">&gt;</b>
+            <b title="选取集过滤">|</b>
+            <b title="文本搜索">/</b>
+            <b title="普通命令">:</b>
+            <b title="简单计算">=</b>
+            <!-- <b title="扩展指令...">!</b> -->
+        </span>
+        <!--说明：
+            click focus 便于失焦后隐藏。
+            data-v: CSS辅助。 -->
+        <code id="g-cmdx" data-v=">"
+            on="setv|ev('detail') dup;
+                done|$('1/span') lose;
+                click|$('1/span') dup lose(0) focus"
+            to="|@text @-v|goto('done');
+                #cmd-input|-|focus select">&gt;</code>
+    </div>
+    <!--命令行交互：
+        1. 回车执行命令行。
+        2. Tab键匹配最新一条历史记录，如果同时按住Sift键，逆向匹配最老的。
+        3. 上/下箭头键导航历史匹配集条目。注：在按Tab之后有效。
+        4. Ctrl+U 全选以便于清空（非直接清空以便于可撤销）。 -->
+    <div class="_cmdline"
+        on="keydown(input)|iskey('Enter') pass stopAll evo(2) val $('#g-cmdx') text;
+            keydown(input)|iskey('Tab') pass stopAll avoid $('#g-cmdx') text evo(2) scam('shift');
+            keydown(input)|iskey('ArrowUp') pass stopAll avoid evo(2);
+            keydown(input)|iskey('ArrowDown') pass stopAll avoid evo(2);
+            keydown(input)|iskey('u') scam('ctrl') both pass stop avoid evo(2) select"
+        by="Ed.cmdRun(_1) or(null);
+            Kit.cmdlast(_2);
+            Kit.cmdnext;
+            Kit.cmdprev"
+        to="=|val|select">
+        <!-- input 清除临时检索集 -->
+        <input id="cmd-input" type="text" name="cmd" spellcheck="false" autocomplete="off" class="_code" data-tips="> | / : = 直达此处"
+            on="focus|evo(3) ('');
+                ^obted blur|evo(3) attr('-tips');
+                input|cmdclear"
+            to="|@placeholder;
+                |@placeholder" />
+    </div>
+    <!--出错提示：
+        click 滚动问题元素（可能为null）到视口中间，主窗口聚焦友好。
+        mouseover 问题元素背影提示。-->
+    <div id="err-msg" class="_err" data-pbo="lost"
+        on="click|evo(3) source dup pass dup intoView(2) SCAM;
+            tips|$('/>a') attr('-hid');
+            mouseenter|('_warn') evo(3) source pop;
+            mouseleave|('_warn') evo(3) source pop;
+            off|evo(3) lose;
+            on|evo(3) lose(0)"
+        by="Kit.errmsg(_1)"
+        to="body|trigger('focus.content')|goto('tips');
+            #x-help|trigger('help');
+            -|addClass;
+            -|removeClass;
+            /a|trigger('clear')">
+        <a data-hid="" title="超长信息便于简单查看"
+            on="setv|ev('detail');
+                clear|(null)"
+            to="|attribute('-hid title text');
+                |attribute('-hid title text')">[提示内容]</a>
+    </div>
+    <!--帮助入口：
+        click 打开/关闭帮助栏。
+        open  单纯打开帮助面板。如果面板已打开则无行为。
+        help  提取帮助ID，发送帮助索引请求。注：仅在帮助栏开启时有效。
+        toggle 帮助按钮切换。-->
+    <div id="x-help" class="_help" title="帮助〔F4〕"
+        on="click;
+            open|$('#help') lost pass;
+            help|$('#help') lost end ev('detail');
+            toggle|$$('#help,#lineRight') lose(2) ('_press')"
+        to="|trigger('toggle')|fire('body', 'pcheck');
+            |trigger('click');
+            #help|trigger('index');
+            |toggleClass">
+        <code>?</code>
+    </div>
+</div>

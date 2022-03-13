@@ -1,0 +1,2978 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="no-cache">
+    <title>界面效果CSS制作</title>
+    <link rel="stylesheet" href="../base/tpb/default.css">
+    <link rel="stylesheet" href="../themes/Dark-less/style.css">
+    <link rel="stylesheet" href="../styles/example/main.css">
+    <script src="../base/tquery/tquery.min.js"></script>
+    <script src="../base/tquery/plugins/history.min.js"></script>
+    <style>
+        body {
+            display: block;
+        }
+        body > div {
+            width: 820px;
+            height: 240px;
+            margin-bottom: 20px;
+            border: 1px #5c869c solid;
+        }
+        body > div:first-child {
+            height: 700px;
+        }
+        body > hr {
+            width: auto;
+            border: 1px #eee inset;
+        }
+        .panel {
+            display: flex;
+            flex-direction: column;
+        }
+        .panel > .Slave {
+            flex: 1 0 auto;
+        }
+        .Style ._color ._pick {
+            background-color: #48cf75;
+        }
+        .___Content menu._cmenu {
+            top: 20px;
+            left: 340px;
+        }
+    </style>
+    <script type="module">
+        import { TplsPool, TplrName } from "../base/tpb/config.js";
+        import { Tpb } from "../base/tpb/tpb.esm.js";
+        import cfg from "../base/shortcuts.js";
+        import { On, By } from "../config.js";
+        import { Kit } from "../base/edit.js";
+        import { Render } from "../base/tpb/tools/render.js";
+        import "../base/shedit.js";
+        window.Tpb = Tpb;
+        window.Kit = Kit;
+        window.KM = cfg.Keys;
+        window.Render = Render;
+
+        Tpb.Init( On, By );
+        Tpb.build( $.get('#g-codes') );
+
+        window.On = On;
+        window.By = By;
+        window.Tpls = TplsPool.get( TplrName );
+        // 测试数据
+        // 置顶集
+        window.TD1 = [
+            {
+                shid:   100,
+                name:   '脚本片段AA',
+                code:   'window.console.info("hello world.")',
+                top:    true,
+                datetime: '2021-04-26 04:30:42'
+            },
+            {
+                shid:   101,
+                name:   '脚本片段BB',
+                code:   'window.console.info("this is some codes.")',
+                top:    true,
+                datetime: '2021-04-26 04:50:22'
+            },
+        ];
+        // 搜索集（非置顶）
+        window.TD2 = [
+            {
+                shid:   105,
+                name:   undefined,
+                code:   'window.console.info("hello undefined.")',
+                top:    false,
+                datetime: '2021-04-26 04:30:42'
+            },
+            {
+                shid:   108,
+                name:   '脚本BBxx',
+                code:   'window.console.info("some codes at here.")',
+                top:    true,
+                datetime: '2021-04-26 04:50:22'
+            },
+        ];
+
+        $.config({ varyevent: true });
+    </script>
+</head>
+
+<body lang="zh-cn">
+    <div id="editor">
+
+
+<!--临时借用：
+    事件克隆/编辑效果。-->
+<pre id="g-codes" spellcheck="false" class="_code" contenteditable="true" data-pbo="lost"
+    data-tip="粘贴时自动清除多余缩进"
+    on="keydown|ev('key') pass('Enter', 'Tab', 'Backspace') stop evo(3) ev('key') sRange $('form/[name=tabs]') k3edit(_3) dup pass avoid exeCmd('insertHTML', _1);
+        keydown|ev('shiftKey') pass stop env('paste.shift', true);
+        keyup|env('paste.shift', false);
+        paste|avoid clipboard env('paste.shift') indentcut(_1) html exeCmd('insertHTML', _1);
+        codes|ev('detail') html xRange addRange edbox pop exeCmd('insertHTML', _1)"
+    by="evo(3) iskey('Enter') sRange Kit.blankline(_2)"></pre>
+
+
+<!-- 模态框：屏蔽层 -->
+<div id="g-modal" class="___Panel Modal" data-pbo=""
+    on="cancel click(~._close)|evo(3) lose">
+    <!--执行结果：
+        result 结果数据导入（上级运行时）。
+        error  传递出错信息提示。 -->
+    <form class="_page _script" tpl-name="script:result" data-pbo=""
+        on="submit|avoid $('/pre') text value('type where');
+            shsave|ev('detail') dup pass;
+            reset;
+            result|ev('detail') its('code data type') spread"
+        by="Ed.insResult(_)"
+        to="1/|trigger('cancel');
+            /pre|trigger('reset');
+            /pre|trigger('value');
+            /pre|trigger(_1)|pop goto('shsave')">
+        <header>
+            <h4>内容源码</h4>
+            <b class="_close" title="关闭">✕</b>
+        </header>
+        <main>
+            <div class="_export">
+                <div class="_top">
+                    <span>
+                        <label>制表符
+                            <input type="text" name="tabs" class="_char" value="4" title="空格数">
+                        </label>
+                        <button type="button">格式化</button>
+                    </span>
+                    <label
+                        on="click(input)|(['true', 'false'])"
+                        to="2/textarea|^spellcheck">
+                        <input type="checkbox" name="spell" />拼写检查
+                    </label>
+                </div>
+                <textarea name="html" class="_code" spellcheck="false"></textarea>
+                <fieldset>
+                    <legend>说明：</legend>
+                    <ul>
+                        <li>复制源码插入容器元素内（通常是一个 <code>&lt;main&gt;</code>），然后在页面头部引入内容样式即可。</li>
+                        <li>如果内容包含 <code>OBT</code> 交互，则还需要引入 <code>tpb/default.css</code> 系统样式。</li>
+                    </ul>
+                </fieldset>
+            </div>
+        </main>
+        <div class="_btn2" tpl-name="modal:okreset">
+            <button type="reset">重置</button>
+        </div>
+    </form>
+</div>
+
+
+<!-- 工具栏 -->
+<div class="___Panel Tools" tpl-name="main:tools">
+    <!-- 面板按钮 -->
+    <div class="_start _icons">
+        <b title="大纲"><i id="b-outline"></i></b>
+        <b title="功能区" class="_press"><i id="b-slave"></i></b>
+    </div>
+    <!-- 动态区 -->
+    <div id="tools-active" class="_active _icons" data-pbo="">
+        <hr>
+        <b title="文本化"><i id="b-totext"></i></b>
+        <b title="内容提升"><i id="b-conup"></i></b>
+        <hr>
+        <b title="撤消"><i id="b-undo"></i></b>
+        <b title="重做" data-pbo="disabled"><i id="b-redo"></i></b>
+    </div>
+    <!-- 功能按钮 -->
+    <div class="_end _icons">
+        <b title="插件"><i id="b-plugins"></i></b>
+        <b title="最大化"><i id="b-maximize"></i></b>
+    </div>
+</div>
+
+<!-- 内容区 -->
+<div class="___Content" tpl-name="main:content">
+    <!-- 临时态：视觉提示 -->
+    <span id="g-cross" data-pbo="">
+        <b id="cross-h"></b><b id="cross-v"></b>
+    </span>
+    <!--滚动封装：
+        滚动内容<main>直接获取焦点时可能存在移位。-->
+    <div id="g-scroll" class="_scroll" tabindex="0">
+        <!-- 上下文菜单 -->
+        <menu id="g-cmenu" class="_cmenu" tabindex="0" data-pbo="">
+            <li data-val="minied"><b id="l-minied">修改</b><kbd>m/M/Tab</kbd></li>
+            <hr>
+            <!-- 延迟300毫秒显示，延迟400毫秒隐藏 -->
+            <li role="menubar" data-pbo="folded"
+                on="@sm-1|evo(3) fold(0);
+                    @sm-0|evo(3) fold(1);
+                    mouseenter|data('tk-0') timeOut(null) evo(3) chain('sm-1') timeOut(300);
+                    mouseleave|data('tk-1') timeOut(null) evo(3) chain('sm-0') timeOut(400)"
+                to="-;-;
+                    |data('tk-1');
+                    |data('tk-0')">
+                <h4><b id="l-convert">转换</b></h4>
+                <menu role="submenu">
+                    <li data-val="a" title="<a>"><b><a href="javascript:;">链接</a></b><kbd>a</kbd></li>
+                    <li data-val="code" title="<code>"><b><code>代码</code></b><kbd>c</kbd></li>
+                    <li data-val="strong" title="<strong>"><b><strong>重点</strong></b><kbd>s</kbd></li>
+                    <li data-val="em" title="<em>"><b><em>强调</em></b><kbd>e</kbd></li>
+                    <li data-val="sup" title="上标<sup>"><b>O<sup>2</sup></b><kbd></kbd></li>
+                    <li data-val="sub" title="下标<sub>"><b>O<sub>2</sub></b><kbd></kbd></li>
+                    <li data-val="q" title="<q>"><b><q>引用</q></b><kbd>q</kbd></li>
+                    <li data-val="time" title="<time>"><b><time>时间</time></b><kbd>t</kbd></li>
+                    <li data-val="ins" title="<ins>"><b><ins>插入</ins></b><kbd>i</kbd></li>
+                    <li data-val="del" title="<del>"><b><del>删除</del></b><kbd>d</kbd></li>
+                    <li data-val="abbr" title="<abbr>"><b><abbr>缩写</abbr></b><kbd></kbd></li>
+                    <li data-val="small" title="<small>"><b><small>注脚</small></b><kbd></kbd></li>
+                    <li data-val="cite" title="<cite>"><b><cite>来源</cite></b><kbd></kbd></li>
+                    <li data-val="mark" title="<mark>"><b><mark>标记</mark></b><kbd>m</kbd></li>
+                    <li data-val="ruby" title="<ruby>">
+                        <b><ruby>注音
+                                <rp>(</rp><rt>zhù yīn</rt><rp>)</rp>
+                            </ruby></b>
+                        <kbd>r</kbd>
+                    </li>
+                    <li data-val="orz" title="表情<code:orz>"><b><code role="orz">(^_^)</code></b><kbd>o</kbd></li>
+                    <li data-val="dfn" title="<dfn>"><b><dfn>定义条目</dfn></b><kbd></kbd></li>
+                    <li data-val="samp" title="<samp>"><b><samp>样本</samp></b><kbd></kbd></li>
+                    <li data-val="kbd" title="<kbd>"><b><kbd>键盘字</kbd></b><kbd>k</kbd></li>
+                    <li data-val="s" title="<s>"><b><s>失效</s></b><kbd></kbd></li>
+                    <li data-val="u" title="<u>"><b><u>注记</u></b><kbd>u</kbd></li>
+                    <li data-val="var" title="<var>"><b><var>变量</var></b><kbd>v</kbd></li>
+                    <li data-val="bdo" title="<bdo>"><b><bdo dir="rtl">有向文本</bdo></b><kbd>b</kbd></li>
+                </menu>
+            </li>
+            <hr>
+            <li data-val="toup"><b id="l-toup">升级</b><kbd>Alt_←</kbd></li>
+            <li data-val="todown"><b id="l-todown">降级</b><kbd>Alt_→</kbd></li>
+            <hr>
+            <li data-val="delete"><b id="l-delete">删除</b><kbd>Delete</kbd></li>
+            <hr>
+            <li data-val="property"><b id="l-property">属性</b><kbd>p</kbd></li>
+        </menu>
+        <!-- 选取创建（mouseup） -->
+        <menu id="g-cells" class="_cells" tabindex="0" data-pbo="" style="top:20px; left:20px">
+            <li data-val="a" title="<a>"><b><a href="javascript:;">链接</a></b><kbd>a</kbd></li>
+            <li data-val="code" title="<code>"><b><code>代码</code></b><kbd>c</kbd></li>
+            <li data-val="strong" title="<strong>"><b><strong>重点</strong></b><kbd>s</kbd></li>
+            <li data-val="em" title="<em>"><b><em>强调</em></b><kbd>e</kbd></li>
+            <li data-val="sup" title="上标<sup>"><b>O<sup>2</sup></b><kbd></kbd></li>
+            <li data-val="sub" title="下标<sub>"><b>O<sub>2</sub></b><kbd></kbd></li>
+            <li data-val="q" title="<q>"><b><q>引用</q></b><kbd>q</kbd></li>
+            <li data-val="time" title="<time>"><b><time>时间</time></b><kbd>t</kbd></li>
+            <li data-val="ins" title="<ins>"><b><ins>插入</ins></b><kbd>i</kbd></li>
+            <li data-val="del" title="<del>"><b><del>删除</del></b><kbd>d</kbd></li>
+            <li data-val="abbr" title="<abbr>"><b><abbr>缩写</abbr></b><kbd></kbd></li>
+            <li data-val="small" title="<small>"><b><small>注脚</small></b><kbd></kbd></li>
+            <li data-val="cite" title="<cite>"><b><cite>来源</cite></b><kbd></kbd></li>
+            <li data-val="mark" title="<mark>"><b><mark>标记</mark></b><kbd>m</kbd></li>
+            <li data-val="ruby" title="<ruby>">
+                <b><ruby>注音
+                    <rp>(</rp><rt>zhù yīn</rt><rp>)</rp>
+                </ruby></b>
+                <kbd>r</kbd>
+            </li>
+            <li data-val="orz" title="表情<code:orz>"><b><code role="orz">(^_^)</code></b><kbd>o</kbd></li>
+            <li data-val="dfn" title="<dfn>"><b><dfn>定义条目</dfn></b><kbd></kbd></li>
+            <li data-val="samp" title="<samp>"><b><samp>样本</samp></b><kbd></kbd></li>
+            <li data-val="kbd" title="<kbd>"><b><kbd>键盘字</kbd></b><kbd>k</kbd></li>
+            <li data-val="s" title="<s>"><b><s>失效</s></b><kbd></kbd></li>
+            <li data-val="u" title="<u>"><b><u>注记</u></b><kbd>u</kbd></li>
+            <li data-val="var" title="<var>"><b><var>变量</var></b><kbd>v</kbd></li>
+            <li data-val="bdo" title="<bdo dir=rtl>"><b><bdo dir="rtl">有向文本</bdo></b><kbd>b</kbd></li>
+            <li data-pbo="disabled">&nbsp;</li>
+            <li data-val="b" title="<b>"><b>特用&lt;b&gt;</b><kbd></kbd></li>
+            <li data-val="i" title="<i>"><b>特用&lt;i&gt;</b><kbd></kbd></li>
+        </menu>
+
+        <!-- 内容区 -->
+        <main id="content" class="content"
+            on="contextmenu|avoid;
+                click(*)|avoid"
+            to="#g-cmenu|trigger('show')">
+            <!-- 例： -->
+            <hgroup>
+                <h1 id="文章的内容结构">文章的内容结构</h1>
+                <h2>—— 简单干净的源码，清爽愉悦的阅读</h2>
+            </hgroup>
+            <header role="abstract">
+                <h3>【提 要】</h3>
+                <p>一篇文章的内容最多分成五个层级：<strong>章</strong>/<strong>节</strong>/<strong>区</strong>/<strong>段</strong>/<strong>末</strong>，每一个层级对应一个片区（<code>section</code>）。每一层通常都有一个标题，起始顶层片区的标题为
+                    <code>&lt;h2&gt;</code>，其余顺次为 <code>&lt;h3&gt;</code> <code>&lt;h4&gt;</code> <code>&lt;h5&gt;</code>
+                    <code>&lt;h6&gt;</code>。<code>&lt;h1&gt;</code> 标签用于 <code>&lt;article&gt;</code> 的主标题，通常也是页面的大标题。</p>
+                <p><code>&lt;article&gt;</code> 是内容结构的根元素，包含了所有的内容成员。</p>
+                <blockquote>
+                    <p><strong>注：</strong>
+                        一篇正常的文章除了主标题外，通常只包含了最多3-4个层级，即：<strong>章节区段</strong>。再多的层级阅读友好性很差。</p>
+                </blockquote>
+            </header>
+            <article>
+                <h2 id="内容的结构">内容的结构</h2>
+                <section>
+                    <header>
+                        <p>下面的逐级嵌套结构按标题号递增，逻辑上是越来越细化的内容区。这是一个常规合理的内容组织形式，它能让文章的内容结构合理，表达清晰，阅读起来也更轻松。</p>
+                        <p>这里的结构主要参考Markdown文档按标题折叠的逻辑来设计，表达合理的同时也便于对Markdown文档的解析结果进行程序处理：重构为如下的层次结构。</p>
+                        <blockquote>
+                            <p><strong>注：</strong><br />
+                                根据使用经验，这种规范的内容结构实际上可以迫使您把文章的内容组织得更合理。您可以试一试 <code role="orz">:)</code></p>
+                        </blockquote>
+                    </header>
+                    <h3 id="层次图">层次图</h3>
+                    <section>
+                        <pre>
+<code data-lang="html">&lt;h1&gt;&lt;/h1&gt;                                   <i>&lt;!-- 主标题 --&gt;</i>
+&lt;header role="abstract"&gt;&lt;/header&gt;           <i>&lt;!-- 提要 --&gt;</i>
+&lt;nav role="toc"&gt;&lt;/nav&gt;                      <i>&lt;!-- 目录 --&gt;</i>
+&lt;article&gt;                                   <i>&lt;!-- 文章区 --&gt;</i>
+    &lt;header&gt;&lt;/header&gt;                       <i>&lt;!-- 导言 --&gt;</i>
+    &lt;h2&gt;&lt;/h2&gt;                               <i>&lt;!-- 章标题 --&gt;</i>
+    &lt;section role="s1"&gt;                     <i>&lt;!-- 章片区。第一层 section --&gt;</i>
+        &lt;header&gt;&lt;/header&gt;                   <i>&lt;!-- 章导言 --&gt;</i>
+        &lt;h3&gt;&lt;/h3&gt;                           <i>&lt;!-- 节标题 --&gt;</i>
+        &lt;section role="s2"&gt;                 <i>&lt;!-- 节片区。第二层 section --&gt;</i>
+            &lt;header&gt;&lt;/header&gt;               <i>&lt;!-- 节导言 --&gt;</i>
+            &lt;h4&gt;&lt;/h4&gt;                       <i>&lt;!-- 区标题 --&gt;</i>
+            &lt;section role="s3"&gt;             <i>&lt;!-- 区片区。第三层 section --&gt;</i>
+                &lt;header&gt;&lt;/header&gt;           <i>&lt;!-- 区导言 --&gt;</i>
+                &lt;h5&gt;&lt;/h5&gt;                   <i>&lt;!-- 段标题 --&gt;</i>
+                &lt;section role="s4"&gt;         <i>&lt;!-- 段片区。第四层 section --&gt;</i>
+                    &lt;header&gt;&lt;/header&gt;       <i>&lt;!-- 段导言 --&gt;</i>
+                    &lt;h6&gt;&lt;/h6&gt;               <i>&lt;!-- 末标题 --&gt;</i>
+                    &lt;section role="s5"&gt;     <i>&lt;!-- 末片区。第五层 section --&gt;</i>
+                        &lt;header&gt;&lt;/header&gt;   <i>&lt;!-- 末导言 --&gt;</i>
+                        [ Text ] ...        <i>&lt;!-- 正文内容 --&gt;</i>
+                        &lt;footer&gt;&lt;/footer&gt;   <i>&lt;!-- 末小结 --&gt;</i>
+                    &lt;/section&gt;
+                    ...                     <i>&lt;!-- 平级 h6/section --&gt;</i>
+                    &lt;footer&gt;&lt;/footer&gt;       <i>&lt;!-- 段小结 --&gt;</i>
+                &lt;/section&gt;
+                ...                         <i>&lt;!-- 平级 h5/section --&gt;</i>
+                &lt;footer&gt;&lt;/footer&gt;           <i>&lt;!-- 区小结 --&gt;</i>
+            &lt;/section&gt;
+            ...                             <i>&lt;!-- 平级 h4/section --&gt;</i>
+            &lt;footer&gt;&lt;/footer&gt;               <i>&lt;!-- 节小结 --&gt;</i>
+        &lt;/section&gt;
+        ...                                 <i>&lt;!-- 平级 h3/section --&gt;</i>
+        &lt;footer&gt;&lt;/footer&gt;                   <i>&lt;!-- 章小结 --&gt;</i>
+    &lt;/section&gt;
+    &lt;hr /&gt;                                  <i>&lt;!-- 章间隔 --&gt;</i>
+    ...                                     <i>&lt;!-- 平级 h2/section --&gt;</i>
+    &lt;footer&gt;&lt;/footer&gt;                       <i>&lt;!-- 结语 --&gt;</i>
+&lt;/article&gt;
+&lt;ul role="seealso"&gt;&lt;/ul&gt;                    <i>&lt;!-- 另参见 --&gt;</i>
+&lt;ol role="reference"&gt;&lt;/ol&gt;                  <i>&lt;!-- 文献参考 --&gt;</i>
+</code></pre>
+                        <p><strong>解析逻辑：</strong></p>
+                        <ul>
+                            <li>每一级标题之后的内容即为该标题相关的 <code>&lt;section&gt;</code>。</li>
+                            <li>如果在内容之中包含层级更低的子标题，首个子标题之前的内容被视为 <code>&lt;header&gt;</code>。</li>
+                            <li>如果内容中已经没有下级标题，则视为正文内容。</li>
+                            <li>如果子标题不是顺次递减而是跨级，也视为正文内容，但内部子标题继续解析。<strong>注</strong>：这通常是内容组织不太合理的表现。</li>
+                        </ul>
+                    </section>
+                </section>
+                <hr />
+            </article>
+        </main>
+    </div>
+    <!-- 元素路径提示 -->
+    <div id="g-path" class="_path" data-pbo="">
+        <!-- 例： -->
+        <b>main</b>
+        <b>article</b>
+        <b>section</b>
+        <b>section</b>
+        <b>section</b>
+        <b>section</b>
+        <b>section</b>
+        <b>main</b>
+        <b>article</b>
+        <b>section</b>
+        <b>section</b>
+        <b>section</b>
+        <b>section</b>
+        <b>section</b>
+        <b>ol</b>
+        <b>li</b>
+        <b>code</b>
+    </div>
+</div>
+
+<!-- 功能区 -->
+<div id="main-slave" class="___Panel Slave" tpl-name="main:slave" data-pbo="lost">
+    <div class="_tabs">
+        <b>内容</b>
+        <b class="_press">样式</b>
+        <b>特性</b>
+        <b>源码</b>
+        <b>脚本</b>
+        <b class="_close"><i id="l-close" title="关闭"></i></b>
+    </div>
+    <form class="Style" onsubmit="return false" tpl-name="slave:style">
+        <div class="_icons">
+            <b><i id="b-erase"></i></b>
+            <b><i id="b-brush"></i></b>
+            <b class="_press"><i id="b-fontview"></i></b>
+            <b><i id="b-fontsize"></i></b>
+            <b><i id="b-align"></i></b>
+            <b><i id="b-width"></i></b>
+            <b><i id="b-margin"></i></b>
+            <b><i id="b-colors"></i></b>
+        </div>
+        <!-- 子模版：字形 -->
+        <div class="_body _Fontview" tpl-name="style:fontview">
+            <div class="_list">
+                <label>
+                    <input type="checkbox" name="bold" />
+                    <span style="font-weight: bold;">粗体</span><small>（font-weight: bold）</small>
+                </label>
+                <label>
+                    <input type="checkbox" name="italic" />
+                    <span style="font-style: italic;">斜体</span><small>（font-style: italic）</small>
+                </label>
+                <label>
+                    <input type="radio" name="decoration" />
+                    <span style="text-decoration: underline;">下划线</span><small>（text-decoration: underline）</small>
+                </label>
+                <label>
+                    <input type="radio" name="decoration" />
+                    <span style="text-decoration: line-through;">贯穿线</span><small>（text-decoration:
+                        line-through）</small>
+                </label>
+                <label>
+                    <input type="radio" name="decoration" />
+                    <span style="text-decoration: overline;">上划线</span><small>（text-decoration: overline）</small>
+                </label>
+            </div>
+            <div class="_erase"><b>全部清除</b></div>
+        </div>
+    </form>
+</div>
+
+<!-- 状态栏 -->
+<div class=" ___Panel Status" tpl-name="main:status">
+    <!-- 提示区 -->
+    <div class="_info">
+        <span id="status-info" title="this is a message ...">this is a message ...</span>
+    </div>
+    <!-- 指令符 -->
+    <div class="_cmdx">
+        <span id="cmd-chars" class="_code" data-pbo="lost">
+            <b title="选择器模式">/</b>
+            <b title="普通命令">:</b>
+            <b title="简单计算">=</b>
+            <b title="选取集过滤">|</b>
+            <b title="文本搜索">?</b>
+            <b title="扩展指令...">!</b>
+        </span>
+        <!-- data-v: CSS辅助 -->
+        <code id="cmd-char" data-v=":">:</code>
+    </div>
+    <!-- 命令行 -->
+    <div class="_cmdline">
+        <!-- 交互：
+            1. 回车执行命令行，自动选取结果。
+            2. Tab键展开当前键入内容匹配清单。
+            3. 上下箭头和翻页键匹配当前键入词导航。
+            4. Ctrl+U 清空命令行内容。
+            5. 手动键入内容为搜索历史匹配。
+            6. Tab和箭头翻页导航支持+Shift模糊匹配。
+        -->
+        <input id="cmd-input" type="text" spellcheck="false" class="_code" value="Hello world!" />
+    </div>
+    <!-- 出错信息区 -->
+    <div class="_err" title="单击显示帮助" data-pbo="lost">
+        <a id="status-err" href="#" title="这是一段错误提示，可单击。">这是一段错误提示，可单击。</a>
+    </div>
+    <!-- 帮助入口 -->
+    <div class="_help _press" title="帮助">
+        <code>?</code>
+    </div>
+</div>
+
+    </div>
+
+
+<!-- 内容面板 ------------------------------------------------------------------->
+
+    <h4>（空）</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" tpl-name="slave:input">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label>
+                            <input type="radio" name="level" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="level"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5" class="_list">
+                        <!-- 例：筛选合法单元条目插入。 -->
+                        <option value="Table" title="<table>">表格</option>
+                        <option value="Abstract" title="<header role='abstract'>">提要</option>
+                        <option value="Header" title="<header>">导言</option>
+                        <option value="Footer" title="<footer>">结语</option>
+                    </select>
+                </div>
+                <!-- [子模版：空] -->
+                <div class="_body _Empty" tpl-name="input:empty">
+                    <p><code id="g-keytip">[Alt]</code> + 拖动改变面板高度</p>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>表格：table/caption,thead,tbody,tfoot/tr/th,td</h4>
+    <div class="panel inputs" style="height: 360px;">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" onsubmit="return false" tpl-name="slave:input">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label>
+                            <input type="radio" name="level" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="level"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：表格] -->
+                <div class="_body _Table" tpl-name="input:table">
+                    <div class="_main">
+                        <header class="_affix">
+                            <input name="caption" type="text" placeholder="标题" class="_scale" />
+                            <label>
+                                <input name="cols" type="text" class="_nums" title="列数" value="4" />
+                                x
+                                <input name="rows" type="text" class="_nums" title="行数" value="5" />
+                            </label>
+                        </header>
+                        <div class="_list">
+                            <!--用户友好：
+                                Enter 向下单元格跳转并选取（单独处理）。
+                                Shift+↓ 同上效果。
+                                Shift+↑ 向上单元格跳转。
+                                注记：已转移到 /obts/table.json 供正式使用。-->
+                            <table border="1"
+                                on="keydown(td,th)|ev('key') inside('ArrowUp', 'ArrowDown') scam(KM.tableCellx) both pass avoid evo(2);
+                                    keydown(td,th)|ev('key') eq('Enter') scam('shift') vnot both pass avoid evo(2);
+                                    downcell|data('tbo') ev('detail') call('columnNextCell', _1) dup pass pop;
+                                    upcell|data('tbo') ev('detail') call('columnPrevCell', _1) dup pass pop;
+                                    ^obted|evo(1) table"
+                                by="ev('key') $case('ArrowUp', 'ArrowDown') $switch('upcell', 'downcell')"
+                                to="|trigger(_1);
+                                    |trigger('downcell');
+                                    -||focus select;
+                                    -||focus select;
+                                    |data('tbo')">
+                                <thead>
+                                    <tr>
+                                        <th contenteditable></th>
+                                        <th contenteditable></th>
+                                        <th contenteditable></th>
+                                        <th contenteditable></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td contenteditable></td>
+                                        <td contenteditable></td>
+                                        <td contenteditable></td>
+                                        <td contenteditable></td>
+                                    </tr>
+                                    <tr>
+                                        <td contenteditable></td>
+                                        <td contenteditable></td>
+                                        <td contenteditable></td>
+                                        <td contenteditable></td>
+                                    </tr>
+                                    <tr>
+                                        <td contenteditable></td>
+                                        <td contenteditable></td>
+                                        <td contenteditable></td>
+                                        <td contenteditable></td>
+                                    </tr>
+                                    <tr>
+                                        <td contenteditable></td>
+                                        <td contenteditable></td>
+                                        <td contenteditable></td>
+                                        <td contenteditable></td>
+                                    </tr>
+                                    <tr>
+                                        <td contenteditable></td>
+                                        <td contenteditable></td>
+                                        <td contenteditable></td>
+                                        <td contenteditable></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <aside>
+                        <div class="_option">
+                            <label>边框
+                                <select name="border" tpl-name="table:border">
+                                    <option value="">------</option>
+                                    <option value="1">普通</option>
+                                    <option value="r">外围</option>
+                                    <option value="i">内部</option>
+                                    <option value="h">横向</option>
+                                    <option value="v">纵向</option>
+                                    <option value="0">无边框</option>
+                                </select>
+                            </label>
+                            <hr />
+                            <label title="<thead>">
+                                <input name="thead" type="checkbox" value="THEAD" checked />包含表头
+                            </label>
+                            <label title="首列为<th>">
+                                <input name="th0" type="checkbox" />首列表头
+                            </label>
+                            <hr />
+                            <label title="<tfoot>">
+                                <input name="tfoot" type="checkbox" value="TFOOT" />包含表脚
+                            </label>
+                        </div>
+                        <!-- [插入2] -->
+                        <div class="_submit" tpl-name="input:insert2">
+                            <label>
+                                <input type="checkbox" name="before">向前
+                            </label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>文章标题：h1 | hgroup/h1,h2</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" tpl-name="slave:input">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label>
+                            <input type="radio" name="level" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="level"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：文章标题] -->
+                <div class="_body _Heading" tpl-name="input:heading">
+                    <div class="_main">
+                        <header>
+                            <input type="text" name="h1" placeholder="主标题" class="_scale" />
+                        </header>
+                        <textarea name="h2" placeholder="副标题（可选）"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="input:option1">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+                        </div>
+                        <div class="_submit" tpl-name="input:insert1">
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>提要：header:abstract/h3,p...</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" tpl-name="slave:input">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label>
+                            <input type="radio" name="level" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="level"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：提要] -->
+                <div class="_body _Abstract" tpl-name="input:abstract">
+                    <div class="_main">
+                        <textarea name="header" placeholder="文章提要"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="input:option2">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+                            <label title="紧邻换行保留"><input type="checkbox" name="split">空行分段</label>
+                        </div>
+                        <div class="_submit" tpl-name="input:insert1">
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>文献参考：ol:reference/li...</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" tpl-name="slave:input">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label>
+                            <input type="radio" name="level" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="level"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：文献参考] -->
+                <div class="_body _Reference" tpl-name="input:reference">
+                    <div class="_main">
+                        <textarea name="reference" placeholder="每行一项"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="input:option1">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+                        </div>
+                        <div class="_submit" tpl-name="input:insert1">
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>另参见：ul:seealso/li...</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" tpl-name="slave:input">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label>
+                            <input type="radio" name="level" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="level"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：另参见] -->
+                <div class="_body _Reference" tpl-name="input:seealso">
+                    <div class="_main">
+                        <textarea name="seealso" placeholder="每行一项"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="input:option1">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+                        </div>
+                        <div class="_submit" tpl-name="input:insert1">
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>导言：header/h3,p...</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" tpl-name="slave:input">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label>
+                            <input type="radio" name="level" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="level"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：导言] -->
+                <div class="_body _Header" tpl-name="input:header">
+                    <div class="_main">
+                        <header>
+                            <input name="h4" type="text" class="_scale" value="导言" />
+                        </header>
+                        <textarea name="header" placeholder="内容"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="input:option2">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+                            <label title="紧邻换行保留"><input type="checkbox" name="split">空行分段</label>
+                        </div>
+                        <div class="_submit" tpl-name="input:insert1">
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>结语：header/h3,p...</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" tpl-name="slave:input">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label>
+                            <input type="radio" name="level" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="level"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：结语] -->
+                <div class="_body _Footer" tpl-name="input:footer">
+                    <div class="_main">
+                        <header>
+                            <input name="h4" type="text" class="_scale" value="小结" />
+                        </header>
+                        <textarea name="footer" placeholder="内容"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="input:option2">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+                            <label title="紧邻换行保留"><input type="checkbox" name="split">空行分段</label>
+                        </div>
+                        <div class="_submit" tpl-name="input:insert1">
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>片区：section:s1-s5/header,[...],footer</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" tpl-name="slave:input">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label>
+                            <input type="radio" name="level" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="level"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：片区] -->
+                <div class="_body _Section" tpl-name="input:section">
+                    <div class="_main"
+                        on="focus(textarea)|$$('/textarea') dup evo(1) not(_1) pop"
+                        to="-|only('_inert')">
+                        <header>
+                            <input name="hx" type="text" placeholder="标题" class="_scale" />
+                        </header>
+                        <textarea name="header" placeholder="导言（可选）"></textarea>
+                        <textarea name="footer" placeholder="结语（可选）" class="_inert"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="input:option2">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+                            <label title="紧邻换行保留"><input type="checkbox" name="split">空行分段</label>
+                        </div>
+                        <div class="_submit" tpl-name="input:insert2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>无序列表：ul/li（依目标判断创建为&lt;ul&gt;或是&lt;li&gt;）</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" tpl-name="slave:input">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label>
+                            <input type="radio" name="level" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="level"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：无序列表] -->
+                <div class="_body _Ul" tpl-name="input:ul">
+                    <div class="_main">
+                        <textarea name="ul" placeholder="每行一项"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="input:option1">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+                        </div>
+                        <div class="_submit" tpl-name="input:insert2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>有序列表：ol/li（依目标判断创建为&lt;ol&gt;或是&lt;li&gt;）</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" tpl-name="slave:input">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label>
+                            <input type="radio" name="level" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="level"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：有序列表] -->
+                <div class="_body _Ol" tpl-name="input:ol">
+                    <div class="_main">
+                        <textarea name="ol" placeholder="每行一项"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="input:option1">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+                        </div>
+                        <div class="_submit" tpl-name="input:insert2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>级联编号表：ol:cascade/li/h4,ol/...（目标可为&lt;li&gt;，其内容自动封装为&lt;h4&gt;）</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" tpl-name="slave:input">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label>
+                            <input type="radio" name="level" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="level"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：级联表] -->
+                <div class="_body _Cascade" tpl-name="input:cascade">
+                    <div class="_main">
+                        <textarea name="cascade" placeholder="每行一项"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+                        </div>
+                        <div class="_submit" tpl-name="input:insert1">
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>描述列表：dl/dt,dd...（依目标判断创建为&lt;dl&gt;或是&lt;dt&gt;,&lt;dd&gt;）</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" tpl-name="slave:input">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label>
+                            <input type="radio" name="level" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="level"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：描述列表] -->
+                <div class="_body _Dl" tpl-name="input:dl">
+                    <div class="_main">
+                        <header>
+                            <input name="dt" type="text" class="_scale" placeholder="条目（<dt>）" />
+                        </header>
+                        <textarea name="dd" placeholder="每行一项（<dd>）"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="input:option1">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+                        </div>
+                        <div class="_submit" tpl-name="input:insert2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>引用块：blockquote/h3,p...</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" tpl-name="slave:input">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label>
+                            <input type="radio" name="level" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="level"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：引用块] -->
+                <div class="_body _Blockquote" tpl-name="input:blockquote">
+                    <div class="_main">
+                        <header>
+                            <input name="h4" type="text" placeholder="小标题" class="_scale" />
+                        </header>
+                        <label class="_cite">
+                            <input type="text" name="cite" placeholder="（来源）" />
+                        </label>
+                        <textarea name="blockquote" placeholder="内容"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="input:option2">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+                            <label title="紧邻换行保留"><input type="checkbox" name="split">空行分段</label>
+                        </div>
+                        <div class="_submit" tpl-name="input:insert2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>批注块：aside/h3,p...</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" tpl-name="slave:input">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label>
+                            <input type="radio" name="level" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="level"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：批注块] -->
+                <div class="_body _Aside" tpl-name="input:aside">
+                    <div class="_main">
+                        <header>
+                            <input name="h4" type="text" placeholder="小标题" class="_scale" />
+                        </header>
+                        <textarea name="aside" placeholder="内容"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="input:option2">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+                            <label title="紧邻换行保留"><input type="checkbox" name="split">空行分段</label>
+                        </div>
+                        <div class="_submit" tpl-name="input:insert2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>详细内容：details/summary,p...</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" tpl-name="slave:input">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label>
+                            <input type="radio" name="level" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="level"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：详细内容] -->
+                <div class="_body _Details" tpl-name="input:details">
+                    <div class="_main">
+                        <header>
+                            <input name="summary" type="text" placeholder="摘要" class="_scale" />
+                        </header>
+                        <textarea name="details" placeholder="内容"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="input:option2">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+                            <label title="紧邻换行保留"><input type="checkbox" name="split">空行分段</label>
+                        </div>
+                        <div class="_submit" tpl-name="input:insert2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>代码表：ol:codelist/li/code/#text,b...（目标为表内时创建为&lt;li&gt;&lt;code&gt;。位置按钮失效）</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" tpl-name="slave:input">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label>
+                            <input type="radio" name="level" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="level"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：代码表] -->
+                <div class="_body _Codelist" tpl-name="input:codelist">
+                    <div class="_main">
+                        <textarea name="codes" spellcheck="false" placeholder="Shift + 粘贴：自动清除多余缩进" class="_code"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option">
+                            <label>制表符
+                                <input type="text" name="tabs" class="_char" value="4" title="空格数">
+                            </label>
+                            <label>语言
+                                <select id="g-languages" name="lang" tpl-name="item:languages">
+                                    <option value="golang">Golang</option>
+                                    <option value="cplus">C/C++</option>
+                                    <option value="javascript">JavaScript</option>
+                                    <option value="css">CSS</option>
+                                    <option value="html">HTML</option>
+                                </select>
+                            </label>
+                            <label title="起始行号">首行
+                                <input type="text" name="start" placeholder="1" class="_chars">
+                            </label>
+                        </div>
+                        <div class="_submit" tpl-name="input:insert2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>代码块：pre:codeblock/code/#text,b...</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" tpl-name="slave:input">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label>
+                            <input type="radio" name="level" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="level"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：代码块] -->
+                <div class="_body _Codeblock" tpl-name="input:codeblock">
+                    <div class="_main">
+                        <textarea name="codes" spellcheck="false" placeholder="Shift + 粘贴：自动清除多余缩进" class="_code"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option">
+                            <label>制表符
+                                <input type="text" name="tabs" class="_char" value="4" title="空格数">
+                            </label>
+                            <label>语言
+                                <select id="g-languages" name="languages">
+                                    <option value="golang">Golang</option>
+                                    <option value="cplus">C/C++</option>
+                                    <option value="javascript">JavaScript</option>
+                                    <option value="css">CSS</option>
+                                    <option value="html">HTML</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="_submit" tpl-name="input:insert2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>插图：figure/figcaption,p/img...</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" tpl-name="slave:input">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label>
+                            <input type="radio" name="level" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="level"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：插图] -->
+                <div class="_body _Figure" tpl-name="input:figure">
+                    <div class="_main"
+                        on="focus(textarea)|$$('/textarea') dup evo(1) not(_1) pop"
+                        to="-|only('_inert')">
+                        <header class="_affix">
+                            <input name="figcaption" type="text" placeholder="标题" class="_scale" />
+                            <label><input name="below" type="checkbox" />标题在下</label>
+                        </header>
+                        <textarea name="figure" id="_url"
+                            on="tips|evo(1) ev('detail') attr(_1);
+                                ^obted"
+                            to="|@placeholder;
+                                2/select||fire(10, 'change')"
+                            data-iurl="/xyz.com/pic.jpg; [800,600]; [alt_text]"
+                            data-durl="data:image/png;base64,..."
+                            data-svgx="<svg>...</svg>"></textarea>
+                        <textarea name="explain" placeholder="文字讲解（可选）" class="_inert"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option">
+                            <label>类型
+                                <select name="type"
+                                    on="change|$ val"
+                                    to="4/#_url|trigger('tips')">
+                                    <option value="-iurl">图片URL</option>
+                                    <option value="-durl">DataURL</option>
+                                    <option value="-svgx">SVG源码</option>
+                                </select>
+                            </label>
+                            <!-- 注记：讲解定位放到属性定义 -->
+                        </div>
+                        <div class="_submit" tpl-name="input:insert2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>段落：p/#text...</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" tpl-name="slave:input">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label>
+                            <input type="radio" name="level" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="level"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：段落] -->
+                <div class="_body _P" tpl-name="input:p">
+                    <div class="_main">
+                        <textarea name="p" placeholder="内容"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="input:option2">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+                            <label title="紧邻换行保留"><input type="checkbox" name="split">空行分段</label>
+                        </div>
+                        <div class="_submit" tpl-name="input:insert2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>注解：p:note/#text...</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" tpl-name="slave:input">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label>
+                            <input type="radio" name="level" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="level"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：注解] -->
+                <div class="_body _Note" tpl-name="input:note">
+                    <div class="_main">
+                        <textarea name="note" placeholder="内容"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="input:option1">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+                        </div>
+                        <div class="_submit" tpl-name="input:insert2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>地址：address/#text...</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" tpl-name="slave:input">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label>
+                            <input type="radio" name="level" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="level"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：地址] -->
+                <div class="_body _Address" tpl-name="input:address">
+                    <div class="_main">
+                        <textarea name="address" placeholder="内容"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option" tpl-name="input:option1">
+                            <label title="连续空白合并"><input type="checkbox" name="clean" checked>空白清理</label>
+                        </div>
+                        <div class="_submit" tpl-name="input:insert2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>预排版：pre/#text...</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" tpl-name="slave:input">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label>
+                            <input type="radio" name="level" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="level"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：预排版] -->
+                <div class="_body _Pre" tpl-name="input:pre">
+                    <div class="_main">
+                        <textarea name="pre" placeholder="Shift + 粘贴：自动清除多余缩进" class="_code"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_option">
+                            <label>制表符
+                                <input type="text" name="tabs" class="_char" value="4" title="空格数">
+                            </label>
+                        </div>
+                        <div class="_submit" tpl-name="input:insert2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>分割：hr</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" tpl-name="slave:input">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label>
+                            <input type="radio" name="level" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="level"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：分割] -->
+                <div class="_body _Hr" tpl-name="input:hr">
+                    <div class="_main _list">
+                        <span class="_border content" tabindex="0" tpl-name="hr:border">
+                            <b title="默认"><hr></b>
+                            <b title="实线（solid）"><hr role="solid"></b>
+                            <b title="虚线（dashed）"><hr role="dashed"></b>
+                            <b title="点线（dotted）"><hr role="dotted"></b>
+                            <b title="双划线（double）" class="_press"><hr role="double"></b>
+                            <b title="内槽线（groove）"><hr role="groove"></b>
+                            <b title="外槽线（ridge）"><hr role="ridge"></b>
+                            <b title="内嵌线（inset）"><hr role="inset"></b>
+                            <b title="外嵌线（outset）"><hr role="outset"></b>
+                            <input type="hidden" name="hr" value="">
+                        </span>
+                    </div>
+                    <aside>
+                        <div class="_option">
+                            <label title="CSS: border-width">厚度
+                                <input type="text" name="borderWidth" placeholder="10px" class="_chars">
+                            </label>
+                            <label title="CSS: width">长度
+                                <input type="text" name="width" placeholder="92%" class="_chars">
+                            </label>
+                            <label title="CSS: height">空白
+                                <input type="text" name="height" placeholder="0" class="_chars">
+                            </label>
+                        </div>
+                        <div class="_submit" tpl-name="input:insert2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>白板：div:blank</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" tpl-name="slave:input">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label>
+                            <input type="radio" name="level" checked /><i id="l-siblings"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="level"><i id="l-children"></i>
+                        </label>
+                    </div>
+                    <select id="inputs-items" name="items" size="5">
+                    </select>
+                </div>
+                <!-- [子模版：空白块] -->
+                <div class="_body _Blank" tpl-name="input:blank">
+                    <div class="_main">
+                        <div role="blank"><span>（ 空 白 ）</span></div>
+                    </div>
+                    <aside>
+                        <div class="_submit" tpl-name="input:insert2">
+                            <label><input type="checkbox" name="before">向前</label>
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+
+    <hr>
+    <!-- 微编辑：内联单元 --------------------------------------------------->
+
+    <h4>[内联] 单元属性：图片</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input Minied" tpl-name="slave:minied">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label title="内联元素">
+                            <input type="radio" name="level" checked /><i id="l-element"></i>
+                        </label>
+                        <label title="文本字符">
+                            <input type="radio" name="level" /><i id="l-schar"></i>
+                        </label>
+                    </div>
+                    <!-- 内联元素 -->
+                    <select name="inlines" size="5" class="_list" tpl-name="item:inlines">
+                        <option title="<img>" value="img" selected>图片</option>
+                        <option title="<audio>" value="audio">音频</option>
+                        <option title="<video>" value="video">视频</option>
+                        <option title="<picture>" value="picture">兼容图片</option>
+                        <option title="<a>" value="a">链接</option>
+                        <option title="<code>" value="code">代码</option>
+                        <option title="<strong>" value="strong">重点</option>
+                        <option title="<em>" value="em">强调</option>
+                        <option title="<sub>" value="sub">下标</option>
+                        <option title="<sup>" value="sup">上标</option>
+                        <option title="<q>" value="q">短引用</option>
+                        <option title="<time>" value="time">日期/时间</option>
+                        <option title="<ins>" value="ins">插入性条目</option>
+                        <option title="<del>" value="del">已删除条目</option>
+                        <option title="<abbr>" value="abbr">缩写</option>
+                        <option title="<small>" value="small">注脚</option>
+                        <option title="<cite>" value="cite">来源</option>
+                        <option title="<mark>" value="mark">标记</option>
+                        <option title="<ruby/#text,rp,rt>" value="ruby">注音单元</option>
+                        <option title="<code:orz>" value="orz">表情</option>
+                        <option title="<dfn>" value="dfn">定义条目</option>
+                        <option title="<samp>" value="samp">样本</option>
+                        <option title="<kbd>" value="kbd">键盘字</option>
+                        <option title="<meter>" value="meter">度量标示</option>
+                        <option title="<s>" value="s">失效</option>
+                        <option title="<u>" value="u">注记</option>
+                        <option title="<var>" value="var">变量</option>
+                        <option title="<bdo>" value="bdo">有向文本</option>
+                        <option title="<br>" value="br">换行</option>
+                        <option title="<wbr>" value="wbr">软换行</option>
+                        <option title="<span:blank>" value="blank">空白段</option>
+                    </select>
+                </div>
+                <!-- [子模版：图片单元属性] -->
+                <div class="_body _Inline" tpl-name="minied:inlines">
+                    <div class="_main _list">
+                        <ul class="_prop">
+                            <li tpl-name="prop:srcbase">
+                                <b>根路径</b>
+                                <!-- 依配置更新提示 /upload -->
+                                <span><input type="text" name="srcbase" placeholder="/upload" /></span>
+                            </li>
+                            <li tpl-name="prop:sources">
+                                <b>数据源</b>
+                                <span><input type="text" name="sources" placeholder="11.xxx; 22.xxx" /></span>
+                            </li>
+                            <li tpl-name="prop:alts">
+                                <b>图片说明</b>
+                                <span><input type="text" name="alts" placeholder="alt11; alt22" /></span>
+                            </li>
+                            <li tpl-name="prop:upload">
+                                <b>上传</b>
+                                <span><input type="file" name="upload" value="" @on="change|evo(1) val" @by="x.Fun.upload(null)" /></span>
+                            </li>
+                            <li tpl-name="prop:preview">
+                                <b>预览</b>
+                                <span class="_preview"><!-- img|video|audio --></span>
+                            </li>
+                        </ul>
+                    </div>
+                    <aside>
+                        <div class="_submit">
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>[内联] 单元属性：代码</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input Minied" tpl-name="slave:minied">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label title="内联元素">
+                            <input type="radio" name="level" checked /><i id="l-element"></i>
+                        </label>
+                        <label title="文本字符">
+                            <input type="radio" name="level" /><i id="l-schar"></i>
+                        </label>
+                    </div>
+                    <!-- 内联元素 -->
+                    <select name="inlines" size="5" class="_list" tpl-name="item:inlines">
+                        <option title="<code>" value="code" selected>代码</option>
+                    </select>
+                </div>
+                <!-- [子模版：单元属性] -->
+                <div class="_body _Inline" tpl-name="minied:inlines">
+                    <div class="_main _list">
+                        <div class="_prop">
+                            <textarea name="codes" rows="5" spellcheck="false" class="_code"></textarea>
+                        </div>
+                    </div>
+                    <aside>
+                        <div class="_submit">
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>[内联] 单元属性：重点</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input Minied" tpl-name="slave:minied">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label title="内联元素">
+                            <input type="radio" name="level" checked /><i id="l-element"></i>
+                        </label>
+                        <label title="文本字符">
+                            <input type="radio" name="level" /><i id="l-schar"></i>
+                        </label>
+                    </div>
+                    <!-- 内联元素 -->
+                    <select name="inlines" size="5" class="_list" tpl-name="item:inlines">
+                        <option title="<strong>" value="strong" selected>重点</option>
+                    </select>
+                </div>
+                <!-- [子模版：单元属性] -->
+                <div class="_body _Inline" tpl-name="minied:inlines">
+                    <div class="_main _list">
+                        <div class="_prop">
+                            <textarea name="content" rows="5" placeholder="每行一项"></textarea>
+                        </div>
+                    </div>
+                    <aside>
+                        <div class="_submit">
+                            <button type="submit">插入</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>[内联] 特别字符</h4>
+    <div class="panel inputs">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b class="_press">内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Input" tpl-name="slave:minied">
+                <div class="_roll">
+                    <div class="_minibar">
+                        <label title="内联元素">
+                            <input type="radio" name="level" /><i id="l-element"></i>
+                        </label>
+                        <label title="文本字符">
+                            <input type="radio" name="level" checked /><i id="l-schar"></i>
+                        </label>
+                    </div>
+                    <!-- 字符种类 -->
+                    <select name="ctype" size="5" class="_list" tpl-name="item:ctypes">
+                        <option value="normal">常用</option>
+                        <option value="unit">单位</option>
+                        <option value="punctuation">标点</option>
+                        <option value="number">序号</option>
+                        <option value="math">数学</option>
+                        <option value="special">特殊</option>
+                        <option value="alphabet">字母</option>
+                        <option value="geometric">几何</option>
+                        <option value="emotion">表情</option>
+                        <option value="radical">偏旁部首</option>
+                        <option value="phonetic">音标</option>
+                    </select>
+                </div>
+                <!-- [子模版：字符表] -->
+                <div class="_body _Inline" tpl-name="minied:chars">
+                    <div class="_main _list">
+                        <span>
+                            <b>〔</b>
+                            <b>〕</b>
+                            <b>〈</b>
+                            <b>〉</b>
+                            <b>「</b>
+                            <b>」</b>
+                            <b>『</b>
+                            <b class="_press">』</b>
+                            <b>〖</b>
+                            <b>〗</b>
+                            <b>【</b>
+                            <b>】</b>
+                            <b>《</b>
+                            <b>》</b>
+                            <b>（</b>
+                            <b>）</b>
+                            <b>［</b>
+                            <b>］</b>
+                            <b>｛</b>
+                            <b>｝</b>
+                            <b>■</b>
+                            <b>◆</b>
+                            <b>▲</b>
+                            <b>●</b>
+                            <b>★</b>
+                            <b>§</b>
+                            <b>□</b>
+                            <b>◇</b>
+                            <b>△</b>
+                            <b>○</b>
+                            <b>☆</b>
+                            <b>α</b>
+                            <b>β</b>
+                            <b>γ</b>
+                            <b>※</b>
+                            <b>◎</b>
+                            <b>№</b>
+                            <b>＃</b>
+                            <b>〓</b>
+                            <b>＆</b>
+                            <b>＠</b>
+                            <b>＼</b>
+                            <b>＾</b>
+                            <b>→</b>
+                            <b>←</b>
+                            <b>↑</b>
+                            <b>↓</b>
+                            <b>·</b>
+                            <b>ˇ</b>
+                            <b>々</b>
+                            <b>‖</b>
+                            <b>。</b>
+                            <b>，</b>
+                            <b>、</b>
+                            <b>；</b>
+                            <b>：</b>
+                            <b>？</b>
+                            <b>！</b>
+                            <b>‘</b>
+                            <b>’</b>
+                            <b>“</b>
+                            <b>”</b>
+                            <b>～</b>
+                            <b>©</b>
+                        </span>
+                    </div>
+                    <aside>
+                        <b id="g-zoomin" class="_zoomin">©</b>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+
+
+<!-- 样式面板 ------------------------------------------------------------------->
+
+    <h4>[样式] 字形</h4>
+    <div class="panel styles">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b>内容</b>
+                <b class="_press">样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Style" onsubmit="return false" tpl-name="slave:style">
+                <div class="_icons">
+                    <b><i id="b-erase"></i></b>
+                    <b><i id="b-brush"></i></b>
+                    <b class="_press"><i id="b-fontview"></i></b>
+                    <b><i id="b-fontsize"></i></b>
+                    <b><i id="b-align"></i></b>
+                    <b><i id="b-width"></i></b>
+                    <b><i id="b-margin"></i></b>
+                    <b><i id="b-colors"></i></b>
+                </div>
+                <!-- 子模版：字形 -->
+                <div class="_body _Fontview" tpl-name="style:fontview">
+                    <div class="_list">
+                        <label>
+                            <input type="checkbox" name="bold" />
+                            <span style="font-weight: bold;">粗体</span><small>（font-weight: bold）</small>
+                        </label>
+                        <label>
+                            <input type="checkbox" name="italic" />
+                            <span style="font-style: italic;">斜体</span><small>（font-style: italic）</small>
+                        </label>
+                        <label>
+                            <input type="radio" name="decoration" />
+                            <span style="text-decoration: underline;">下划线</span><small>（text-decoration: underline）</small>
+                        </label>
+                        <label>
+                            <input type="radio" name="decoration" />
+                            <span style="text-decoration: line-through;">贯穿线</span><small>（text-decoration: line-through）</small>
+                        </label>
+                        <label>
+                            <input type="radio" name="decoration" />
+                            <span style="text-decoration: overline;">上划线</span><small>（text-decoration: overline）</small>
+                        </label>
+                    </div>
+                    <div class="_erase"><b>全部清除</b></div>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>[样式] 字号</h4>
+    <div class="panel styles">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b>内容</b>
+                <b class="_press">样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Style" onsubmit="return false" tpl-name="slave:style">
+                <div class="_icons">
+                    <b><i id="b-erase"></i></b>
+                    <b><i id="b-brush"></i></b>
+                    <b><i id="b-fontview"></i></b>
+                    <b class="_press"><i id="b-fontsize"></i></b>
+                    <b><i id="b-align"></i></b>
+                    <b><i id="b-width"></i></b>
+                    <b><i id="b-margin"></i></b>
+                    <b><i id="b-colors"></i></b>
+                </div>
+                <!-- 子模版：字号 -->
+                <div class="_body _Fontsize" tpl-name="style:fontsize">
+                    <select name="sizename" size="5" class="_list">
+                        <option>xx-small</option>
+                        <option>x-small</option>
+                        <option>small</option>
+                        <option>smaller</option>
+                        <option>medium</option>
+                        <option>large</option>
+                        <option>larger</option>
+                        <option>x-large</option>
+                        <option>xx-large</option>
+                    </select>
+                    <aside>
+                        <div class="_assign">
+                            <div class="_erase"><b>清除</b></div>
+                            <hr>
+                            <div><label title="可含单位">字号</label>
+                                <input type="text" name="fontsize" placeholder="12pt" class="_chars" />
+                                <select name="unit">
+                                    <option value="">---</option>
+                                    <option value="pt">pt</option>
+                                    <option value="px">px</option>
+                                    <option value="em">em</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="_submit" tpl-name="common:submit">
+                            <button type="submit">确定</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>[样式] 对齐</h4>
+    <div class="panel styles">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b>内容</b>
+                <b class="_press">样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Style" onsubmit="return false" tpl-name="slave:style">
+                <div class="_icons">
+                    <b><i id="b-erase"></i></b>
+                    <b><i id="b-brush"></i></b>
+                    <b><i id="b-fontview"></i></b>
+                    <b><i id="b-fontsize"></i></b>
+                    <b class="_press"><i id="b-align"></i></b>
+                    <b><i id="b-width"></i></b>
+                    <b><i id="b-margin"></i></b>
+                    <b><i id="b-colors"></i></b>
+                </div>
+                <!-- 子模版：对齐 -->
+                <div class="_body _Align" tpl-name="style:align">
+                    <div class="_h">
+                        <label>text-align</label>
+                        <select name="align" size="5" class="_list">
+                            <option value="" title="无（默认）">------</option>
+                            <option title="居中对齐">center</option>
+                            <option title="右对齐">right</option>
+                            <option title="两端对齐">justify</option>
+                            <option title="两端强对齐">justify-all</option>
+                            <option title="左对齐">left</option>
+                            <option title="起点对齐">start</option>
+                            <option title="末端对齐">end</option>
+                        </select>
+                    </div>
+                    <div class="_v">
+                        <label>vertical-align</label>
+                        <select name="valign" size="5" class="_list">
+                            <option value="" title="无（默认）">------</option>
+                            <option title="基线对齐">baseline</option>
+                            <option title="下标基线对齐">sub</option>
+                            <option title="上标基线对齐">super</option>
+                            <option title="行顶部对齐">top</option>
+                            <option title="文本顶部对齐">text-top</option>
+                            <option title="中部与基线半高对齐">middle</option>
+                            <option title="行底部对齐">bottom</option>
+                            <option title="文本底部对齐">text-bottom</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>[样式] 宽/高度</h4>
+    <div class="panel styles">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b>内容</b>
+                <b class="_press">样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Style" onsubmit="return false" tpl-name="slave:style">
+                <div class="_icons">
+                    <b><i id="b-erase"></i></b>
+                    <b><i id="b-brush"></i></b>
+                    <b><i id="b-fontview"></i></b>
+                    <b><i id="b-fontsize"></i></b>
+                    <b><i id="b-align"></i></b>
+                    <b class="_press"><i id="b-width"></i></b>
+                    <b><i id="b-margin"></i></b>
+                    <b><i id="b-colors"></i></b>
+                </div>
+                <!-- 子模版：宽/高度 -->
+                <div class="_body _Width" tpl-name="style:width">
+                    <select name="width" size="5" class="_list">
+                        <option title="宽度">width</option>
+                        <option title="最大宽度">max-width</option>
+                        <option title="最小宽度">min-width</option>
+                        <option title="高度">height</option>
+                        <option title="最大高度"">max-height</option>
+                        <option title="最小高度">min-height</option>
+                    </select>
+                    <aside>
+                        <div class="_assign">
+                            <div class="_erase"><b>全部清除</b></div>
+                            <hr>
+                            <div><label title="可含单位">赋值</label>
+                                <input type="text" name="width" placeholder="100%" class="_chars" />
+                                <select name="unit">
+                                    <option value="">---</option>
+                                    <option>%</option>
+                                    <option>px</option>
+                                    <option>pt</option>
+                                    <option>em</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="_submit" tpl-name="common:submit">
+                            <button type="submit">确定</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>[样式] 边距</h4>
+    <div class="panel styles">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b>内容</b>
+                <b class="_press">样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Style" onsubmit="return false" tpl-name="slave:style">
+                <div class="_icons">
+                    <b><i id="b-erase"></i></b>
+                    <b><i id="b-brush"></i></b>
+                    <b><i id="b-fontview"></i></b>
+                    <b><i id="b-fontsize"></i></b>
+                    <b><i id="b-align"></i></b>
+                    <b><i id="b-width"></i></b>
+                    <b class="_press"><i id="b-margin"></i></b>
+                    <b><i id="b-colors"></i></b>
+                </div>
+                <!-- 子模版：边距 -->
+                <div class="_body _Margin" tpl-name="style:margin">
+                    <div>
+                        <div class="_minibar"
+                            on="click(input)|evo(2) val tpl(_1)"
+                            to="1/select|replace">
+                            <label title="外边距">
+                                <input type="radio" name="margin" value="item:margin" checked /><i id="l-margin"></i>
+                            </label>
+                            <label title="内填充">
+                                <input type="radio" name="margin" value="item:padding" /><i id="l-padding"></i>
+                            </label>
+                        </div>
+                        <select name="margin" size="5" class="_list" tpl-name="item:margin">
+                            <option title="边距">margin</option>
+                            <option title="顶边距">margin-top</option>
+                            <option title="右边距">margin-right</option>
+                            <option title="底边距">margin-bottom</option>
+                            <option title="左边距">margin-left</option>
+                            <option title="块边距">margin-block</option>
+                            <option title="块前边距">margin-block-start</option>
+                            <option title="块尾边距">margin-block-end</option>
+                            <option title="行边距">margin-inline</option>
+                            <option title="行前边距">margin-inline-start</option>
+                            <option title="行尾边距">margin-inline-end</option>
+                        </select>
+                    </div>
+                    <!-- 数据附加 -->
+                    <div style="display:none;">
+                        <!-- 边距：内填充 -->
+                        <select name="margin" size="5" class="_list" tpl-name="item:padding">
+                            <option title="填充">padding</option>
+                            <option title="顶填充">padding-top</option>
+                            <option title="右填充">padding-right</option>
+                            <option title="底填充">padding-bottom</option>
+                            <option title="左填充">padding-left</option>
+                            <option title="块填充">padding-block</option>
+                            <option title="块前填充">padding-block-start</option>
+                            <option title="块尾填充">padding-block-end</option>
+                            <option title="行填充">padding-inline</option>
+                            <option title="行前填充">padding-inline-start</option>
+                            <option title="行尾填充">padding-inline-end</option>
+                        </select>
+
+                    </div>
+                    <aside>
+                        <div class="_assign">
+                            <div class="_erase"><b>全部清除</b></div>
+                            <hr>
+                            <div><label title="可含单位">赋值</label>
+                                <input type="text" name="width" placeholder="10px" class="_chars" />
+                                <select name="unit">
+                                    <option value="">---</option>
+                                    <option>px</option>
+                                    <option>em</option>
+                                    <option>pt</option>
+                                    <option>%</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="_submit" tpl-name="common:submit">
+                            <button type="submit">确定</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>[样式] 颜色</h4>
+    <div class="panel styles">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b>内容</b>
+                <b class="_press">样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Style" onsubmit="return false" tpl-name="slave:style">
+                <div class="_icons">
+                    <b><i id="b-erase"></i></b>
+                    <b><i id="b-brush"></i></b>
+                    <b><i id="b-fontview"></i></b>
+                    <b><i id="b-fontsize"></i></b>
+                    <b><i id="b-align"></i></b>
+                    <b><i id="b-width"></i></b>
+                    <b><i id="b-margin"></i></b>
+                    <b class="_press"><i id="b-colors"></i></b>
+                </div>
+                <!-- 子模版：颜色 -->
+                <div class="_body _Color" tpl-name="style:color">
+                    <div class="_cbox">
+                        <span class="_g16">
+                            <b style="background-color:#000" title="#000"></b>
+                            <b style="background-color:#111" title="#111"></b>
+                            <b style="background-color:#222" title="#222"></b>
+                            <b style="background-color:#333" title="#333"></b>
+                            <b style="background-color:#444" title="#444"></b>
+                            <b style="background-color:#555" title="#555"></b>
+                            <b style="background-color:#666" title="#666"></b>
+                            <b style="background-color:#777" title="#777"></b>
+                            <b style="background-color:#888" title="#888"></b>
+                            <b style="background-color:#999" title="#999"></b>
+                            <b style="background-color:#aaa" title="#aaa"></b>
+                            <b style="background-color:#bbb" title="#bbb"></b>
+                            <b style="background-color:#ccc" title="#ccc"></b>
+                            <b style="background-color:#ddd" title="#ddd"></b>
+                            <b style="background-color:#eee" title="#eee"></b>
+                            <b style="background-color:#fff" title="#fff"></b>
+                        </span>
+                        <div class="_c216">
+                            <b title="#000" style="background-color:#000;"></b>
+                            <b title="#003" style="background-color:#003;"></b>
+                            <b title="#006" style="background-color:#006;"></b>
+                            <b title="#009" style="background-color:#009;"></b>
+                            <b title="#00c" style="background-color:#00c;"></b>
+                            <b title="#00f" style="background-color:#00f;"></b>
+                            <b title="#030" style="background-color:#030;"></b>
+                            <b title="#033" style="background-color:#033;"></b>
+                            <b title="#036" style="background-color:#036;"></b>
+                            <b title="#039" style="background-color:#039;"></b>
+                            <b title="#03c" style="background-color:#03c;"></b>
+                            <b title="#03f" style="background-color:#03f;"></b>
+                            <b title="#060" style="background-color:#060;"></b>
+                            <b title="#063" style="background-color:#063;"></b>
+                            <b title="#066" style="background-color:#066;"></b>
+                            <b title="#069" style="background-color:#069;"></b>
+                            <b title="#06c" style="background-color:#06c;"></b>
+                            <b title="#06f" style="background-color:#06f;"></b>
+                            <b title="#090" style="background-color:#090;"></b>
+                            <b title="#093" style="background-color:#093;"></b>
+                            <b title="#096" style="background-color:#096;"></b>
+                            <b title="#099" style="background-color:#099;"></b>
+                            <b title="#09c" style="background-color:#09c;"></b>
+                            <b title="#09f" style="background-color:#09f;"></b>
+                            <b title="#0c0" style="background-color:#0c0;"></b>
+                            <b title="#0c3" style="background-color:#0c3;"></b>
+                            <b title="#0c6" style="background-color:#0c6;"></b>
+                            <b title="#0c9" style="background-color:#0c9;"></b>
+                            <b title="#0cc" style="background-color:#0cc;"></b>
+                            <b title="#0cf" style="background-color:#0cf;"></b>
+                            <b title="#0f0" style="background-color:#0f0;"></b>
+                            <b title="#0f3" style="background-color:#0f3;"></b>
+                            <b title="#0f6" style="background-color:#0f6;"></b>
+                            <b title="#0f9" style="background-color:#0f9;"></b>
+                            <b title="#0fc" style="background-color:#0fc;"></b>
+                            <b title="#0ff" style="background-color:#0ff;"></b>
+
+                            <b title="#300" style="background-color:#300;"></b>
+                            <b title="#303" style="background-color:#303;"></b>
+                            <b title="#306" style="background-color:#306;"></b>
+                            <b title="#309" style="background-color:#309;"></b>
+                            <b title="#30c" style="background-color:#30c;"></b>
+                            <b title="#30f" style="background-color:#30f;"></b>
+                            <b title="#330" style="background-color:#330;"></b>
+                            <b title="#333" style="background-color:#333;"></b>
+                            <b title="#336" style="background-color:#336;"></b>
+                            <b title="#339" style="background-color:#339;"></b>
+                            <b title="#33c" style="background-color:#33c;"></b>
+                            <b title="#33f" style="background-color:#33f;"></b>
+                            <b title="#360" style="background-color:#360;"></b>
+                            <b title="#363" style="background-color:#363;"></b>
+                            <b title="#366" style="background-color:#366;"></b>
+                            <b title="#369" style="background-color:#369;"></b>
+                            <b title="#36c" style="background-color:#36c;"></b>
+                            <b title="#36f" style="background-color:#36f;"></b>
+                            <b title="#390" style="background-color:#390;"></b>
+                            <b title="#393" style="background-color:#393;"></b>
+                            <b title="#396" style="background-color:#396;"></b>
+                            <b title="#399" style="background-color:#399;"></b>
+                            <b title="#39c" style="background-color:#39c;"></b>
+                            <b title="#39f" style="background-color:#39f;"></b>
+                            <b title="#3c0" style="background-color:#3c0;"></b>
+                            <b title="#3c3" style="background-color:#3c3;"></b>
+                            <b title="#3c6" style="background-color:#3c6;"></b>
+                            <b title="#3c9" style="background-color:#3c9;"></b>
+                            <b title="#3cc" style="background-color:#3cc;"></b>
+                            <b title="#3cf" style="background-color:#3cf;"></b>
+                            <b title="#3f0" style="background-color:#3f0;"></b>
+                            <b title="#3f3" style="background-color:#3f3;"></b>
+                            <b title="#3f6" style="background-color:#3f6;"></b>
+                            <b title="#3f9" style="background-color:#3f9;"></b>
+                            <b title="#3fc" style="background-color:#3fc;"></b>
+                            <b title="#3ff" style="background-color:#3ff;"></b>
+
+                            <b title="#600" style="background-color:#600;"></b>
+                            <b title="#603" style="background-color:#603;"></b>
+                            <b title="#606" style="background-color:#606;"></b>
+                            <b title="#609" style="background-color:#609;"></b>
+                            <b title="#60c" style="background-color:#60c;"></b>
+                            <b title="#60f" style="background-color:#60f;"></b>
+                            <b title="#630" style="background-color:#630;"></b>
+                            <b title="#633" style="background-color:#633;"></b>
+                            <b title="#636" style="background-color:#636;"></b>
+                            <b title="#639" style="background-color:#639;"></b>
+                            <b title="#63c" style="background-color:#63c;"></b>
+                            <b title="#63f" style="background-color:#63f;"></b>
+                            <b title="#660" style="background-color:#660;"></b>
+                            <b title="#663" style="background-color:#663;"></b>
+                            <b title="#666" style="background-color:#666;"></b>
+                            <b title="#669" style="background-color:#669;"></b>
+                            <b title="#66c" style="background-color:#66c;"></b>
+                            <b title="#66f" style="background-color:#66f;"></b>
+                            <b title="#690" style="background-color:#690;"></b>
+                            <b title="#693" style="background-color:#693;"></b>
+                            <b title="#696" style="background-color:#696;"></b>
+                            <b title="#699" style="background-color:#699;"></b>
+                            <b title="#69c" style="background-color:#69c;"></b>
+                            <b title="#69f" style="background-color:#69f;"></b>
+                            <b title="#6c0" style="background-color:#6c0;"></b>
+                            <b title="#6c3" style="background-color:#6c3;"></b>
+                            <b title="#6c6" style="background-color:#6c6;"></b>
+                            <b title="#6c9" style="background-color:#6c9;"></b>
+                            <b title="#6cc" style="background-color:#6cc;"></b>
+                            <b title="#6cf" style="background-color:#6cf;"></b>
+                            <b title="#6f0" style="background-color:#6f0;"></b>
+                            <b title="#6f3" style="background-color:#6f3;"></b>
+                            <b title="#6f6" style="background-color:#6f6;"></b>
+                            <b title="#6f9" style="background-color:#6f9;"></b>
+                            <b title="#6fc" style="background-color:#6fc;"></b>
+                            <b title="#6ff" style="background-color:#6ff;"></b>
+
+                            <b title="#900" style="background-color:#900;"></b>
+                            <b title="#903" style="background-color:#903;"></b>
+                            <b title="#906" style="background-color:#906;"></b>
+                            <b title="#909" style="background-color:#909;"></b>
+                            <b title="#90c" style="background-color:#90c;"></b>
+                            <b title="#90f" style="background-color:#90f;"></b>
+                            <b title="#930" style="background-color:#930;"></b>
+                            <b title="#933" style="background-color:#933;"></b>
+                            <b title="#936" style="background-color:#936;"></b>
+                            <b title="#939" style="background-color:#939;"></b>
+                            <b title="#93c" style="background-color:#93c;"></b>
+                            <b title="#93f" style="background-color:#93f;"></b>
+                            <b title="#960" style="background-color:#960;"></b>
+                            <b title="#963" style="background-color:#963;"></b>
+                            <b title="#966" style="background-color:#966;"></b>
+                            <b title="#969" style="background-color:#969;"></b>
+                            <b title="#96c" style="background-color:#96c;"></b>
+                            <b title="#96f" style="background-color:#96f;"></b>
+                            <b title="#990" style="background-color:#990;"></b>
+                            <b title="#993" style="background-color:#993;"></b>
+                            <b title="#996" style="background-color:#996;"></b>
+                            <b title="#999" style="background-color:#999;"></b>
+                            <b title="#99c" style="background-color:#99c;"></b>
+                            <b title="#99f" style="background-color:#99f;"></b>
+                            <b title="#9c0" style="background-color:#9c0;"></b>
+                            <b title="#9c3" style="background-color:#9c3;"></b>
+                            <b title="#9c6" style="background-color:#9c6;"></b>
+                            <b title="#9c9" style="background-color:#9c9;"></b>
+                            <b title="#9cc" style="background-color:#9cc;"></b>
+                            <b title="#9cf" style="background-color:#9cf;"></b>
+                            <b title="#9f0" style="background-color:#9f0;"></b>
+                            <b title="#9f3" style="background-color:#9f3;"></b>
+                            <b title="#9f6" style="background-color:#9f6;"></b>
+                            <b title="#9f9" style="background-color:#9f9;"></b>
+                            <b title="#9fc" style="background-color:#9fc;"></b>
+                            <b title="#9ff" style="background-color:#9ff;"></b>
+
+                            <b title="#c00" style="background-color:#c00;"></b>
+                            <b title="#c03" style="background-color:#c03;"></b>
+                            <b title="#c06" style="background-color:#c06;"></b>
+                            <b title="#c09" style="background-color:#c09;"></b>
+                            <b title="#c0c" style="background-color:#c0c;"></b>
+                            <b title="#c0f" style="background-color:#c0f;"></b>
+                            <b title="#c30" style="background-color:#c30;"></b>
+                            <b title="#c33" style="background-color:#c33;"></b>
+                            <b title="#c36" style="background-color:#c36;"></b>
+                            <b title="#c39" style="background-color:#c39;"></b>
+                            <b title="#c3c" style="background-color:#c3c;"></b>
+                            <b title="#c3f" style="background-color:#c3f;"></b>
+                            <b title="#c60" style="background-color:#c60;"></b>
+                            <b title="#c63" style="background-color:#c63;"></b>
+                            <b title="#c66" style="background-color:#c66;"></b>
+                            <b title="#c69" style="background-color:#c69;"></b>
+                            <b title="#c6c" style="background-color:#c6c;"></b>
+                            <b title="#c6f" style="background-color:#c6f;"></b>
+                            <b title="#c90" style="background-color:#c90;"></b>
+                            <b title="#c93" style="background-color:#c93;"></b>
+                            <b title="#c96" style="background-color:#c96;"></b>
+                            <b title="#c99" style="background-color:#c99;"></b>
+                            <b title="#c9c" style="background-color:#c9c;"></b>
+                            <b title="#c9f" style="background-color:#c9f;"></b>
+                            <b title="#cc0" style="background-color:#cc0;"></b>
+                            <b title="#cc3" style="background-color:#cc3;"></b>
+                            <b title="#cc6" style="background-color:#cc6;"></b>
+                            <b title="#cc9" style="background-color:#cc9;"></b>
+                            <b title="#ccc" style="background-color:#ccc;"></b>
+                            <b title="#ccf" style="background-color:#ccf;"></b>
+                            <b title="#cf0" style="background-color:#cf0;"></b>
+                            <b title="#cf3" style="background-color:#cf3;"></b>
+                            <b title="#cf6" style="background-color:#cf6;"></b>
+                            <b title="#cf9" style="background-color:#cf9;"></b>
+                            <b title="#cfc" style="background-color:#cfc;"></b>
+                            <b title="#cff" style="background-color:#cff;"></b>
+
+                            <b title="#f00" style="background-color:#f00;"></b>
+                            <b title="#f03" style="background-color:#f03;"></b>
+                            <b title="#f06" style="background-color:#f06;"></b>
+                            <b title="#f09" style="background-color:#f09;"></b>
+                            <b title="#f0c" style="background-color:#f0c;"></b>
+                            <b title="#f0f" style="background-color:#f0f;"></b>
+                            <b title="#f30" style="background-color:#f30;"></b>
+                            <b title="#f33" style="background-color:#f33;"></b>
+                            <b title="#f36" style="background-color:#f36;"></b>
+                            <b title="#f39" style="background-color:#f39;"></b>
+                            <b title="#f3c" style="background-color:#f3c;"></b>
+                            <b title="#f3f" style="background-color:#f3f;"></b>
+                            <b title="#f60" style="background-color:#f60;"></b>
+                            <b title="#f63" style="background-color:#f63;"></b>
+                            <b title="#f66" style="background-color:#f66;"></b>
+                            <b title="#f69" style="background-color:#f69;"></b>
+                            <b title="#f6c" style="background-color:#f6c;"></b>
+                            <b title="#f6f" style="background-color:#f6f;"></b>
+                            <b title="#f90" style="background-color:#f90;"></b>
+                            <b title="#f93" style="background-color:#f93;"></b>
+                            <b title="#f96" style="background-color:#f96;"></b>
+                            <b title="#f99" style="background-color:#f99;"></b>
+                            <b title="#f9c" style="background-color:#f9c;"></b>
+                            <b title="#f9f" style="background-color:#f9f;"></b>
+                            <b title="#fc0" style="background-color:#fc0;"></b>
+                            <b title="#fc3" style="background-color:#fc3;"></b>
+                            <b title="#fc6" style="background-color:#fc6;"></b>
+                            <b title="#fc9" style="background-color:#fc9;"></b>
+                            <b title="#fcc" style="background-color:#fcc;"></b>
+                            <b title="#fcf" style="background-color:#fcf;"></b>
+                            <b title="#ff0" style="background-color:#ff0;"></b>
+                            <b title="#ff3" style="background-color:#ff3;"></b>
+                            <b title="#ff6" style="background-color:#ff6;"></b>
+                            <b title="#ff9" style="background-color:#ff9;"></b>
+                            <b title="#ffc" style="background-color:#ffc;"></b>
+                            <b title="#fff" style="background-color:#fff;"></b>
+                        </div>
+                    </div>
+                    <div class="_erase"><b>清除颜色</b></div>
+                    <aside>
+                        <div class="_assign">
+                            <div class="_aim">
+                                <label title="文本色">
+                                    <input type="radio" name="colorto" value="color" checked /><i id="l-tcolor"></i>
+                                </label>
+                                <label title="背景色">
+                                    <input type="radio" name="colorto" value="background-color" /><i id="l-bgcolor"></i>
+                                </label>
+                                <label title="边框色">
+                                    <input type="radio" name="colorto" value="border-color" /><i id="l-bcolor"></i>
+                                </label>
+                            </div>
+                            <hr>
+                            <div>
+                                <label>Alpha</label>
+                                <input type="text" name="alpha" title="0~100" class="_nums" />
+                            </div>
+                        </div>
+                        <div class="_custom">
+                            <span id="color-info" class="_tips">rgb(72, 207, 117)</span>
+                            <!-- 白底：预防透明色 -->
+                            <span class="_bgcbox" style="background-color: #fff;">
+                                <label id="color-show" class="_bgc" style="background-color: #000;">
+                                    <input id="g-color" name="color" type="color" />
+                                </label>
+                            </span>
+                        </div>
+                    </aside>
+                    <div class="_submit" tpl-name="common:submit">
+                        <button type="submit">确定</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+
+
+<!-- 其它面板 ------------------------------------------------------------------->
+
+    <h4 id="obt2test" style="font-size:large; font-weight: bold; color: blue; background-color: #999; font-style:italic;display: block; padding: 5px 10px;"
+        on="1parse|(0, true) ev('detail') obtsplit pack(3);
+            2value|ev('detail') spread dup len max(10) elem('li', _1);
+            3focus(li)|evo(2) siblingNth sub(1);
+            4switch|ev('detail') evo(3) attr('-x') node(_1);
+            5removed|ev('detail') spread dup attr('-n') str('obts:')"
+        by="1Test.method(1);
+            2-;
+            3Test.AAA debug(false)"
+        to="1|trigger('value');
+            2|fill $text $contenteditable|target pop item(_1) pop focus;
+            3(1/>label)|triggers('index');
+            4|replace|pop goto('removed');
+            5|@-x replaceWith|(true) pick(-2) push pack(3) pop goto('value')">[面板] 特性</h4>
+    <div id="attribute" class="panel">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b>内容</b>
+                <b>样式</b>
+                <b class="_press">特性</b>
+                <b>源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+
+            <!-- submit 明确提交才会聚焦到内容区。 -->
+            <form class="Attr" tpl-name="slave:attr"
+                on="submit|avoid;
+                    apply|ev('detail') $('/select') attr('-v');
+                    update|sels dup len eq(1) $if('active', 'disable')"
+                by="-;
+                    Ed.attrUpdate(_1)"
+                to="|trigger('apply')|fire('#g-scroll', 'focus');
+                    -;
+                    (/>div)|trigger(_1)">
+                <div class="_roll"
+                    on="active|$$('input, select') prop('disabled', null) sel0 attrns obtname;
+                        disable|$$('input, select') prop('disabled', true)"
+                    to="/select|trigger('update')">
+                    <div class="_name">
+                        <!--说明：
+                            添加on/by/to任一特性会被合并为"on by to"复合名称。
+                            键入Enter也可完成添加（而非提交表单）。-->
+                        <input type="text" name="attr" value=""
+                            on="keydown|iskey('Enter') pass avoid evo(3) next click" />
+                        <!-- ✚✛ -->
+                        <input type="button" value="✛" class="_add"
+                            on="click|evo(3) prev val trim obtname"
+                            to="2/select|trigger('addnew')" />
+                    </div>
+                    <!--特性选单：
+                        主区切换前即更新到目标元素。
+                        update  特性名清单更新，保留相同，不同则清理或补足。
+                        change  插入适配的内容模板，应用之前的修改到内容元素。
+                        _change 提取元素特性值发送到编辑框。
+                        addnew  添加一个新特性（临时），如果已经存在则忽略。
+                        select  选取接收的值匹配的选单（新建后）。
+                        record  记录当前名称，用于改变前提交应用时取值。注：.val取值已在改变之后。
+                        blank   特性整体更新后空白主区替代。
+                        keydown 支持即时删除条目（友好）。 -->
+                    <select name="attrs" size="5" data-v="" class="_list"
+                        on="update|evo(3) children ev('detail');
+                            change|evo(3) val $case('on by to', null) $switch('obts', 'empty', 'value') str('attr:') node(_1) (null);
+                            _change|evo(3) val dup pass sel0 pop attrs(_1);
+                            addnew|ev('detail') dup(2) $$('/option') prop('value') inside(_) end ('attr:item') node2(_1);
+                            select|ev('detail');
+                            blank|tpl('attr:empty');
+                            record|evo(3) val;
+                            keydown|iskey('Delete') pass evo(3) prop('selected') dup pass remove"
+                        by="Kit.attrlist(_1) pop elem('option')"
+                        to="|append|goto('change');
+                            form/._main>*|trigger('attrok') replace|goto('_change');
+                            form/._main>*|trigger('vinit')|goto('record');
+                            |append render|pop fire(3, 'select');
+                            |val|change;
+                            form/._main>*|replace;
+                            |@-v;
+                            |trigger('blank')|goto('record')">
+                        <!-- <option>[name]</option> -->
+                    </select>
+                </div>
+                <!-- 激活与禁用，测试一个即可。 -->
+                <div class="_body"
+                    on="disable|$('textarea') prop('disabled') end $$('textarea, [type=submit]') prop('disabled', true) (false);
+                        active|$('textarea') prop('disabled') pass $$('textarea, [type=submit]') prop('disabled', null) (true)"
+                    to="(/ol>li)|$contenteditable;
+                        (/ol>li)|$contenteditable">
+                    <div class="_main">
+                        <!--特性编辑：
+                            vinit   初始设置值，简单分号切分换行友好。
+                            attrok  提取编辑值（适当构造），发送到表单应用到内容元素上。-->
+                        <textarea name="attrval" spellcheck="false" class="_code" tpl-name="attr:value"
+                            on="vinit|ev('detail') item(0) or('') split(';') trim join(';\n');
+                                attrok|evo(3) val split(';') trim join('; ')"
+                            to="|val;
+                                form/|trigger('apply')"></textarea>
+                        <!--OBT属性集：
+                            vinit   总设置通知，接收数据为一个3元数组。
+                            keydown 1.在当前行之后创建一个新行并聚焦。
+                            keydown 2.删除当前行（不可撤销）。
+                            keydown 3.Ctrl+ArrowUp|ArrowDown 上下移动当前行。
+                                    evo(2) blur 失焦后再移动，避免窗口滚动。delay focus 延迟再聚焦才有效。
+                                    注记：聚焦窗口前后插入元素时会导致文档窗口滚动。
+                            blur    参照组<textarea>失焦保存（空白忽略）。
+                            attrok  构造OBT值序列，发送到表单应用到目标元素上。
+                            主控编辑：
+                            Enter          创建一个新的空行。
+                            Ctrl+Shift+Del 删除当前行内容（可撤销），或空行本身（不可撤销）。注：分两段逻辑更友好。
+                            Ctrl + ↑↓      上下移动当前行，关联行随动。
+                        -->
+                        <div class="_obts" data-pbo="[fulled]" tpl-name="attr:obts"
+                            on="keydown(li)|iskey('Enter') pass stopAll avoid evo(2) data('on by to');
+                                keydown(li)|iskey('Delete') scam(KM.obtRowDel) both pass avoid evo(2) dup text vnot jump(3) select exeCmd('delete') exit data('on by to');
+                                keydown(li)|ev('key') inside('ArrowUp', 'ArrowDown') scam(KM.obtRowMove) both pass avoid evo(2) ev('key') data('on by to');
+                                blur(textarea)|evo(1) val trim dup pass $('/ol') attr('-i') evo(2) attr('name') data(_1) pop;
+                                vinit|ev('detail') obtsplit;
+                                attrok|data('on by to') obtval;
+                                ^tpled|evo(3) remove"
+                            by="Kit.obtline(_) ('_hot');
+                                Kit.obtdel(_) remove;
+                                Kit.obtswap(_2) dup pass spread evo(2) blur"
+                            to="=|removeClass after|focus;
+                                (/label>textarea)||clear;
+                                =|nodex(_1)|delay focus(10);
+                                -|set(_1);
+                                |data('on by to')|fire('/ol', 'active');
+                                form/|trigger('apply')">
+                            <!--主控编辑框：
+                                当前编辑行设置 _hot 类名以便区分。
+                                active  创建列表清单并逐一赋值，聚焦到目标行。
+                                focus   聚焦表示将要编辑该行，要求OBT另2组定位到相同行。100毫秒延迟随动感友好。
+                                blur    失焦保存当前编辑条目（OBT配置组内），空白忽略。
+                                switch  转换为主控列表：首先恢复所属OBT分组<label>，自身脱离DOM。数据原样传递。detail:[i, list, <label>]
+                                removed 脱离DOM后，替换为目标OBT分组<label>。激活主控列表。
+                                paste   限定仅支持粘贴纯文本。
+                                注记：
+                                默认最少10行可用（美观）。 -->
+                            <ol data-i="0" data-n="on" data-x="true" spellcheck="false" class="_code" tpl-name="obts:master"
+                                on="active|evo(3) attrs('-i -x -n') spread $('1/') pop data(_1) dup len max(10) elem('li', _1);
+                                    focus(li)|evo(2) siblingNth sub(1) dup;
+                                    focus(li)|evo(2) hasClass('_hot') end $$('/li');
+                                    blur(li)|evo(1) text trim dup pass evo(3) attr('-i') evo(3) attr('-n') $('1/') pop data(_1) pop;
+                                    switch|ev('detail') evo(3) attr('-n') str('obts:') node(_1);
+                                    removed|ev('detail') dup attr('-n');
+                                    paste(li)|avoid clipboard html exeCmd('insertHTML', _1);"
+                                to="|fill $text $contenteditable|target pop item(_1) dup pop(2) focus select;
+                                    |@-i|pop fire('1/>label', 'index', 100);
+                                    =|only('_hot');
+                                    -|set(_1);
+                                    |replace|pop goto('removed');
+                                    |@-n replaceWith|goto('active')">
+                                <li contenteditable="true"></li>
+                            </ol>
+                            <!--自动对应参考：
+                                index   接收定位索引号，提取目标行显示供参考。
+                                click   切换当前特性为主控列表，并聚焦到当前行。递送数据：self:<label> -->
+                            <label data-n="on" tpl-name="obts:on"
+                                on="index|ev('detail') evo(3) attr('-n') $('1/') pop data(_1) pop item(_1);
+                                    click(b)|evo(3);
+                                    ^tpled|evo(3) remove"
+                                to="/textarea|val;
+                                    1/ol|trigger('switch')">
+                                <b title="单击切换">on</b>
+                                <textarea name="on" spellcheck="false" rows="1" class="_code"></textarea>
+                            </label>
+                            <label data-n="by" tpl-name="obts:by"
+                                on="^obted|delay tpl('obts:on')"
+                                to="|cloneEvents">
+                                <b title="单击切换">by</b>
+                                <textarea name="by" spellcheck="false" rows="1" class="_code"></textarea>
+                            </label>
+                            <label data-n="to" tpl-name="obts:to"
+                                on="^obted|delay tpl('obts:on')"
+                                to="|cloneEvents">
+                                <b title="单击切换">to</b>
+                                <textarea name="to" spellcheck="false" rows="1" class="_code"></textarea>
+                            </label>
+                        </div>
+                        <!-- 空白占位 -->
+                        <p class="_empty" tpl-name="attr:empty" on="^tpled|evo(3) remove"></p>
+                    </div>
+                    <aside>
+                        <!-- 当前条目确认提交，可选。 -->
+                        <div class="_submit" tpl-name="common:submit">
+                            <button type="submit">确定</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>[面板] 源码</h4>
+    <div class="panel">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b>内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b class="_press">源码</b>
+                <b>脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Source _body" onsubmit="return false" tpl-name="slave:source">
+                <div class="_main">
+                    <textarea name="content" spellcheck="false" class="_code"></textarea>
+                </div>
+                <aside>
+                    <div class="_option">
+                        <label><input type="checkbox" name="repair" />修复</label>
+                        <button>结构检查</button>
+                        <!-- _ok|_err -->
+                        <div class="_info _ok">OK!</div>
+                    </div>
+                    <div class="_submit" tpl-name="common:submit">
+                        <button type="submit">确定</button>
+                    </div>
+                </aside>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+
+    <h4>[面板] 脚本</h4>
+    <div class="panel">
+        <div id="main-slave" class="___Panel Slave" tpl-name="main:slave">
+            <div class="_tabs">
+                <b>内容</b>
+                <b>样式</b>
+                <b>特性</b>
+                <b>源码</b>
+                <b class="_press">脚本</b>
+                <b class="_close"><i id="l-close" title="关闭"></i></b>
+            </div>
+            <form class="Script" onsubmit="return false" tpl-name="slave:script">
+                <div class="_env">
+                    <label><input type="radio" name="runbox" value="sandbox" checked />沙盒内</label>
+                    <label><input type="radio" name="runbox" value="editor" />编辑器内</label>
+                </div>
+                <div class="_body">
+                    <div class="_main">
+                        <header>
+                            <input type="text" name="prefix" spellcheck="false" placeholder="记忆前缀：script-" class="_prefix" />
+                        </header>
+                        <textarea name="content" spellcheck="false" class="_code"></textarea>
+                    </div>
+                    <aside>
+                        <div class="_cmds">
+                            <b title="脚本历史"><i id="l-history"></i></b>
+                        </div>
+                        <div class="_submit">
+                            <button type="submit">运行</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+        <!-- 状态栏（略） -->
+    </div>
+</body>
+
+</html>

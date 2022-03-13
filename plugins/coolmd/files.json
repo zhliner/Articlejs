@@ -1,0 +1,5 @@
+{
+    "root":     "index.html",
+    "style":    "styles.css",
+    "extend":   "extend.js"
+}

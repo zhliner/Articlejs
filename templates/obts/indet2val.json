@@ -1,0 +1,6 @@
+{
+    "/1": "不确定态（indeterminate）与值（value）设置：",
+    "/2": "如果不确定态为真，发送 indeted 事件，否则发送 valued 事件（传递值）。",
+    "on": "propvary|ev('detail') spread pick(0) pass('indeterminate') pass; propvary|ev('detail') spread pick(0) pass('value') evo(3) prop('indeterminate') end",
+    "to": "|trigger('indeted'); |trigger('valued')"
+}

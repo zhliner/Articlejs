@@ -20,6 +20,10 @@
   },
   "homepage": "https://github.com/zhliner/Articlejs#readme",
   "devDependencies": {
-    "eslint": "^5.16.0"
+    "eslint": "^5.16.0",
+    "rollup-plugin-terser": "^7.0.2"
+  },
+  "dependencies": {
+    "espree": "^7.1.0"
   }
 }

@@ -1,0 +1,5 @@
+{
+    "//": "属性框初始赋值：内联样式取值。",
+    "on": "value|sels $('/input') attr('-css') style(_1) p.vals1",
+    "to": "/input|val"
+}

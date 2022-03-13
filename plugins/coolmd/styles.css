@@ -1,0 +1,10 @@
+.Modal ._coolmd > ._ttl {
+    display: flex;
+    margin: 4px;
+}
+.Modal ._coolmd > ._ttl > b {
+    font-weight: bold;
+}
+.Modal ._coolmd > ._ttl > label {
+    margin-left: auto;
+}

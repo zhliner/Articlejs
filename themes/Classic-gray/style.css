@@ -1,0 +1,2116 @@
+/*! $id: style.css 2020.01.02 Cooljed.Theme $
+ ++++++++++++++++++++++++++++++++++++++++++++++++
+ *
+ *  主题：光明之夜
+ *
+ *  z-index：
+ *  < 100   普通覆盖排序
+ *
+ *  @name: Dark-less
+ *  @author: 风林子 zhliner@gmail.com
+ *
+ *****************************************************************************/
+
+@import '../normalize.css';
+@import 'icons.css';
+
+
+body {
+    display: flex;
+}
+body > * {
+    flex-shrink: 0;
+}
+
+/* 侧面板 */
+body > aside {
+    border: 1px #666 solid;
+    border-radius: 5px;
+}
+
+/* 侧面板宽度调整线 */
+body > hr {
+    width: 3px;
+    border: 1px #fff solid;
+    border-radius: 3px;
+    background-color: #6f94a3;
+    cursor: ew-resize;
+    height: auto;
+}
+
+/* 编辑器容器 */
+div.Editor {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    border: 1px #666 solid;
+    border-radius: 12px 12px 5px 5px;
+    position: relative;
+    background-color: white;
+}
+/* 大纲&帮助面板 */
+aside.Help,
+aside.Outline {
+    width: 240px;
+    min-width: 180px;
+    background-color: #f9f9f9;
+}
+
+
+/* [ 操作可视性 ]
+ ****************************************************************************/
+
+/* 编辑区聚焦 */
+.___Content ._scroll {
+    outline: none;
+}
+.___Content ._scroll:focus {
+    background-color: #f4b465;
+}
+
+/* 路径指向 */
+.___Content ._point {
+    background-color: #ebebeb4d;
+    background-image: url('images/current.png');
+}
+
+/* 已选取 */
+.___Content ._selected {
+    color: #333;
+    background-color: #ffffb8;
+    background-image: url('images/selected.png') !important;
+    border-radius: 4px;
+    border: 1px #77858880 solid;
+    /* for <hr> */
+    min-height: 1.4em;
+}
+.___Content svg ._selected {
+    stroke: #01839d;
+    stroke-width: 2px;
+    fill-opacity: 0.6;
+}
+
+/* 选取焦点 */
+.___Content ._focus {
+    border: 2px #f33 dotted !important;
+    border-radius: 4px !important;
+}
+.___Content svg ._focus {
+    stroke: #f33;
+    stroke-width: 3px;
+    stroke-dasharray: 3px;
+}
+
+/* 视觉友好 */
+.___Content audio._focus,
+.___Content audio._selected {
+    padding: 2px 10px;
+}
+.___Content video._focus,
+.___Content video._selected {
+    padding: 5px 10px;
+}
+
+/* 微编辑下 */
+.___Content *[contenteditable] {
+    cursor: text;
+    background-color: #e9ab7d99 !important;
+    outline: none;
+}
+
+/* 空元素视觉提示 */
+.___Content main *:empty::after {
+    content: '==Empty==';
+    color: darkgray;
+    font-style: italic;
+}
+.___Content main tr >*:empty::after {
+    font-size: 0.8em;
+}
+/* 部分提示消除 */
+.___Content main hr:empty::after,
+.___Content main br:empty::after,
+.___Content main track:empty::after,
+.___Content main source:empty::after,
+.___Content main img:empty::after,
+.___Content main meter:empty::after,
+.___Content main span[role=space]:empty::after,
+.___Content main div[role=blank]:empty::after,
+.___Content main li>code:empty::after {
+    content: none;
+}
+/* 扩展方便点选 */
+.___Content main hr:hover {
+    min-height: 1.4em;
+}
+/* 出错警告背影提示 */
+.___Content ._warn {
+    background-color: #ff572240 !important;
+    box-shadow: 1px 2px 3px #f40;
+}
+
+.___Content a {
+    color: #3355ff;
+}
+.___Content span[role=space] {
+    vertical-align: middle;
+}
+.___Content picture {
+    display: inline-block;
+}
+.___Content mark[role=tmp] {
+    background-color: orange;
+}
+
+/* 代码框提示 */
+.___Panel form pre:empty::after {
+    content: attr(data-tip);
+    color: darkgray;
+    font-style: italic;
+}
+
+
+/* [ 全局默认 ]
+ ****************************************************************************/
+
+.___Panel {
+    font-size: 12pt;
+}
+.___Panel * {
+    line-height: 150%;
+    margin: 0;
+    padding: 0;
+}
+.___Panel li > h5 {
+    font-size: 1em;
+}
+
+.___Panel form {
+    font-size: 14px;
+}
+.___Panel b {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: normal;
+    cursor: default;
+}
+.___Panel select {
+    flex: 1 1 auto;
+    padding: 3px;
+    border-radius: 3px 1px 1px 3px;
+    outline: none;
+}
+
+.___Panel option {
+    padding: 3px 0.5em;
+    margin: 1px 0;
+    border-radius: 3px;
+}
+.___Panel option:hover {
+    background-color: #9ce2d0;
+}
+.___Panel optgroup > option {
+    padding: 1px 5px;
+}
+
+.___Panel input[type=text],
+.___Panel input[type=url],
+.___Panel input[type=search] {
+    padding: 1px 4px;
+    border: 1px #93c8e2 solid;
+    border-radius: 2px;
+    font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
+}
+.___Panel input::placeholder {
+    color: #ccc;
+}
+.___Panel input[type=radio],
+.___Panel input[type=checkbox] {
+    margin-right: 4px;
+}
+/* 代码字体 */
+.___Panel code,
+.___Panel ._code,
+.___Panel input._code {
+    font-size: 12px;
+    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    white-space: pre-wrap;
+}
+
+.___Panel textarea,
+.___Panel pre._code,
+.___Panel ol._code {
+    color: #ccc;
+    padding: 2px 2px 2px 5px;
+    flex: 1 1 auto;
+    border-radius: 3px 1px 1px 3px;
+    overflow-y: scroll;
+    resize: none;
+    box-sizing: border-box;
+    outline: none;
+}
+.___Panel textarea {
+    font-size: 12pt;
+    border: 1px #355c64 solid;
+    line-height: 30px;
+    background: local url('images/txtline.png') repeat #173745;
+}
+.___Panel textarea::placeholder {
+    color: #aaa;
+    font-style: italic;
+}
+
+.___Panel a {
+    color: #06f;
+    text-decoration: none;
+}
+.___Panel a:hover {
+    color: #06c;
+}
+.___Panel button {
+    padding: 1px 20px 2px;
+    border: 1px #5798a5 solid;
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+    min-width: 78px;
+}
+.___Panel input {
+    outline: none;
+}
+.___Panel legend {
+    padding: 0 4px;
+}
+
+/* 侧栏灰度线 */
+.___Panel aside select,
+.___Panel aside input[type=text] {
+    border: 1px #bbb solid;
+}
+
+
+/* [ 共享 ]
+ ****************************************************************************/
+
+.___Panel ._list {
+    border: 1px #93c8e2 solid;
+    border-radius: 5px 1px 1px 5px;
+    background-color: #fff;
+    overflow-y: auto;
+}
+.___Panel select._list {
+    padding: 6px 3px 6px 7px;
+    overflow-y: scroll;
+}
+
+/* 属性表 */
+.___Panel ul._prop {
+    display: grid;
+    grid-template-columns: 80px auto;
+    gap: 10px 7px;
+    margin: 14px;
+}
+.___Panel ul._prop li {
+    display: contents;
+    white-space: nowrap;
+}
+.___Panel ul._prop li > b {
+    font-weight: bold;
+    justify-self: flex-end;
+}
+.___Panel ul._prop textarea {
+    width: 100%;
+}
+.___Panel ul._prop span._preview {
+    min-height: 120px;
+    padding: 5px;
+    border: 1px #888 solid;
+    background-color: #999;
+}
+.___Panel div._prop {
+    display: flex;
+    padding: 12px;
+    height: 100%;
+    box-sizing: border-box;
+}
+/* 单行文本 */
+.___Panel ._prop ._text {
+    height: 2em;
+    align-self: flex-start;
+}
+.___Panel ._prop ._phrase {
+    width: 75%;
+    min-width: 120px;
+}
+
+.___Panel input._char {
+    width: 34px;
+    text-align: center;
+}
+/* 单数字，可能有步进箭头 */
+.___Panel input._num {
+    width: 40px;
+    text-align: center;
+}
+.___Panel input._nums {
+    width: 65px;
+    text-align: center;
+}
+.___Panel input._chars {
+    width: 80px;
+}
+.___Panel input._words {
+    width: 100px;
+}
+.___Panel input._scale {
+    padding-top: 4px;
+    border: 1px #60acd2 solid;
+    background: #ffe url('images/heading.png') 4px 0 repeat-x;
+    font-weight: bold;
+}
+.___Panel pre._code,
+.___Panel textarea._code {
+    line-height: 20px;
+    background: local url('images/line20.png') repeat #444;
+    border: 1px #666 solid;
+}
+.___Panel ol._code {
+    border: 1px #666 solid;
+    padding-left: 40px;
+    padding-right: 0;
+    background-color: #243438;
+    white-space: inherit;
+}
+.___Panel ol._code > li {
+    background-color: #444;
+    outline: none;
+    border-bottom: 1px gray solid;
+    padding: 2px 1px;
+}
+.___Panel ._prop li>span {
+    max-height: 16em;
+    box-sizing: border-box;
+}
+.___Panel ._prop pre._code {
+    min-height: 12em;
+    /* 撑满限定 */
+    height: 100%;
+}
+.___Panel ._prop span>label {
+    margin-left: 6px;
+}
+.___Panel ._prop i._tips {
+    color: gray;
+    font-size: 0.9em;
+}
+.___Panel ._prop input._words {
+    width: 150px;
+}
+
+.___Panel ._submit > label {
+    display: block;
+}
+.___Panel ._submit button,
+.___Panel ._btn2 > button {
+    background-color: #187890;
+    color: #fff;
+    white-space: nowrap;
+}
+.___Panel ._submit button:hover,
+.___Panel ._btn2 > button:hover {
+    background-color: #156477;
+}
+
+/* 图标按钮 */
+.___Panel ._icons > b {
+    width: 32px;
+    height: 32px;
+    border: 1px transparent solid;
+    border-radius: 20%;
+}
+.___Panel ._icons > b:hover {
+    border-color: #b2d2a3;
+    background-color: #ededed;
+}
+.___Panel ._icons > b._press {
+    border-color: #b2d2a3;
+    background-color: #f3f4f5;
+}
+/* 冻结效果 */
+.___Panel b[data-pbo~=disabled]:hover {
+    border-color: transparent;
+    background-color: transparent;
+}
+
+/* 字符表情 */
+.___Panel code._orz {
+    font-family: monospace;
+    white-space: pre;
+    line-height: 100%;
+    font-size: 10pt;
+}
+
+/* 分隔（hr）
+   板块：主面板，属性修改 */
+.___Panel span._border {
+    flex: 1 1 auto;
+    padding: 5px 0;
+}
+.___Panel span._border > b {
+    margin: 4px auto;
+    border-radius: 10px;
+}
+.___Panel span._border > b:hover {
+    background-color: #ddd;
+}
+.___Panel span._border hr {
+    height: 0;
+    width: 92%;
+    border-width: 10px;
+    margin: 10px auto;
+}
+/* 选中 */
+.___Panel span._border > b._press {
+    background-color: #f57d3d;
+}
+
+
+/* 菜单
+ ****************************************************************************/
+
+/* 通用部分 */
+
+menu {
+    position: absolute;
+    border-radius: 2px;
+    box-shadow: 0.5px 0.6px 2.5px #333;
+    font-size: 14px;
+    margin: 0;
+    padding: 0;
+    cursor: default;
+    color: #000;
+}
+
+menu > hr {
+    margin: 3px 1px;
+    border: 1px #c8c8c8 solid;
+    border-bottom-color: #f3f3f3;
+}
+menu > li {
+    list-style: none;
+    border-radius: inherit;
+    display: grid;
+    grid-template-columns: 1fr auto;
+}
+menu > li b {
+    font-weight: normal;
+    white-space: nowrap;
+}
+menu li > kbd {
+    min-width: 30px;
+    color: #aaa;
+    text-align: right;
+}
+
+menu li:not([role=menubar]):hover {
+    color: #fff;
+    background-color: #444;
+    text-shadow: none;
+}
+menu li:not([role=menubar]):hover > kbd {
+    color: #ddd;
+}
+menu li:not([role=menubar]):hover a {
+    color: #70b9fc;
+}
+
+/* 子菜单项 */
+menu li[role=menubar] {
+    position: relative;
+}
+menu li[role=menubar] h5 {
+    display: contents;
+    font-size: 1em;
+    grid-column: 1 / 3;
+}
+menu li > h5::after {
+    /* ⋙﹥▶» */
+    content: '»';
+    text-align: right;
+    color: #bbb;
+    font-family: monospace;
+}
+menu li:hover > h5::after {
+    color: #a3a3a3;
+}
+menu li[role=menubar]:hover {
+    background-color: #ccc;
+    text-shadow: none;
+}
+
+/* 冻结效果 */
+menu li[data-pbo~=disabled]:hover {
+    background-color: transparent;
+}
+
+
+/* 局部定制 */
+
+menu {
+    z-index: 10;
+    outline: none;
+    padding: 1px 1px 0;
+    background-color: #f6f6f6;
+}
+
+/* 上下文菜单 */
+menu._cmenu {
+    padding: 5px 1px;
+    text-shadow: 1px 1px 1px #f9f9f9;
+    background-color: #eeeeed;
+}
+menu._cmenu > li {
+    padding: 4px 10px;
+    column-gap: 14px;
+}
+menu._cmenu > li > kbd {
+    min-width: 60px;
+}
+
+/* 子菜单 */
+menu[role=submenu] {
+    min-width: 146px;
+}
+menu[role=submenu] > li {
+    border-bottom: 1px #ccc solid;
+    margin: 1px 0;
+    padding: 3px 12px 4px 24px;
+    column-gap: 14px;
+}
+
+
+/* 单元创建/转换（双栏） */
+menu._cells {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+}
+menu._cells > li {
+    padding: 3px 10px 3px 24px;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    border: 0 #bbb solid;
+    border-width: 0 1px 1px 0;
+
+    /* 覆盖上下文菜单子菜单 */
+    margin: 0;
+    column-gap: 0;
+}
+menu._cells > li:nth-child(2n) {
+    /* 右栏右边0 */
+    border-right-width: 0;
+}
+menu._cells b {
+    min-width: 60px;
+}
+/* 个别修订 */
+menu._cells code {
+    vertical-align: middle;
+}
+
+
+
+/* [ 顶层 ]
+ ****************************************************************************/
+
+.Outline > nav > h4,
+.Help > nav {
+    height: 44px;
+    box-sizing: border-box;
+}
+
+/* 级联表 */
+.Outline ol[role=cascade],
+.Outline ol[role=cascade] ol {
+    counter-reset: numer;
+    padding: 0;
+    list-style-type: none;
+}
+.Outline ol[role=cascade] h5 {
+    margin: 0;
+    font-weight: normal;
+}
+.Outline ol[role=cascade] li::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    content: counters(numer, '.');
+    counter-increment: numer;
+    white-space: nowrap;
+}
+.Outline ol[role=cascade] li {
+    position: relative;
+}
+
+/* 1. */
+.Outline ol[role=cascade] > li {
+    /* 缩进，与序号宽度适配 */
+    margin-left: 2.2em;
+}
+.Outline ol[role=cascade] > li::before {
+    width: 1.2em;
+    margin-left: -1.2em;
+}
+
+/* 1.2 */
+.Outline ol[role=cascade] > li>ol > li {
+    margin-left: 2.0em;
+}
+.Outline ol[role=cascade] > li>ol > li::before {
+    width: 2.0em;
+    margin-left: -2.0em;
+}
+
+/* 1.2.3 */
+.Outline ol[role=cascade] > li>ol > li>ol > li {
+    margin-left: 3.0em;
+}
+
+.Outline ol[role=cascade] > li>ol > li>ol > li::before {
+    width: 3.0em;
+    margin-left: -3.0em;
+}
+
+/* 1.2.3.4 */
+.Outline ol[role=cascade] > li>ol > li>ol > li>ol li {
+    margin-left: 4.0em;
+}
+
+.Outline ol[role=cascade] > li>ol > li>ol > li>ol li::before {
+    width: 4.0em;
+    margin-left: -4.0em;
+}
+
+/* 大纲栏 */
+.Outline nav[role=toc] {
+    border-radius: inherit;
+    font-size: 10pt;
+    height: 100%;
+    box-sizing: border-box;
+    cursor: default;
+}
+
+/* 目录级联编号 */
+.Outline nav[role=toc] > ol[role=cascade] {
+    height: calc(100% - 70px);
+    overflow-y: auto;
+}
+.Outline nav[role=toc] h4 {
+    font-size: 1.1em;
+    padding: 11px 1em;
+    border-bottom: 1px #bbb inset;
+    font-weight: normal;
+    background-color: #f0efe6;
+    border-radius: inherit;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+.Outline nav[role=toc] h4 > b {
+    float: right;
+    font-family: monospace;
+    padding: 2px 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    margin-top: -3px;
+    margin-right: -3px;
+    color: green;
+}
+.Outline nav[role=toc] h4 > b:hover {
+    background-color: #b3ebb8;
+    border-radius: 16px;
+}
+.Outline nav[role=toc] > ol {
+    margin: 0;
+    padding: 10px 3px;
+}
+.Outline nav[role=toc] li {
+    margin-top: 1px;
+    padding-left: 4px;
+    color: #333;
+}
+.Outline nav[role=toc] li,
+.Outline nav[role=toc] h5,
+.Outline nav[role=toc] a {
+    line-height: 150%;
+}
+
+.Outline nav[role=toc] a {
+    color: #36a;
+    text-decoration: none;
+}
+
+.Outline nav[role=toc] a:hover {
+    text-decoration: underline;
+}
+
+/* 子表折叠 */
+.Outline nav[role=toc] li[data-pbo~=folded] {
+    background-color: #e8f2f2;
+    border-radius: 4px 2em 0 0;
+}
+.Outline nav[role=toc] li > h5::after {
+    content: '－';
+    float: right;
+    margin-right: 1em;
+    color: green;
+}
+.Outline nav[role=toc] li[data-pbo~=folded] > h5::after {
+    content: '＋';
+    color: #e9a279;
+}
+
+
+/* 帮助栏 */
+.Help > ._icons {
+    padding: 5px;
+    border-bottom: 1px #bbb inset;
+    background-color: #f0efe6;
+    border-radius: inherit;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    display: flex;
+}
+.Help > ._icons > b {
+    margin: auto 4px;
+    font-size: 1.1em;
+}
+.Help > ._icons > b._top {
+    font-weight: bold;
+}
+.Help > ._icons > ._about {
+    padding: 0;
+    width: 24px;
+    margin-left: auto;
+    border-radius: 18px 0;
+    color: #090;
+}
+.Help > ._icons > ._about:hover {
+    border-color: transparent;
+    box-shadow: 0.5px 0.6px 1px #999;
+}
+
+
+/* [ 工具栏 ]
+ ****************************************************************************/
+
+.Tools {
+    display: flex;
+    height: 44px;
+    background-color: #efeee6;
+    box-shadow: 0 4px 5px -2px grey;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom: inherit;
+    padding-left: 10px;
+
+    /* fix: 阴影覆盖含背景内容元素 */
+    position: absolute;
+    box-sizing: border-box;
+    width: 100%;
+    z-index: 99;
+}
+.Tools > div {
+    display: flex;
+    border-radius: inherit;
+}
+.Tools b {
+    margin: auto 4px;
+}
+
+/* 冻结效果 */
+.Tools b[data-pbo~=disabled]:hover {
+    border-color: transparent;
+    background-color: transparent;
+}
+
+.Tools hr {
+    height: 18px;
+    border: 1px #d3d3d3 solid;
+    border-right-color: #f7f7f7;
+    margin: auto 5px;
+}
+.Tools ._usual {
+    display: contents;
+}
+.Tools > ._end {
+    margin-left: auto;
+}
+.Tools > ._end > b:last-child {
+    height: 30px;
+    margin-top: 0;
+    margin-right: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: inherit;
+    border-bottom-right-radius: 0;
+    padding: 0px 6px 2px 8px;
+}
+.Tools > ._end > b:last-child:hover {
+    border-color: #e4e4e4;
+    background-color: #e8e8e8;
+}
+
+
+/* [ 内容区 ]
+ ****************************************************************************/
+.___Content {
+    flex: 1 1 auto;
+    /* 工具栏高度 */
+    margin-top: 44px;
+    /* 底部路径依靠 */
+    position: relative;
+    /* 内部滚动容器限高 */
+    overflow: hidden;
+}
+.___Content main.content {
+    /* 视觉友好 */
+    padding: 0 2em 24em;
+    cursor: default;
+    /* 顶部充满 */
+    border: 1px transparent solid;
+    /* 初始可聚焦 */
+    min-height: 100%;
+    box-sizing: border-box;
+
+    /* 聚焦辅助 */
+    margin: 0 2px;
+}
+
+.___Content > ._scroll {
+    height: 100%;
+    overflow-x: auto;
+    overflow-y: scroll !important;
+    resize: none;
+    position: relative;
+}
+
+/* 内容状态区 */
+.___Content > ._state {
+    position: absolute;
+    bottom: 0;
+    max-width: calc(100% - 17px);
+    /* 内容之上 */
+    z-index: 10;
+    /* 紧密堆叠 */
+    display: flex;
+    flex-direction: column;
+}
+.___Content > ._state b {
+    min-width: 20px;
+    font-size: 10pt;
+    font-weight: normal;
+    font-family: monospace, Consolas, 'Courier New';
+}
+/* 不可视元素提示 */
+.___Content ._tips > b {
+    display: inline-block;
+    padding: 5px 14px 4px 6px;
+    background-color: orange;
+    border-top-right-radius: 24px;
+}
+/* 焦点元素路径 */
+.___Content ._path {
+    display: flex;
+    flex-wrap: wrap-reverse;
+    cursor: default;
+}
+.___Content ._path > b {
+    padding: 5px 10px;
+    background-color: #496874;
+    text-align: center;
+    border-top: 1px #0e4962 solid;
+    border-right: 1px #4a7d93 solid;
+    color: #ddd;
+}
+.___Content ._path > b:hover {
+    color: #fff;
+    background-color: #3a5458;
+}
+.___Content ._path > b._press {
+    color: red;
+    font-weight: bold;
+}
+.___Content ._path > b:last-child {
+    color: #fff;
+    background-color: #6f94a5;
+}
+
+
+/* 满宽：微编辑友好 */
+.___Content ol[role=codelist] li > code {
+    display: block;
+}
+
+
+/* [ 功能面板 ]
+ ****************************************************************************/
+
+.Slave {
+    flex: 0 0 auto;
+    min-height: 240px;
+    height: 28vh;
+    background-color: #efede6;
+    display: flex;
+    flex-direction: column;
+
+    /* 文本框最大化根 */
+    position: relative;
+    /* 保存操作需要焦点 */
+    outline: none;
+}
+
+.Slave ._tabs {
+    display: flex;
+    height: 38px;
+    border-top: 1px #5c869c solid;
+    background-color: #367585;
+    font-size: 12pt;
+    color: #fff;
+    padding: 4px 0 0 8px;
+    box-sizing: border-box;
+    align-items: flex-end;
+}
+.Slave ._tabs > b {
+    min-width: 60px;
+    border-radius: 6px 6px 0 0;
+    margin: 0 2px;
+    padding: 2px 6px 5px;
+}
+.Slave ._tabs > b:hover,
+.Slave ._tabs > b._press {
+    background-color: #f0efef;
+    color: #000;
+    font-weight: bold;
+}
+.Slave ._tabs > b._close {
+    min-width: 16px;
+    align-self: center;
+    padding: 9px 12px 10px 14px;
+    margin-left: auto;
+    border-radius: 0;
+    margin-top: -5px;
+    margin-right: 0;
+}
+.Slave ._tabs > b._close:hover {
+    background-color: #14768f;
+}
+
+
+/* 共享部分
+ *************************************/
+.Slave > form {
+    flex: 1 1 0;
+    display: flex;
+    padding: 10px 12px;
+    /* 便于内部滚动 */
+    overflow-y: hidden;
+}
+.Slave > form > div {
+    display: flex;
+}
+.Slave ._roll {
+    flex: 1 1 150px;
+    min-width: 150px;
+    max-width: 240px;
+    margin-right: 14px;
+    flex-direction: column;
+}
+.Slave ._minibar {
+    height: 32px;
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    padding: 0px 8px 2px 6px;
+}
+.Slave ._minibar > label {
+    padding: 3px 6px;
+    border-radius: 3px;
+}
+.Slave ._minibar > label:hover {
+    background-color: #f9f9f9;
+}
+.Slave ._body > div,
+.Slave ._body > aside {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.Slave ._body header {
+    margin-bottom: 7px;
+}
+.Slave ._body > aside {
+    flex: 1 1 auto;
+    min-width: 150px;
+    max-width: 200px;
+    margin-left: 16px;
+}
+.Slave ._option > * {
+    display: block;
+    margin-bottom: 5px;
+}
+.Slave ._submit {
+    /* 底端对齐 */
+    margin-top: auto;
+}
+.Slave ._submit > button {
+    margin-top: 4px;
+}
+.Slave aside hr {
+    border: 1px #d5d5d5 solid;
+    border-bottom-color: #f8f8f8;
+    margin: 6px 0 7px;
+}
+
+/* 录入框填充 */
+.Slave textarea[data-pbo~=fulled] {
+    border-radius: 0;
+    border-width: 1px 0 0;
+    margin-top: 0 !important;
+}
+
+
+/* [ 内容面板 ]
+ ****************************************************************************/
+.Input > ._body,
+.Attr > ._body,
+.Script > ._body {
+    flex: 8 8 500px;
+}
+.Input ._Empty > p {
+    color: #c3c6c6;
+    margin: auto;
+    font-size: 12px;
+    line-height: 2.3em;
+    text-shadow: 1px 1px 3px #fff;
+}
+.Input ._Empty code {
+    font-weight: bold;
+}
+.Input header._affix {
+    display: grid;
+    grid-template-columns: 5fr 2fr;
+    gap: 14px;
+    align-items: center;
+}
+.Input header._affix>aside {
+    display: flex;
+    align-items: center;
+    min-width: 140px;
+}
+.Input select {
+    min-width: 80px;
+}
+.Input ._main {
+    flex: 5 5 420px;
+}
+
+/* 片区选单 */
+.Input select option._sx {
+    font-weight: bold;
+}
+/* 混杂警示 */
+.Input select._mixed  {
+    background-color: orange;
+}
+
+/* 表格 */
+.Input ._Table ._list {
+    flex: 1 1 auto;
+    background-color: #32575f;
+    overflow-y: scroll;
+}
+.Input ._Table ._affix > label {
+    min-width: 175px;
+}
+.Input ._Table table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    color: #eee;
+    background-color: #32575f;
+}
+.Input ._Table table[border] tr > * {
+    padding: 2px;
+    border: 1px #aaa solid;
+}
+.Input ._Table table[border] tr > *:focus {
+    background-color: #333;
+}
+.Input ._Table thead > tr:last-child {
+    border-bottom: 3px #ddd double;
+}
+.Input ._Table tfoot > tr:first-child {
+    border-top: 3px #ddd double;
+}
+.Input ._Table tr > th:first-child {
+    border-right: 1px #f3871a solid;
+}
+
+/* 插图 */
+.Input ._Figure textarea {
+    /*fix: firefox */
+    flex: 1 1 50px;
+}
+.Input ._Figure textarea:last-child {
+    margin-top: 4px;
+}
+.Input ._inert {
+    max-height: 2.4em;
+    /* 小字体有用 */
+    min-height: 32px;
+}
+
+.Input ._Blockquote ._cite {
+    margin-bottom: 3px;
+}
+.Input ._Blockquote ._cite input {
+    border-color: #8fbac2;
+    border-top-right-radius: 25px;
+}
+
+/* 分割（覆盖） */
+.Input ._Hr ._border {
+    padding: 5px 15px;
+}
+.Input ._Hr ._border > b {
+    border-radius: 16px;
+}
+
+/* 白板 */
+.Input ._Blank div[role=blank] {
+    flex: 1 1 auto;
+    color: #ccc;
+}
+
+/* 文本字符 */
+.Input div._Inline {
+    min-width: 365px;
+}
+.Input ._Inline ._list > span {
+    padding-bottom: 5px;
+}
+.Input ._Inline span > b {
+    float: left;
+    width: 35px;
+    height: 35px;
+    margin: 6px 0 0 6px;
+    background-color: #f3f3f3;
+    border-radius: 3px;
+    box-shadow: 0 0 1px 1px #ccc;
+}
+.Input ._Inline span > b:hover {
+    background-color: #ccc;
+    font-weight: bold;
+}
+.Input ._Inline ._zoomin {
+    width: 115px;
+    height: 115px;
+    border: 1px #ccc solid;
+    background-color: #fff !important;
+    border-radius: 6px;
+    font-size: 80px;
+}
+
+/* <ins|del> 文本框全宽 */
+.Input ul._prop li._text2 > b {
+    display: none;
+}
+.Input ul._prop li._text2 > span {
+    grid-column: 1 / 3;
+}
+.Input ul._prop li._text2 textarea {
+    overflow-y: auto;
+}
+
+
+/* [ 样式 ]
+ ****************************************************************************/
+
+.Style ._icons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 18px;
+    margin: 3px 26px 3px 16px;
+    max-height: 234px;
+}
+.Style select._list {
+    min-width: 160px;
+    padding-left: 10px;
+}
+.Style ._body > aside {
+    max-width: max-content;
+}
+
+/* 清除按钮 */
+.Style ._erase {
+    text-align: center;
+    padding: 4px;
+    border: 1px #ddd solid;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.Style ._erase > b {
+    width: 100%;
+    height: 100%;
+    border: 1px #ccc dotted;
+    background-color: #ffc;
+    color: #ddd;
+    box-sizing: border-box;
+    padding: 1px;
+}
+.Style ._erase > b:hover {
+    border: 1px #ecc solid;
+    color: #999;
+}
+/* 垂直清除 */
+.Style ._Fontview ._erase,
+.Style ._Color ._erase {
+    writing-mode: vertical-rl;
+    width: 28px;
+    margin-left: 10px;
+}
+.Style ._assign > div {
+    white-space: nowrap;
+}
+
+/* 字形 */
+.Style ._Fontview ._list {
+    padding: 8px 3px 8px 10px;
+    justify-content: start;
+    overflow-y: scroll;
+}
+.Style div._list > label {
+    padding: 4px 10px;
+    border-radius: 3px;
+}
+.Style div._list > label:hover {
+    background-color: #9ce2d0;
+}
+
+.Style div._list small {
+    color: #999;
+}
+
+/* 对齐 */
+.Style ._Align select._list {
+    min-width: 153px;
+}
+.Style ._Align ._v {
+    margin-left: 15px;
+}
+.Style ._Align label {
+    color: #82bec9;
+    font-style: italic;
+    padding-left: 6px;
+}
+
+/* 边距 */
+.Style ._Margin ._minibar {
+    height: 34px;
+    background-color: #ecebeb;
+    border-radius: 5px 5px 0 0;
+    margin-bottom: -3px;
+    border: 1px #ccc solid;
+}
+.Style ._Margin ._list {
+    min-width: 175px;
+}
+
+/* 颜色 */
+.Style ._cbox {
+    width: 240px;
+}
+.Style ._g16 {
+    height: 16px;
+    margin-bottom: 2px;
+    display: grid;
+    grid-template-columns: repeat(16, 1fr);
+}
+.Style ._c216 {
+    flex: 1 1 auto;
+    display: grid;
+    grid-template-columns: repeat(36, 1fr);
+}
+.Style ._cbox b {
+    display: inline-block;
+    border: 1px transparent solid;
+}
+.Style ._cbox b:hover {
+    border-color: #999;
+}
+.Style ._Color ._submit {
+    margin-left: 12px;
+    /* 避免flex拉伸 */
+    display: block;
+}
+.Style ._Color > aside {
+    min-width: 132px;
+    padding: 5px 10px;
+    border: 1px #ccc dotted;
+    border-radius: 5px;
+}
+.Style ._Color ._assign {
+    margin-bottom: 20px;
+}
+.Style ._Color ._aim {
+    display: flex;
+    justify-content: space-around;
+}
+.Style ._Color ._nums {
+    width: 80px;
+}
+.Style ._Color ._err {
+    color: red;
+    background-color: yellow;
+}
+.Style ._Color ._custom {
+    flex: 1 1 auto;
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    max-height: 140px;
+}
+.Style ._Color ._tips {
+    color: #888;
+    font-size: 9pt;
+    text-align: center;
+}
+.Style ._Color ._bgcbox {
+    flex: 1 1 auto;
+    border-radius: 30px;
+}
+.Style ._Color ._bgc {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+}
+.Style ._Color ._bgc > input {
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+}
+
+
+/* [ 特性 ]
+ ****************************************************************************/
+.Attr ._name {
+    display: grid;
+    grid-template-columns: auto 35px;
+    margin-bottom: 5px;
+    margin-top: 1px;
+}
+.Attr ._name ._add {
+    border: 1px #93c8e2 solid;
+    background-color: #0cc066;
+    border-radius: 0 16px 0 0;
+    color: #fff;
+    margin-left: -2px;
+    font-weight: bold;
+}
+.Attr ._name ._add:hover {
+    background-color: #ff9705;
+}
+.Attr > ._body > ._main {
+    flex: 5 5 400px;
+}
+.Attr > ._body ._empty {
+    height: 100%;
+    border: 1px #cfcfcf solid;
+    border-radius: 5px;
+    background-color: #f8f8f8;
+}
+
+.Attr ._obts {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.Attr ._obts[data-pbo~=fulled] {
+    background-color: white;
+}
+.Attr ._obts > label {
+    display: grid;
+    grid-template-columns: 41px auto;
+    border-radius: 18px 0 0;
+    background-color: #46525d;
+}
+.Attr ._obts label > b {
+    font-size: 12px;
+    background-color: #225863;
+    border-radius: inherit;
+    color: #bbb;
+}
+.Attr ._obts textarea {
+    background-image: none;
+    border-radius: 0;
+    background-color: transparent;
+    color: #eee;
+}
+.Attr ._obts[data-pbo~=fulled] textarea {
+    height: 3em;
+}
+.Attr ._obts > :first-child {
+    margin-bottom: 1px;
+}
+.Attr ._obts > :last-child {
+    margin-top: 1px;
+}
+.Attr ._obts li._hot {
+    color: #cef;
+    background-color: #333;
+}
+
+.Attr ._body aside ._char {
+    margin-inline-end: 4px;
+}
+
+
+/* [ 源码 ]
+ ****************************************************************************/
+
+.Source ._main {
+    flex: 5 5 600px;
+}
+.Source > aside {
+    flex: 1 1 180px;
+    min-width: 180px;
+    max-width: 300px;
+    margin-left: 16px;
+    display: flex;
+    flex-direction: column;
+}
+.Source ._option {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex: 1 1 auto;
+    margin-bottom: 12px;
+}
+.Source ._option > button {
+    width: max-content;
+    background-color: #fcf6e8;
+    border-color: #f8b359;
+    border-radius: 22px 0;
+    margin-bottom: 8px;
+}
+.Source ._option > button:hover {
+    background-color: #ffdbc7;
+}
+.Source ._info {
+    flex: 1 1 auto;
+    font-size: 14px;
+    font-weight: bold;
+    color: #0b3;
+    padding: 5px 12px;
+    border: 1px #e6e6e6 solid;
+    background-color: #111;
+    border-radius: 16px;
+    overflow-y: auto;
+    cursor: default;
+    outline: none;
+}
+.Source ._info._err {
+    color: red;
+    font-size: 12px;
+    font-weight: normal;
+    padding-left: 10px;
+}
+.Source ._info._err[data-pbo~=fulled] {
+    font-size: 14px;
+}
+.Source ._info > i {
+    font-style: normal;
+}
+.Source ._info i[data-pbo~='hidden'] {
+    transition: all 3s 500ms;
+}
+
+
+/* [ 脚本 ]
+ ****************************************************************************/
+.Script ._env {
+    flex: 1 1 100px;
+    min-width: 140px;
+    max-width: 200px;
+    flex-direction: column;
+    padding: 4px 14px 4px 5px;
+    text-align: justify;
+}
+.Script ._env > label._warn {
+    color: #b30;
+    margin-top: 6px;
+}
+.Script ._env fieldset {
+    padding: 4px 12px;
+    border: 1px #9cc solid;
+    border-radius: 12px;
+    margin-top: 5px;
+}
+.Script ._env fieldset._opts > label {
+    display: block;
+    margin: 3px 4px 5px;
+    color: #678;
+    font-size: small;
+}
+.Script ._env fieldset._warn {
+    flex: 1 1 auto;
+    font-size: 12px;
+    color: #777;
+    border-color: #f93;
+}
+.Script ._env ._warn legend {
+    color: red;
+}
+.Script ._env ._warn p {
+    line-height: 180%;
+}
+.Script > ._body > ._main {
+    flex: 5 5 450px;
+}
+.Script ._main ._prefix {
+    width: 70%;
+}
+.Script ._cmds > b {
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
+}
+.Script ._cmds > b:hover {
+    background-color: #e6e6e6;
+}
+
+
+/* [ 状态栏 ]
+ ****************************************************************************/
+.Status {
+    flex: 0 0 auto;
+    display: flex;
+    height: 32px;
+    border-bottom-left-radius: inherit;
+    border-bottom-right-radius: inherit;
+    border-top: 1px #7c9eb0 solid;
+    background-color: #eee;
+    font-size: 12px;
+}
+.Status > div {
+    border: 1px #c9c9c9 solid;
+    margin: 3px 0 3px 4px;
+    background-color: #efefdc;
+    line-height: 22px;
+    white-space: nowrap;
+    border-radius: 2px;
+}
+
+.Status > ._info {
+    min-width: 120px;
+    max-width: 200px;
+    flex: 1 1 auto;
+    padding-left: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: default;
+}
+
+.Status > ._cmdx,
+.Status > ._help {
+    width: 24px;
+    flex: 0 0 auto;
+    position: relative;
+    cursor: pointer;
+    font-size: 16px;
+}
+.Status > div > code {
+    width: 100%;
+    height: 100%;
+    color: #0b6;
+    /* 居中 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.Status > ._cmdx > code {
+    font-weight: bold;
+}
+.Status > ._cmdx > ._code {
+    width: 100%;
+    position: absolute;
+    z-index: 100;
+    bottom: 27px;
+    display: flex;
+    flex-direction: column-reverse;
+    border: 1px #80a1b3 solid;
+    border-top-right-radius: 14px;
+    background-color: #f1f1e4;
+    padding-top: 14px;
+    border-bottom-color: transparent;
+    left: -1px;
+    outline: none;
+}
+.Status > ._cmdx b {
+    height: 23px;
+    border-top: 1px #999 dotted;
+}
+.Status > ._cmdx b:hover {
+    color: #fff;
+    background-color: #1b839c;
+}
+
+.Status > ._cmdline {
+    flex: 8 8 600px;
+}
+.Status > ._cmdline > input {
+    height: 100%;
+    border: none;
+    background-color: #ffe;
+    float: left;
+}
+.Status > ._cmdline > input::placeholder {
+    color: #aaa;
+}
+
+.Status > ._err {
+    flex: 1 1 auto;
+    border-color: transparent;
+    min-width: 12em;
+    max-width: 24em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: default;
+}
+.Status > ._err > * {
+    color: red;
+}
+
+.Status > ._help {
+    border-color: transparent;
+    margin: 3px;
+    border-radius: 50%;
+}
+.Status > ._help._press {
+    border-color: #ddd;
+    background-color: #f1f8f7;
+}
+.Status > ._help > code {
+    color: #01839d;
+}
+
+
+/* [ 模态页/框 ]
+ ****************************************************************************/
+.Modal {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(128, 128, 128, 0.5);
+    z-index: 100;
+    border-radius: inherit;
+    border: 4px #777 solid;
+    display: flex;
+    box-sizing: border-box;
+    outline: none;
+}
+.Modal form {
+    display: flex;
+    background-color: #fff;
+    border-radius: 10px;
+    flex-direction: column;
+    margin: auto;
+    box-shadow: 1px 3px 9px 1px #555;
+}
+.Modal header {
+    height: 42px;
+    background-color: #2d4d56;
+    border-top-left-radius: inherit;
+    border-top-right-radius: inherit;
+    margin-bottom: 10px;
+    display: grid;
+    grid-template-columns: auto 42px;
+    flex-shrink: 0;
+}
+.Modal header > h4 {
+    color: #eee;
+    font-size: 11pt;
+    margin: auto 16px;
+}
+.Modal header > ._close {
+    color: #999;
+    font-size: 14pt;
+    margin-right: 4px;
+}
+.Modal header > ._close:hover {
+    color: #ccc;
+}
+.Modal form > ._list {
+    margin: 10px 30px 45px;
+}
+.Modal form > p {
+    padding: 8px 35px 5px;
+}
+.Modal div._btn2 {
+    margin-top: auto;
+    padding: 3.7% 7.2% 5.9%;
+    text-align: right;
+    border: 1px #d8d8d8 solid;
+    border-radius: 0 0 9px 9px;
+    background-color: #f6f6f6;
+}
+.Modal div._btn2 > button {
+    margin: auto 0.9em;
+}
+.Modal fieldset {
+    border: 1px #93c8e2 solid;
+    border-radius: 6px;
+    padding: 10px 1.2em;
+}
+.Modal fieldset legend {
+    font-weight: bold;
+}
+
+.Modal form._page {
+    flex-grow: 1;
+    margin: 30px;
+}
+.Modal form._usual {
+    width: 600px;
+    height: 480px;
+}
+.Modal p._note {
+    color: #b60;
+}
+.Modal form._small input {
+    min-width: 350px;
+}
+.Modal form._message p {
+    min-width: 200px;
+    max-width: 480px;
+    max-height: 140px;
+    overflow-y: auto;
+}
+
+
+/* 插件窗
+ *-------------------------*/
+.Modal ._plugins div._list {
+    height: 100%;
+    border: 1px #f90 solid;
+    box-shadow: inset 1px 0px 6px #ffe0a1;
+    border-radius: 1.2em;
+    padding: 2.6em 3em;
+    display: grid;
+    gap: 2.4em 1.5em;
+    grid-template: repeat(auto-fill, 60px) / repeat(auto-fill, 60px);
+}
+.Modal ._plugins button {
+    padding: 0;
+    background-color: transparent;
+    border: 1px #115165 solid;
+    border-radius: 50%;
+    min-width: 0;
+    box-shadow: 1px 0px 4px #a4e5f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* 溢出时保持 */
+    height: 60px;
+}
+.Modal ._plugins button:hover {
+    border-radius: 1.2em;
+}
+.Modal ._plugins button > img {
+    width: 36px;
+    height: 36px;
+}
+
+
+/* 脚本：历史
+ *-------------------------*/
+.Modal ._history {
+    height: 90%;
+    margin: 5px 10px 10px;
+    display: flex;
+    flex-direction: column;
+}
+.Modal ._history > hr {
+    margin: 14px 0;
+    height: 8px;
+    border-style: ridge;
+    border-color: #e9e9e9;
+    background-color: #f9f9f9;
+    flex: 0 0 auto;
+}
+.Modal ._history > div {
+    display: flex;
+    flex-direction: column;
+}
+.Modal ._history nav {
+    display: flex;
+    width: max-content;
+    margin: -9px auto 0;
+}
+.Modal ._history nav > b {
+    padding: 6px;
+    border: 1px transparent solid;
+    border-radius: 16px;
+}
+.Modal ._history nav > b:hover {
+    border-color: #ccc;
+    background-color: #f9f9f9;
+}
+.Modal ._history nav > b[data-pbo=disabled] {
+    filter: opacity(0.4) !important;
+}
+.Modal ._history nav > b[data-pbo=disabled]:hover {
+    border-color: transparent;
+    background-color: transparent;
+}
+.Modal ._history nav > code {
+    margin-left: 1em;
+    color: gray;
+    align-self: center;
+}
+.Modal ._history ._bar {
+    display: flex;
+    border-bottom: 3px #aaa double;
+    padding: 6px 20px;
+}
+.Modal ._history ._bar label {
+    padding-top: 3px;
+    font-weight: bold;
+    color: #050;
+    font-size: 1.1em;
+    margin-left: 5px;
+}
+.Modal ._history ._bar b {
+    width: 24px;
+    height: 24px;
+    font-size: 1.5em;
+    font-weight: bold;
+    border: 1px gray solid;
+    border-radius: 14px;
+    margin-right: 18px;
+    color: green;
+}
+.Modal ._history ._bar > span {
+    display: flex;
+    margin-left: auto;
+}
+.Modal ._history ._bar b[data-pbo=disabled]:hover {
+    background-color: transparent;
+}
+.Modal ._history ._bar b:hover {
+    background-color: #3f9988;
+    color: white;
+    border-color: #007730;
+}
+.Modal ._history ._bar button {
+    margin-right: 9px;
+    border-radius: 0 21px;
+    background-color: #f5fff5;
+}
+.Modal ._history ._bar button._edit {
+    border-radius: 21px;
+    background-color: #fff6f3;
+}
+.Modal ._history ._bar button:hover {
+    background-color: #f0f6f9;
+}
+.Modal ._history hr:hover {
+    cursor: ns-resize;
+}
+.Modal ._history ._search {
+    display: flex;
+    margin: 10px 6em;
+}
+.Modal ._history ._search button {
+    width: 44px;
+    height: 24px;
+    margin-right: 14px;
+    margin-left: 6px;
+    border: 1px transparent solid;
+    background: url('images/search.png') no-repeat;
+    background-size: 44px;
+    cursor: pointer;
+}
+.Modal ._history ._list {
+    flex: 1 1 auto;
+    font-size: 12px;
+    margin: 1em 1.6em;
+    padding: 2px;
+    border-radius: 5px 1px 1px 5px;
+    border-color: #aaa;
+    min-height: 2.5em;
+}
+.Modal ._history ._list > li {
+    display: flex;
+    margin: 1px 0;
+    min-height: 22px;
+    border-bottom: 1px #36a8ca dashed;
+    padding: 2px 0 3px;
+}
+.Modal ._history ._list > li:last-child {
+    border-width: 0;
+}
+.Modal ._history ._list > li > * {
+    white-space: nowrap;
+    margin: auto 3px;
+}
+.Modal ._history ._list code {
+    flex: 1 1 auto;
+    background-color: #f3f3f3;
+    padding: 2px 5px;
+    border-radius: 2px;
+    cursor: pointer;
+}
+.Modal ._history ._list b {
+    margin: 0 3px;
+    padding: 1px 8px;
+    border: 1px transparent solid;
+    border-radius: 3px;
+}
+.Modal ._history ._list b:hover {
+    border-color: #9ec2e7;
+    background-color: #f0f9ff;
+}
+/* 删除按钮 */
+.Modal ._history ._list b:last-child {
+    border-color: #ccc;
+    color: #ff5200;
+}
+.Modal ._history ._list b:last-child:hover {
+    background-color: #f6f6f6;
+}
+
+.Modal ._history ._list label {
+    width: 12%;
+    min-width: 90px;
+}
+.Modal ._history ul._list label {
+    font-weight: bold;
+}
+
+
+/* 脚本：结果
+ *-------------------------*/
+.Modal ._result {
+    margin: 0 1em;
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 150px);
+}
+.Modal ._result > pre {
+    flex: 1 1 auto;
+    font-size: 12px;
+    border: 1px gray solid;
+    border-radius: 8px 1px 1px 8px;
+    padding: 10px;
+    overflow-y: auto;
+    /* 友好 */
+    white-space: pre-wrap;
+}
+.Modal ._result > pre:focus {
+    /* 编辑时 */
+    border-color: orange;
+    background-color: #fff9f3;
+    outline: none;
+}
+.Modal fieldset {
+    margin: 1.7em 0 5em;
+}
+.Modal ._result fieldset i {
+    font-style: normal;
+    font-weight: bold;
+}
+.Modal ._result fieldset > span {
+    margin: 0 1em;
+}
+.Modal ._result ._type label:last-child {
+    margin-left: 0.5em;
+}
+/* 制表符设置 */
+.Modal ._result fieldset > label {
+    float: right;
+}
+.Modal ._result ._err {
+    color: red;
+}
+.Modal ._result ._err label {
+    font-weight: bold;
+}
+.Modal ._result ._tips {
+    margin-left: 0.6em;
+    color: orange;
+    font-size: small;
+}
+
+
+/* 通用页
+ *-------------------------*/
+.Modal ._page > main {
+    margin: 0 1em;
+    height: calc(100% - 150px);
+}
+.Modal ._page ._export {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* 源码导出 */
+.Modal ._export ._top {
+    margin-bottom: 6px;
+    padding: 0 5px;
+}
+.Modal ._export ._top > span:last-child {
+    float: right;
+}
+.Modal ._export ._top > span:last-child > label {
+    margin-left: 1em;
+}
+.Modal ._export ._top button {
+    margin-left: 10px;
+    background-color: #cdffde;
+}
+.Modal ._export ._top button:hover {
+    background-color: #fff0e5;
+}
+.Modal ._export fieldset {
+    margin: 1em 0 2em;
+    border-radius: 30px;
+}
+.Modal ._export fieldset > ul {
+    padding-left: 2em;
+    padding-bottom: 0.5em;
+    color: green;
+}
+.Modal ._export fieldset > legend {
+    color: green;
+    margin-left: 10px;
+}
+
+
+/* 插件结果 */
+.Modal ._page ._plugx {
+    display: flex;
+    flex-direction: column;
+    height: 94%;
+}
+.Modal ._plugx > label {
+    margin: 4px;
+    font-weight: bold;
+}
+.Modal ._plugx > textarea {
+    flex: 1 1 auto;
+}

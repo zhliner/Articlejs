@@ -1,0 +1,5 @@
+{
+    "//": "强制空行分项，可选空白清理。子表可选",
+    "on": "create|$('/textarea') val splitx(true) $('/input[name=clean]') prop('checked') pretreat1(_1) mdline",
+    "to": "|trigger('node')"
+}

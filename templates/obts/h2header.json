@@ -1,0 +1,5 @@
+{
+    "//": "可选创建导言元素（可选空白清理和空行分段），提取标题内容设置为配置对象。",
+    "on": "create|$('/textarea') val dup $if('xheader', 'section');xheader|ev('detail') $$('/._option input') prop('checked') pretreat2(_) $$(_1) mdline wrap('<p>') wrapAll('<header>') item(0) $('/input[name=h2]') val pack(2) obj('header h2'); section|ev('detail') $('/input[name=h2]') val obj('h2')",
+    "to": "|trigger(_1);|trigger('node');|trigger('node')"
+}

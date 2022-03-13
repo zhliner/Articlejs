@@ -1,0 +1,343 @@
+/*! $ID: themes/system.css 2020.01.05 Articlejs.UI $
+ +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ *
+ *  系统基础样式，固定配置。
+ *
+ *  z-index 层级规则：
+ *  = 1     普通突出层
+ *  = 2     工具栏参数面板
+ *  = 3     弹出菜单
+ *  = 1000  全局遮罩（关灯层|模态层）
+ *  = 1001  遮罩上层物
+ *
+ *****************************************************************************/
+
+body,
+.___jcEditor,
+.___jcEditor > div,
+.___Text {
+    margin: 0 !important;
+}
+.___jcEditor {
+    overflow: hidden;
+    resize: none;
+}
+.___Panel.Extra {
+    height: 0 !important;
+    border-width: 0 !important;
+}
+.___Content {
+    position: relative;
+}
+.___Scroll ._bspace {
+    height: 80px;
+}
+hr {
+    height: 0;
+}
+
+/* 去除焦点虚框 */
+article[tabindex], div[tabindex], input._icon, input[type=file] {
+    outline: none;
+}
+
+
+/* [ 操作可视性 ]
+ ****************************************************************************/
+
+.___Text {
+    border-width: 0;
+    padding: 20px 20px 30px;
+}
+.___Text *:empty:before {
+    content: '==Empty==';
+    color: red;
+    font-style: italic;
+}
+.___Text hr:empty:before,
+.___Text div._clear:empty:before,
+.___Text li > code:empty:before,
+.___Text.Browse *:empty:before {
+    content: '';
+}
+.___Text div._clear {
+    height: 1px !important;
+    float: none !important;
+    clear: both !important;
+}
+.___Text div._clear._msCur,
+.___Text div._clear._okSel,
+.___Text > hr._msCur,
+.___Text > hr._okSel {
+    min-height: 20px !important;
+}
+.___Text hr._msCur,
+.___Text ._okSel {
+    min-height: 20px;
+}
+
+.___Text ._inMed {
+    display: inherit !important;
+    line-height: inherit;
+}
+.___Text li > ._inMed {
+    /* fix：列表符号叠加 */
+    display: block !important;
+}
+.___Text li > ._inMed:empty:before {
+    /* fix: 列表项位置（chrome） */
+    content: ' ';
+    display: block;
+}
+.___Text * {
+    cursor: default;
+}
+
+/* 边框自适应 */
+.___Text ._selBt { border-top: 1px #bbb solid; }
+.___Text ._selBr { border-right: 1px #bbb solid; }
+.___Text ._selBb { border-bottom: 1px #bbb solid; }
+.___Text ._selBl { border-left: 1px #bbb solid; }
+.___Text ._selB4 { border: 1px #bbb solid; }
+
+
+/* [ 元素特定 ]
+ ****************************************************************************/
+
+.___Panel i {
+    display: inline-block;
+    background-repeat: no-repeat;
+}
+.___Panel b {
+    display: inline-block;
+    font-weight: normal;
+    height: 100%;
+    box-sizing: border-box;
+    cursor: default;
+}
+.___Panel menu b {
+    font-weight: bold;
+}
+.___Panel ul li {
+    list-style: none;
+}
+.___Panel input[type=text] {
+    display: inline-block;
+    resize: none;
+}
+.___Panel form {
+    margin: 0; padding: 0;
+}
+.___Panel input,
+.___Panel select,
+.___Panel label {
+    vertical-align: middle;
+}
+.___Panel input[type=text],
+.___Panel input[type=password],
+.___Panel textarea {
+    /* 整齐宽度 */
+    width: 100%;
+    box-sizing: border-box;
+}
+.___Panel textarea {
+    display: block;
+    height: 100%;
+    resize: none;
+}
+
+
+/* [ 面板共用 ]
+ ****************************************************************************/
+
+.___Panel {
+    position: relative;
+}
+.___Panel i[id|=l] {
+    vertical-align: middle;
+    cursor: default;
+}
+
+.___Panel div._clear {
+    height: 1px;
+    float: none !important;
+    border-width: 0 !important;
+    clear: both;
+}
+.___Panel ._xbox {
+    position: relative;
+    box-sizing: border-box;
+}
+.___Panel ._note {
+    position: relative;
+}
+.___Panel ._note ._text {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+}
+/* 功能屏蔽 */
+.___Panel ._masked {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+
+/* [ 模态框 ]
+ ****************************************************************************/
+
+.___Panel.Modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(96,96,96,0.5);
+    z-index: 1000;
+}
+.___Panel.Modal ._dialog {
+    float: left;
+    position: relative;
+}
+.___Panel.Modal ._page {
+    left: 10%;
+    width: 80%;
+    top: 10%;
+    height: 78%;
+}
+.___Panel.Modal ._list {
+    left: 21%;
+    width: 58%;
+    top: 20%;
+    height: 54%;  /* 初始高度 */
+    overflow-y: hidden;
+    resize: vertical;
+}
+.___Panel.Modal ._dialog form {
+    /* 高度传递 */
+    height: 100%;
+}
+.___Panel.Modal ._small {
+    top: 26%;
+    width: 500px;
+    resize: none;
+    /* 固定居中 */
+    margin: 0 auto;
+    float: none;
+}
+.___Panel.Modal ._close {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+.___Panel.Modal ._prop {
+    min-height: 60px;
+    overflow-y: auto;
+    resize: none;
+}
+.___Panel.Modal textarea {
+    resize: vertical;
+}
+
+/* 线条预览 */
+.___Panel.Modal ._lines b {
+    display: block;
+}
+.___Panel.Modal hr.solid {
+    border-top-style: solid;
+}
+.___Panel.Modal hr.dotted {
+    border-top-style: dotted;
+}
+.___Panel.Modal hr.dashed {
+    border-top-style: dashed;
+}
+.___Panel.Modal hr.double {
+    border-top-style: double;
+}
+.___Panel.Modal hr.groove {
+    border-top-style: groove;
+}
+.___Panel.Modal hr.ridge {
+    border-top-style: ridge;
+}
+.___Panel.Modal hr.inset {
+    border-top-style: inset;
+}
+.___Panel.Modal hr.outset {
+    border-top-style: outset;
+}
+
+/* 特殊字符
+ * - max-height值与上层._prop有关；
+ * - 兼顾chrome，避免出现双层滚动条；
+ */
+.___Panel.Modal ._chars {
+    max-height: 300px;
+    overflow-y: auto;
+    resize: none;
+}
+.___Panel.Modal ._chars b {
+    float: left;
+}
+
+/* 脚本测试数据 */
+.___Panel.Modal ._info ._data > div {
+    white-space: pre;
+}
+
+
+/* [ 菜单层 ]
+ ****************************************************************************/
+
+menu {
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    z-index: 3;
+}
+menu li {
+    list-style: none;
+    position: relative;
+    white-space: nowrap;
+    cursor: default;
+}
+menu li > menu {
+    position: absolute;
+    top: 0px;
+    left: 99%;
+}
+menu li > ul {
+    margin: 0;
+    padding: 0;
+}
+menu h6,
+menu li > label {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    resize: none;
+}
+menu li i {
+    position: absolute;
+}
+menu > li._blk {
+    clear: both;
+    float: none;
+}
+
+/* 快捷键 */
+menu label > b {
+    float: right;
+}
+
+/* 当前条目（语言/主题） */
+menu li._act:before {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+}
