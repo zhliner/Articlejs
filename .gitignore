@@ -1,1 +1,6 @@
 .DS_Store
+_libs/vue-2.6.10
+_libs/vue.js
+node_modules
+package-lock.json
+*.js.map
