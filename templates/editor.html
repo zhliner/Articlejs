@@ -118,11 +118,11 @@
     <!-- medok 内容区章节标题微编辑更新跟随。
                注：不支持Undo/Redo变化跟随，用户需手动刷新。-->
     <aside id="outline" class="___Panel Outline" data-pbo=""
-        on="medok|ev('detail') dup paths('article', 'section') str('>ol>li:nth-child(', ')') join str('/nav', ' a') $(_1) pop"
+        on="medok|ev('detail') dup pathx('article', 'section') str('>ol>li:nth-child(', ')') join str('/nav', ' a') $(_1) pop"
         to="-|text">
         <!-- click 构造章节选择器，定位显示到视口（非id定位） -->
         <nav role="toc"
-            on="click(a)|avoid evo(2) paths('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView">
+            on="click(a)|avoid evo(2) pathx('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView">
             <h4>大纲视图
                 <b id="g-refresh" title="刷新"
                     on="click|$('#content article')"

@@ -166,7 +166,7 @@ function tocFold( nav ) {
  */
 function tocFoldSub( casc ) {
     Tpb.build( casc, {
-        on: `click(a)|evo(2) paths('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView;
+        on: `click(a)|evo(2) pathx('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView;
             click(~h5)|evo(2) parent fold(2)`
     });
 }
