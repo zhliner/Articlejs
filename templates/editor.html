@@ -10,9 +10,10 @@
     - 若在较低层级定义指令处理，可以约束事件起点来源。
     - 按键捕获可以是DOM树局部的，实现分层次快捷键布局设计（有不同键映射表）。
 -->
-<html on="keydown|(GHK) acmsk ev('key') hotKey(_2)">
+<html lang="zh-cn" on="keydown|(GHK) acmsk ev('key') hotKey(_2)">
 <head>
 <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>编辑器主页</title>
 <link rel="stylesheet" href="../base/tpb/default.css">
 <link id="s-theme" rel="stylesheet" href="../themes/Example/style.css">
@@ -72,7 +73,7 @@
     各实例自行管理自身在全局ESC栈的压入和移除，不移除者会成为常驻项。
     内容区的选取集取消会成为常驻项（栈底保留）。
 -->
-<body lang="zh-cn"
+<body
     on="@mousemove:1|movementX dup pass;
         @mousemove:2|movementX dup pass neg;
         @mouseup|movementX(null);
