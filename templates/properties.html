@@ -225,10 +225,8 @@
 
 <ul class="_prop" tpl-name="property:hr" data-label="分隔线属性"
     on="vinit reset;
-        reset;
         build|('borderWidth width height') $$('[data-css]') val $('[name=role]') prop('value', true) pack(2) pack(2)"
-    to="(/>li)(:last-child)|trigger('value');
-        />li:last-child|trigger('reset');
+    to="(/>li)|trigger('value');
         form/|trigger('apply')">
     <li tpl-node="!prop:thick, prop:length, prop:space, prop:hrstyle"></li>
 </ul>

@@ -30,6 +30,8 @@
 import { PlugOn } from "../../base/main.js";
 import { customGetter } from "../../base/tpb/tpb.esm.js";
 
+import { htmlEscape } from "../../base/hlparse/base.js";
+
 
 //
 // 代码元素汉字空格优化。
@@ -93,12 +95,12 @@ const __blockFunc =
     PRE:        convPre,
 
     // 标题系列
-    H1:         el => `# ${el.textContent}`,
-    H2:         el => `## ${el.textContent}`,
-    H3:         el => `### ${el.textContent}`,
-    H4:         el => `#### ${el.textContent}`,
-    H5:         el => `##### ${el.textContent}`,
-    H6:         el => `###### ${el.textContent}`,
+    H1:         el => `# ${ htmlEscape(el.textContent) }`,
+    H2:         el => `## ${ htmlEscape(el.textContent) }`,
+    H3:         el => `### ${ htmlEscape(el.textContent) }`,
+    H4:         el => `#### ${ htmlEscape(el.textContent) }`,
+    H5:         el => `##### ${ htmlEscape(el.textContent) }`,
+    H6:         el => `###### ${ htmlEscape(el.textContent) }`,
 
     // 其它标题
     SUMMARY:    el => heading( el, __miniLevel ),
@@ -153,42 +155,42 @@ const __inlineFunc =
 {
     // MD标准支持
     CODE:   convCode,
-    EM:     el => `*${el.textContent}*`,
-    I:      el => `*${el.textContent}*`,
-    STRONG: el => `**${el.textContent}**`,
-    B:      el => `**${el.textContent}**`,
-    A:      el => `[${el.textContent}](${$.attr(el, 'href')}${el.title ? ` "${el.title}"` : ''})`,
+    EM:     el => `*${ htmlEscape(el.textContent) }*`,
+    I:      el => `*${ htmlEscape(el.textContent) }*`,
+    STRONG: el => `**${ htmlEscape(el.textContent) }**`,
+    B:      el => `**${ htmlEscape(el.textContent) }**`,
+    A:      el => `[${ htmlEscape(el.textContent) }](${$.attr(el, 'href')}${el.title ? ` "${el.title}"` : ''})`,
     IMG:    el => `![${el.alt}](${$.attr(el, 'src')}${el.title ? ` "${el.title}"` : ''})`,
 
     // 合法特性名
     // 注：不支持内联样式延续。
 
     // {cite}
-    Q:      el => `<q${el.cite ? ` cite="${el.cite}"` : ''}>${el.textContent}</q>`,
+    Q:      el => `<q${el.cite ? ` cite="${el.cite}"` : ''}>${ htmlEscape(el.textContent) }</q>`,
     // {title}
-    ABBR:   el => `<abbr${el.title ? ` title="${el.title}"` : ''}>${el.textContent}</abbr>`,
-    DFN:    el => `<dfn${el.title ? ` title="${el.title}"` : ''}>${el.textContent}</dfn>`,
+    ABBR:   el => `<abbr${el.title ? ` title="${el.title}"` : ''}>${ htmlEscape(el.textContent) }</abbr>`,
+    DFN:    el => `<dfn${el.title ? ` title="${el.title}"` : ''}>${ htmlEscape(el.textContent) }</dfn>`,
     // {datetime, cite}
-    DEL:    el => `<del${el.datetime ? ` datetime="${el.datetime}"` : ''}${el.cite ? ` cite="${el.cite}"` : ''}>${el.textContent}</del>`,
-    INS:    el => `<ins${el.datetime ? ` datetime="${el.datetime}"` : ''}${el.cite ? ` cite="${el.cite}"` : ''}>${el.textContent}</ins>`,
+    DEL:    el => `<del${el.datetime ? ` datetime="${el.datetime}"` : ''}${el.cite ? ` cite="${el.cite}"` : ''}>${ htmlEscape(el.textContent) }</del>`,
+    INS:    el => `<ins${el.datetime ? ` datetime="${el.datetime}"` : ''}${el.cite ? ` cite="${el.cite}"` : ''}>${ htmlEscape(el.textContent) }</ins>`,
     // {dir}
-    BDO:    el => `<dbo${el.dir ? ` dir="${el.dir}"` : ''}>${el.textContent}</dbo>`,
+    BDO:    el => `<dbo${el.dir ? ` dir="${el.dir}"` : ''}>${ htmlEscape(el.textContent) }</dbo>`,
     // {datetime}
-    TIME:   el => `<time${el.datetime ? ` datetime="${el.datetime}"` : ''}>${el.textContent}</time>`,
+    TIME:   el => `<time${el.datetime ? ` datetime="${el.datetime}"` : ''}>${ htmlEscape(el.textContent) }</time>`,
 
     // 纯内容
-    CITE:   el => `<cite>${el.textContent}</cite>`,
-    SMALL:  el => `<small>${el.textContent}</small>`,
-    SUB:    el => `<sub>${el.textContent}</sub>`,
-    SUP:    el => `<sup>${el.textContent}</sup>`,
-    MARK:   el => `<mark>${el.textContent}</mark>`,
-    // SAMP:   el => `<samp>${el.textContent}</samp>`,
+    CITE:   el => `<cite>${ htmlEscape(el.textContent) }</cite>`,
+    SMALL:  el => `<small>${ htmlEscape(el.textContent) }</small>`,
+    SUB:    el => `<sub>${ htmlEscape(el.textContent) }</sub>`,
+    SUP:    el => `<sup>${ htmlEscape(el.textContent) }</sup>`,
+    MARK:   el => `<mark>${ htmlEscape(el.textContent) }</mark>`,
+    // SAMP:   el => `<samp>${ htmlEscape(el.textContent) }</samp>`,
     SAMP:   convCode,
-    // KBD:    el => `<kbd>${el.textContent}</kbd>`,
+    // KBD:    el => `<kbd>${ htmlEscape(el.textContent) }</kbd>`,
     KBD:    convCode,
-    S:      el => `<s>${el.textContent}</s>`,
-    U:      el => `<u>${el.textContent}</u>`,
-    VAR:    el => `<var>${el.textContent}</var>`,
+    S:      el => `<s>${ htmlEscape(el.textContent) }</s>`,
+    U:      el => `<u>${ htmlEscape(el.textContent) }</u>`,
+    VAR:    el => `<var>${ htmlEscape(el.textContent) }</var>`,
 };
 
 
@@ -789,7 +791,7 @@ function convCode( el ) {
  */
 function conLine( el ) {
     return $.contents( el, null, false, true )
-        .map( sub => sub.nodeType === 3 ? sub.textContent : convert(sub, __inlineFunc) )
+        .map( sub => sub.nodeType === 3 ? htmlEscape(sub.textContent) : convert(sub, __inlineFunc) )
         .join( '' )
         .replace( /\s+/g, ' ' );
 }
@@ -928,7 +930,8 @@ function convCodelist( el, lev = 0 ) {
  * @return {String}
  */
 function convPre( el, lev ) {
-    return codeBlock( el.textContent.trimEnd().split('\n'), '', ''.padStart(lev, '>') );
+    let _txt = htmlEscape( el.textContent.trimEnd() );
+    return codeBlock( _txt.split('\n'), '', ''.padStart(lev, '>') );
 }
 
 
@@ -960,7 +963,7 @@ function convert( el, cobj, ...rest ) {
     let _rk = $.attr( el, 'role' ),
         _fn = cobj[ _rk ] || cobj[ el.tagName ];
 
-    return _fn ? _fn( el, ...rest ) : el.textContent.trim();
+    return _fn ? _fn( el, ...rest ) : htmlEscape( el.textContent.trim() );
 }
 
 

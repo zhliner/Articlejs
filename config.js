@@ -121,6 +121,8 @@ const
 
     // 提示信息集（可本地化）。
     Tips = {
+        // 无障碍提示
+        editorArea: '编辑器主体，单击聚焦',
 
         // 章节空标题占位
         sectionH2: '[ Empty heading ]',

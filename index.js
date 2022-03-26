@@ -166,7 +166,7 @@ function tocFold( nav ) {
  */
 function tocFoldSub( casc ) {
     Tpb.build( casc, {
-        on: `click(a)|evo(2) paths('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView;
+        on: `click(a)|evo(2) pathx('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView;
             click(~h5)|evo(2) parent fold(2)`
     });
 }
@@ -199,7 +199,7 @@ function tocWidth( hr, root ) {
     // 移动&取消控制根。
     // 文章主体左边距跟着变化（目录在左侧）。
     Tpb.build( _box, {
-        on: `@mousemove:h|movementX(2) dup pass dup;
+        on: `@mousemove:h|movementX dup pass dup;
             @mouseup:x|movementX(null);
             margin_ml|$('main.content') css('margin-left') int ev('detail') add(_1) add('px')`,
         to: `nav[role=toc]|width(true)|pop goto('margin_ml');

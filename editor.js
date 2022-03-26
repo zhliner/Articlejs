@@ -76,7 +76,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import { ROOT, Sys } from "./config.js";
+import { ROOT, Sys, Tips } from "./config.js";
 
 
 //
@@ -363,6 +363,7 @@ function editorFrame( width, height ) {
 
     _frm.setAttribute( 'scrolling', 'no' );
     _frm.setAttribute( 'frameborder', '0' );
+    _frm.setAttribute( 'title', Tips.editorArea );
 
     for ( let [k, v] of Object.entries(__frameStyles) ) {
         _frm.style[k] = v;

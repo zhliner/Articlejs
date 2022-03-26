@@ -385,20 +385,20 @@ const _INLVIEW = [ BR, WBR, SPACE ];
 
 
 
-// 合并集：全部
+// 全部
 // 不含独立的<a>,<b>,<i>。
 const _INLALL = [
     ..._INLMEDIA, ..._INLTEXT, ..._REVIEW, ..._INLVIEW
 ];
 
-// 合并集：非媒体类
+// 非媒体
 const _NOMEDIA = [
     ..._INLTEXT, ..._REVIEW, ..._INLVIEW
 ];
 
-// 合并集：视觉类
-const _VIEWS = [
-    ..._REVIEW, ..._INLVIEW
+// 简单集
+const _SIMPLE = [
+    ..._REVIEW, ..._INLVIEW, CODE
 ];
 
 
@@ -472,27 +472,27 @@ export const ChildTypes = {
     // 内联内容元素
     /////////////////////////////////////////////
     [ A ]:              [ $TEXT, ..._INLALL ],
-    [ Q ]:              [ $TEXT, A, ..._INLALL ],
-    [ ABBR ]:           [ $TEXT, ..._REVIEW ],
-    [ DEL ]:            [ $TEXT, A, ..._INLTEXT, ..._INLVIEW ],
-    [ INS ]:            [ $TEXT, A, ..._INLTEXT, ..._INLVIEW ],
-    [ DFN ]:            [ $TEXT, ABBR, ..._VIEWS ],
-    [ BDO ]:            [ $TEXT, ..._INLTEXT, ..._REVIEW ],
-    [ TIME ]:           [ $TEXT, ..._REVIEW ],
+    [ Q ]:              [ $TEXT, A, ..._NOMEDIA ],
+    [ ABBR ]:           [ $TEXT, ..._SIMPLE ],
+    [ DEL ]:            [ $TEXT, A, ..._NOMEDIA ],
+    [ INS ]:            [ $TEXT, A, ..._NOMEDIA ],
+    [ DFN ]:            [ $TEXT, ABBR, ..._SIMPLE ],
+    [ BDO ]:            [ $TEXT, A, ..._NOMEDIA ],
+    [ TIME ]:           [ $TEXT, ..._SIMPLE ],
     [ CODE ]:           [ $TEXT, B, I ],
-    [ STRONG ]:         [ $TEXT, ..._VIEWS ],
-    [ EM ]:             [ $TEXT, ..._VIEWS ],
-    [ CITE ]:           [ $TEXT, ..._VIEWS ],
-    [ SMALL ]:          [ $TEXT, ..._VIEWS ],
-    [ SUB ]:            [ $TEXT, ..._VIEWS ],
-    [ SUP ]:            [ $TEXT, ..._VIEWS ],
+    [ STRONG ]:         [ $TEXT, A, ..._NOMEDIA ],
+    [ EM ]:             [ $TEXT, A, ..._NOMEDIA ],
+    [ CITE ]:           [ $TEXT, A, ..._NOMEDIA ],
+    [ SMALL ]:          [ $TEXT, A, ..._NOMEDIA ],
+    [ SUB ]:            [ $TEXT, ..._SIMPLE ],
+    [ SUP ]:            [ $TEXT, ..._SIMPLE ],
     [ MARK ]:           [ $TEXT, ..._NOMEDIA ],
     [ ORZ ]:            [ $TEXT ],
-    [ SAMP ]:           [ $TEXT, ..._REVIEW ],
-    [ KBD ]:            [ $TEXT, ..._REVIEW ],
-    [ S ]:              [ $TEXT, ..._NOMEDIA ],
-    [ U ]:              [ $TEXT, ..._NOMEDIA ],
-    [ VAR ]:            [ $TEXT, ..._REVIEW ],
+    [ SAMP ]:           [ $TEXT, ..._SIMPLE, A ],
+    [ KBD ]:            [ $TEXT, ..._SIMPLE ],
+    [ S ]:              [ $TEXT, A, ..._NOMEDIA ],
+    [ U ]:              [ $TEXT, A, ..._NOMEDIA ],
+    [ VAR ]:            [ $TEXT, ..._SIMPLE ],
 
     //
     // 行块内容元素

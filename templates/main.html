@@ -277,7 +277,7 @@
                 mouseout(*)|env('minied') end ('_hover');
                 mouseover(*)|env('minied') end $('#g-count') val end evo(1) dup einfo(true) roleinfo(_1) str('<', '>');
                 mouseleave|env('minied') end $('#g-count') val end;
-                mouseup|stop env('minied') end ev('pageX pageY') env('pointerXY', _1) sRange('') dup pass;
+                mouseup|env('minied') end ev('pageX pageY') env('pointerXY', _1) sRange('') dup pass;
                 _mouseup|env('minied') end sRange('') dup pass;
                 contextmenu|env('minied') end avoid ev('pageX pageY') env('pointerXY', _1);
                 mousedown|env('minied') end sRange(true) ev('shiftKey') both pop avoid;

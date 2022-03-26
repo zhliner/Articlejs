@@ -1791,11 +1791,15 @@ menu._cells code {
 
 .Modal form._page {
     flex-grow: 1;
-    margin: 30px;
+    margin: 8vh 10vw;
 }
 .Modal form._usual {
-    width: 600px;
-    height: 480px;
+    min-width: 600px;
+    max-width: 800px;
+    width: 48vw;
+    height: 48vh;
+    min-height: 480px;
+    max-height: 600px;
 }
 .Modal p._note {
     color: #b60;
