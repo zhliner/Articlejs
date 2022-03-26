@@ -50,14 +50,19 @@ const
 
     // jump指令标记。
     // 用于指令解析时判断赋值原始next。
-    JUMPCELL = Symbol( 'jump Cell' ),
+    JUMPCELL = Symbol( 'set: jump Cell' ),
 
     // 设置前阶指令标记。
     // 主要用于To.Next:lone指令。
-    PREVCELL = Symbol( 'set prev Cell'),
+    PREVCELL = Symbol( 'set: prev Cell'),
+
+    // Update流程控制标记
+    // 用于在To:Update段条件终止执行流。
+    UPDATEX  = Symbol( 'chain: update-break'),
 
     // 调用链头实例标记。
-    HEADCELL = Symbol( 'first-cell' ),
+    // 用于链头中存储事件名定义实例（Evn）
+    HEADCELL = Symbol( 'chain: first-cell' ),
 
     // 全局变量空间。
     Globals = new Map(),
@@ -67,8 +72,8 @@ const
     DataStore = new WeakMap(),
 
     // 预定义调用链存储。
-    // 与元素关联，便于分组管理，同时支持空事件名通配。
-    // { Element: Map{evn:String: Chain} }
+    // 与元素关联，便于分组管理。
+    // { Element: Map{evnid:String: chain:Cell} }
     ChainStore = new WeakMap(),
 
     // 本系模板载入器。
@@ -104,6 +109,7 @@ export {
     ACCESS,
     JUMPCELL,
     PREVCELL,
+    UPDATEX,
     HEADCELL,
     Globals,
     DataStore,

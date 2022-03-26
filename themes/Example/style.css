@@ -1788,7 +1788,7 @@ menu._cells code {
 
 .Modal form._page {
     flex-grow: 1;
-    margin: 30px;
+    margin: 8vh 10vw;
 }
 .Modal form._usual {
     min-width: 600px;

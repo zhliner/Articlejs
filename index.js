@@ -199,7 +199,7 @@ function tocWidth( hr, root ) {
     // 移动&取消控制根。
     // 文章主体左边距跟着变化（目录在左侧）。
     Tpb.build( _box, {
-        on: `@mousemove:h|movementX(2) dup pass dup;
+        on: `@mousemove:h|movementX dup pass dup;
             @mouseup:x|movementX(null);
             margin_ml|$('main.content') css('margin-left') int ev('detail') add(_1) add('px')`,
         to: `nav[role=toc]|width(true)|pop goto('margin_ml');

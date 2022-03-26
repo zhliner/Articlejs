@@ -74,8 +74,8 @@
     内容区的选取集取消会成为常驻项（栈底保留）。
 -->
 <body
-    on="@mousemove:1|movementX dup pass;
-        @mousemove:2|movementX dup pass neg;
+    on="@mousemove:1|movementX() dup pass;
+        @mousemove:2|movementX() dup pass neg;
         @mouseup|movementX(null);
         pcheck|data('all') arr filter(e=>$.hasClass(e, '_press'));
         pstore|ev('detail') data('pls') dup clear pop;
