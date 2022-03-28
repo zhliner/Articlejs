@@ -93,6 +93,9 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 .content h5 {
     font-size: 1.0em;
 }
+.content h6 {
+    font-size: 1.0em;
+}
 
 /* 地址 */
 .content address {

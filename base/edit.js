@@ -231,7 +231,6 @@ class DOMEdit {
 }
 
 
-
 //
 // 脚本执行器。
 // 限于脚本在当前编辑器内执行的情况。
@@ -345,6 +344,33 @@ class TextModify {
         this._nds.forEach(
             (nd, i) => nd.textContent = this._tts[i]
         );
+    }
+}
+
+
+//
+// 文本节点规范化封装。
+// 注记：
+// 及时规范化文本节点插入带来的碎片更友好。
+// 插入操作由其它类实现，因此仅需转换调用接口即可。
+//
+class TextNorm {
+    /**
+     * @param {Text} node 文本节点
+     */
+    constructor( node ) {
+        this._box = node.parentElement;
+        this.redo();
+    }
+
+
+    undo() {
+        this._op.back();
+    }
+
+
+    redo() {
+        this._op = new Normalize( this._box );
     }
 }
 
@@ -2324,11 +2350,23 @@ const insertHandles = {
  * @return {[DOMEdit]} 操作实例集
  */
 function insertsNodes( els, nodes2, before, level ) {
-    return els.map( (ref, i) =>
-        nodes2[i] != null &&
-        // before: 0|1
-        new DOMEdit( insertHandles[level][+before], ref, nodes2[i] )
-    );
+    let _ops = [];
+
+    for ( const [i, el] of els.entries() ) {
+        let _dd = nodes2[i];
+        if ( _dd == null ) {
+            continue;
+        }
+        _ops.push(
+            new DOMEdit( insertHandles[level][+before], el, _dd )
+        );
+        // 文本节点规范化
+        // 注记：前面的 new DOMEdit() 已经插入。
+        if ( _dd.nodeType === 3 || (_dd.length === 1 && _dd[0].nodeType === 3) ) {
+            _ops.push( new TextNorm(_dd[0] || _dd) );
+        }
+    }
+    return _ops;
 }
 
 
@@ -2344,7 +2382,7 @@ function insertsNodes( els, nodes2, before, level ) {
  */
 function dataNodes2( $data, cnt ) {
     if ( cnt < 2 ) {
-        return [ $data ];  // 封装
+        return [ $data ];  // 单成员封装
     }
     if ( $data.length > 1 ) {
         return $data;  // 原始各别
