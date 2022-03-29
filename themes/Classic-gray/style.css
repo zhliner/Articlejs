@@ -1306,10 +1306,10 @@ menu._cells code {
 
 /* 对齐 */
 .Style ._Align select._list {
-    min-width: 153px;
+    min-width: 140px;
 }
-.Style ._Align ._v {
-    margin-left: 15px;
+.Style ._Align > div {
+    margin-right: 14px;
 }
 .Style ._Align label {
     color: #82bec9;

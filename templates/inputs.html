@@ -1,11 +1,11 @@
 <!-- 选项：1 -->
 <div class="_option" tpl-name="input:option1">
-    <label title="清除连续空白"><input type="checkbox" name="clean" checked>空白清理</label>
+    <label title="清除多余空白"><input type="checkbox" name="clean" checked>空白清理</label>
 </div>
 
 <!-- 选项：2 -->
 <div class="_option" tpl-name="input:option2">
-    <label title="清除连续空白"><input type="checkbox" name="clean" checked>空白清理</label>
+    <label title="清除多余空白"><input type="checkbox" name="clean" checked>空白清理</label>
     <label title="连续多个空行视为一个"><input type="checkbox" name="split" checked>空行分段</label>
 </div>
 
@@ -980,17 +980,27 @@
 </div>
 
 <div class="_body _Tr" tpl-name="input:tr"
-    on="create|$('textarea') val dup pass splitx $('/input[name=clean]') prop('checked') pretreat1(_1) trbox obj('tsec')"
+    on="create|$('/textarea') val dup pass splitx $('/input[name=clean]') prop('checked') pretreat1(_1) mdline trbox obj('tsec')"
     by="New.tr(_1)"
     to="form/|trigger('insert')">
-    <div class="_main">
-        <textarea name="tr" placeholder="一行一个单元格"></textarea>
+    <div class="_main" data-td="一行一个单元格" data-fmt="=[ 单元格 ][ 单元格 ][ 单元格 ]"
+        on="tip2x|evo(3) ev('detail') attr(_1);
+            ^obted|evo(3) attr('-td')"
+        to="/textarea|$placeholder;
+            /textarea|$placeholder">
+        <textarea name="tr" placeholder=""></textarea>
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
+        <div class="_option">
+            <label title="清除多余空白"><input type="checkbox" name="clean" checked>空白清理</label>
+            <label title="支持多行插入">
+                <!-- 单击切换录入框提示 -->
+                <input type="checkbox" name="trfmt" value="-td"
+                    on="click|(['-td', '-fmt'])"
+                    to="|toggleAttr('value')|target prop('value') pop fire('._body/._main', 'tip2x')">[ 格式行 ]
+            </label>
+        </div>
+        <hr tpl-node="input:insert2">
     </aside>
 </div>
 
@@ -1298,7 +1308,8 @@
 ----------------------------------------------------------------------------->
 
 <!--纯文本
-    空行分隔多个条目，多选分别填充。-->
+    空行分隔多个条目，多选分别填充。
+    注：不可mdline -->
 <div class="_body _Inline" obt-src="obts/list2.json" tpl-name="input:text"
     on="node|ev('detail') Text"
     to="form/|trigger('insert')">

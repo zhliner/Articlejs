@@ -13,7 +13,7 @@
         margin: 0;
     }
     main {
-        width: 800px;
+        width: 780px;
         margin-left: 21em;
     }
     main > nav > hr {
@@ -34,7 +34,7 @@
     仅在目录为左侧固定时有效。
     主体内容左侧边距与目录宽度同步增加（两者30px间距）。 -->
 <body lang="zh-cn"
-    on="@mousemove:1|movementX dup pass dup;
+    on="@mousemove:1|movementX(2) dup pass dup;
         @mouseup:1|movementX(null);
         margin_ml|$('main.content') css('margin-left') int ev('detail') add(_1) add('px')"
     to="nav[role=toc]|width(true) pass|pop goto('margin_ml');
@@ -49,7 +49,7 @@
             <h4>【提 要】</h4>
             <p>文章内容由最多五个递进的层级（<strong>章</strong>/<strong>节</strong>/<strong>区</strong>/<strong>段</strong>/<strong>末</strong>）构成，每一个层级中可包含多个平行的片区（<code>&lt;section&gt;</code>）元素。</p>
             <p>片区的标题在封装元素（<code>&lt;section&gt;</code>）之内最前端，由 <code>&lt;h2&gt;</code> 元素封装，不同层级的片区标题皆是如此。区分不同层级标题依靠的是封装元素（<code>&lt;section&gt;</code>）自身而不是标题元素，这与通常的 <code>h1-h6</code> 的隐含意义有些矛盾，但这种策略让章节递进更自由，同时 <code>&lt;h1&gt;</code> 和 <code>&lt;h3&gt;</code>-<code>&lt;h6&gt;</code> 也可用于其它的标题含义。</p>
-            <p><code>&lt;h1&gt;</code>用于页面的主标题，一篇文章中应当只有一个主标题。<code>&lt;h3&gt;</code>用于页面的副标题，它与主标题一起位于一个标题组（<code>&lt;hgroup&gt;</code>）元素内，副标题可以有多个。<code>&lt;h4&gt;</code>用于逻辑区块里的小标题，比如引用块（<code>&lt;blockquote&gt;</code>）里可选的小标题，或者批注块（<code>&lt;aside&gt;</code>）、导言（<code>&lt;header&gt;</code>）等里的小标题。<code>&lt;h5&gt;</code>用于一些逻辑上更细碎的“标题”，比如目录或级联表中包含子表的条目（<code>&lt;li&gt;</code>/<code>&lt;h5&gt;</code>）。</p>
+            <p><code>&lt;h1&gt;</code> 用于页面的主标题，一篇文章中应当只有一个主标题。<code>&lt;h3&gt;</code> 用于页面的副标题，它与主标题一起位于一个标题组（<code>&lt;hgroup&gt;</code>）元素内，副标题可以有多个。<code>&lt;h4&gt;</code> 用于逻辑区块里的小标题，比如引用块（<code>&lt;blockquote&gt;</code>）里可选的小标题，或者批注块（<code>&lt;aside&gt;</code>）、导言（<code>&lt;header&gt;</code>）等里的小标题。<code>&lt;h5&gt;</code> 用于一些逻辑上更细碎的“标题”，比如目录或级联表中包含子表的条目（<code>&lt;li&gt;</code>/<code>&lt;h5&gt;,&lt;ol&gt;</code>）。</p>
             <p>如果一个片区内没有子片区逻辑，它就应该只是一个内容片区，包含各种具体的文本块或段落。内容片区可在任意层级存在，只要它是最终的内容即可，并不会受限于<strong>章</strong>/<strong>节</strong>/<strong>区</strong>/<strong>段</strong>/<strong>末</strong>五个递进层次。</p>
             <p>内容片区中的内容块有很多种，比如：引用块（<code>&lt;blockquote&gt;</code>）、详细内容（<code>&lt;details&gt;</code>）、表格（<code>&lt;table&gt;</code>）、插图（<code>&lt;figure&gt;</code>）、列表（<code>&lt;ol&gt;</code>或<code>&lt;ul&gt;</code>），级联表（<code>&lt;ol role="cascade"&gt;/&lt;li&gt;/&lt;ol&gt;</code>），以及最常见的段落（<code>&lt;p&gt;</code>）等。</p>
             <p>最后，内容块其实并不是最终的实体文本，最终的实体文本是纯文本或内联单元，如：重点（<code>&lt;strong&gt;</code>）、强调（<code>&lt;em&gt;</code>）、代码（<code>&lt;code&gt;</code>）、注音（<code>&lt;ruby&gt;</code>）、缩写（<code>&lt;abbr&gt;</code>）、标记（<code>&lt;mark&gt;</code>）、图片（<code>&lt;img&gt;</code>）、视频（<code>&lt;video&gt;</code>）等等。</p>
@@ -193,15 +193,19 @@
                     <ul>
                         <li><strong>h1</strong>: 仅用于文章的主标题，通常也就是页面的主标题。</li>
                         <li><strong>h2</strong>: 各区段（<code>&lt;section&gt;</code>）的标题，作为首个子元素存在。</li>
-                        <li><strong>h3</strong>: 文章的副标题，和主标题一起存在于一个 <code>&lt;hgroup&gt;</code> 之内（如果需要副标题的话）。</li>
-                        <li><strong>h4</strong>: 各行块单元的小标题，如：文章提要（<code>&lt;header:abstract&gt;/&lt;h4&gt;, &lt;p&gt;...</code>）、引用块（<code>&lt;blockquote&gt;/&lt;h4&gt;, &lt;p&gt;...</code>）等。</li>
-                        <li><strong>h5</strong>: 级联表里子列表的标题条目项（<code>&lt;li&gt;/&lt;h5&gt;, &lt;ol&gt;</code>）。</li>
-                        <li><strong>h6</strong>: 列表项内容里的小标题。如：<code>&lt;li&gt;/&lt;h6&gt;...</code>，其中 <code>&lt;h6&gt;</code> 是后续文本的标题。</li>
+                        <li><strong>h3</strong>: 文章的<em>副标题</em>，和主标题一起存在于一个 <code>&lt;hgroup&gt;</code> 之内（如果需要副标题的话）。</li>
+                        <li><strong>h4</strong>: 各行块单元的<em>小标题</em>，如：引用块（<code>&lt;blockquote&gt;/&lt;h4&gt;, &lt;p&gt;...</code>）、导言（<code>&lt;header&gt;/&lt;h4&gt;, &lt;p&gt;...</code>）等。</li>
+                        <li><strong>h5</strong>: 级联表里的<em>子表标题</em>，结构：<code>&lt;li&gt;/&lt;h5&gt;, &lt;ol&gt;</code>。</li>
+                        <li><strong>h6</strong>: 列表项内容里的<em>微标题</em>。如：<code>&lt;li&gt;/&lt;h6&gt;...</code>，其中 <code>&lt;h6&gt;</code> 是后续文本的标题。</li>
                     </ul>
-                    <aside>
-                        <h4>注记：</h4>
-                        <p>这里 <code>&lt;h6&gt;</code> 的用途并不标准，但有时它可以很轻量地表达 <code>&lt;dt&gt;,&lt;dd&gt;</code>。例：<em>&lt;li&gt;/&lt;h6&gt;HTML&lt;/h6&gt;Structure of content on the web&lt;/li&gt;</em>，此时用 <code>&lt;dl&gt;/&lt;dt&gt;,&lt;dd&gt;</code> 会显得有些笨重。</p>
-                    </aside>
+                    <p><strong>注意</strong>：这里 <code>&lt;h6&gt;</code> 的用途并不标准，但有时它可以很轻量地表达 <code>&lt;dt&gt;,&lt;dd&gt;</code> 逻辑。例：</p>
+                    <pre role="codeblock">
+<code data-lang="html">&lt;<b role="tag">li</b>&gt;
+   &lt;<b role="tag">h6</b>&gt;HTML&lt;/<b role="tag">h6</b>&gt;
+   Structure of content on the web
+&lt;/<b role="tag">li</b>&gt;
+</code></pre>
+                    <p>这里 <code>&lt;li&gt;</code> 作为一个简单的容器便于CSS表达，而如果使用 <code>&lt;dl&gt;/&lt;dt&gt;,&lt;dd&gt;</code> 结构则会显得比较笨重也不合适。并且 <code>&lt;h6&gt;</code> 如果作为常规的标题分级，在大多数正文中都很难见到（使用概率非常低）。</p>
                 </section>
                 <section role="s2">
                     <h2 id="层次示意">层次示意</h2>
@@ -294,17 +298,18 @@
                             <li><code>&lt;<b role="tag">ol</b> role=<s>"cascade"</s>&gt;&lt;/<b role="tag">ol</b>&gt;            <i>&lt;!-- 级联编号表：CASCADE /li/h5, ol/... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">dl</b>&gt;&lt;/<b role="tag">dl</b>&gt;                           <i>&lt;!-- 描述列表：DL /dt, dd... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">table</b>&gt;&lt;/<b role="tag">table</b>&gt;                     <i>&lt;!-- 表格：TABLE /caption, thead, tbody, tfoot/tr/td... --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">figure</b>&gt;&lt;/<b role="tag">figure</b>&gt;                   <i>&lt;!-- 插图：FIGURE /figcaption, [span/img, i:explain?]... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">figure</b>&gt;&lt;/<b role="tag">figure</b>&gt;                   <i>&lt;!-- 插图：FIGURE /figcaption, p, ol, ul... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">blockquote</b>&gt;&lt;/<b role="tag">blockquote</b>&gt;           <i>&lt;!-- 引用块：BLOCKQUOTE /h4, p... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">aside</b>&gt;&lt;/<b role="tag">aside</b>&gt;                     <i>&lt;!-- 批注块：ASIDE /h4, p... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">details</b>&gt;&lt;/<b role="tag">details</b>&gt;                 <i>&lt;!-- 详细内容：DETAILS /sumary, p... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">pre</b> role=<s>"codeblock"</s>&gt;&lt;/<b role="tag">pre</b>&gt;        <i>&lt;!-- 代码块：CODEBLOCK /code... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">fieldset</b>&gt;&lt;/<b role="tag">fieldset</b>&gt;               <i>&lt;!-- 控件分组：FIELDSET /legend, ... --&gt;</i></code></li>
                         </ol>
                     </section>
                     <section role="s3">
                         <h2 id="文本类">文本类</h2>
                         <p>可直接包含文本内容和内联单元，没有固定的DOM结构可单独占据一行的块级元素。</p>
-                        <ol role="codelist" data-lang="html" start="28">
+                        <ol role="codelist" data-lang="html" start="29">
                             <li><code>&lt;<b role="tag">p</b>&gt;&lt;/<b role="tag">p</b>&gt;                 <i>&lt;!-- 段落：P 通用内容容器 --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">p</b> role=<s>"note"</s>&gt;&lt;/<b role="tag">p</b>&gt;     <i>&lt;!-- 注解：NOTE --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">p</b> role=<s>"tips"</s>&gt;&lt;/<b role="tag">p</b>&gt;     <i>&lt;!-- 提示：TIPS --&gt;</i></code></li>
@@ -315,7 +320,7 @@
                     <section role="s3">
                         <h2 id="单体类">单体类</h2>
                         <p>不包含任何内容，是一个独立存在的单元。</p>
-                        <ol role="codelist" data-lang="html" start="33">
+                        <ol role="codelist" data-lang="html" start="34">
                             <li><code>&lt;<b role="tag">hr</b> /&gt;                      <i>&lt;!-- 分隔：HR --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">div</b> role=<s>"blank"</s>&gt;&lt;/<b role="tag">div</b>&gt;    <i>&lt;!-- 白板：BLANK 用于交互展示 --&gt;</i></code></li>
                         </ol>
@@ -335,10 +340,10 @@
                 </section>
                 <section role="s2">
                     <h2 id="内联单元">内联单元</h2>
-                    <p>只能被包含在内容元素里的元素，没有行块的逻辑，有时也称为行内元素。其中既有可以包含文本的内容元素，也有结构性元素，如文本类的<ruby>注音<rp>(</rp><rt>zhùyīn</rt><rp>)</rp></ruby>（<code>&lt;ruby&gt;/#text,&lt;rp&gt;,&lt;rt&gt;</code>）、或媒体类的图片（<code>&lt;img&gt;</code>）、音频（<code>&lt;audio&gt;</code>）等。</p>
+                    <p>只能被包含在内容元素里的元素，没有行块的逻辑，有时也称为行内元素。其中既有可以包含文本的内容元素，也有结构性元素，如文本类的<ruby>注音<rp>(</rp><rt>zhùyīn</rt><rp>)</rp></ruby>（<code>&lt;ruby&gt;/#text,&lt;rp&gt;,&lt;rt&gt;</code>）、媒体类的图片（<code>&lt;picture&gt;</code>）、音频（<code>&lt;audio&gt;</code>）等。</p>
                     <p>内联单元不是 <strong>内容件</strong>，它们不能作为片区（<code>&lt;section&gt;</code>）的直接子元素出现，而必须被行块级的内容行元素（如 <code>&lt;p&gt;</code>、<code>&lt;li&gt;</code>、<code>&lt;address&gt;</code> 等）封装才行。</p>
                     <table border="1">
-                        <caption>内联单元清单</caption>
+                        <caption>原生内联单元清单</caption>
                         <thead>
                             <tr>
                                 <th>名称</th>
@@ -361,7 +366,7 @@
                                 <td>2</td>
                             </tr>
                             <tr>
-                                <th>图片</th>
+                                <th>最佳图</th>
                                 <td><code>&lt;<b role="tag">picture</b>&gt;&lt;/<b role="tag">picture</b>&gt;</code></td>
                                 <td><code><i>PICTURE /source,img</i></code></td>
                                 <td>3</td>
@@ -554,6 +559,10 @@
                             </tr>
                         </tbody>
                     </table>
+                    <p>标准的HTML内联单元虽然品类丰富，但依然稍有欠缺。这里定制了几个可能会常用的新单元类型。</p>
+                    <p>最后一种内联单元是表单控件，它们不是用来表达实体内容的文字或音/视频数据流，而是HTML里特有的。</p>
+                    <p>在普通的文章页面里，表单控件几乎没有意义，因为它们是用来向服务器提供数据的交互元素。但有时，一篇文章里或许需要可视化地表述这些功能性元素，或者作为文档交互的目标，因此也被纳入为可插入。</p>
+                    <p role="note"><strong>注</strong>：因为没有表单容器 <code>&lt;form&gt;</code> 封装，所以操作它们并不会产生提交。</p>
                 </section>
             </section>
             <hr />

@@ -112,13 +112,13 @@
     焦点回归友好。-->
 <div class="_body _Align" tpl-name="style:align"
     on="change|evo(1) dup pop(2) attr('-n') val pack(2);
-        follow|ev('detail') styVal(['text-align', 'vertical-align'])"
+        follow|ev('detail') styVal(['text-align', 'vertical-align', 'float'])"
     to="form/|trigger('style')|fire(1, 'focus', 0);
         (/select)|val">
     <div class="_h">
         <label title="text-align">行内</label>
         <select name="align" size="5" data-n="text-align" class="_list">
-            <option value="" title="无（默认）"> ------ </option>
+            <option value="" title="默认"> ------ </option>
             <option title="居中对齐">center</option>
             <option title="右对齐">right</option>
             <option title="两端对齐">justify</option>
@@ -131,7 +131,7 @@
     <div class="_v">
         <label title="vertical-align">纵向</label>
         <select name="valign" size="5" data-n="vertical-align" class="_list">
-            <option value="" title="无（默认）"> ------ </option>
+            <option value="" title="默认"> ------ </option>
             <option title="基线对齐">baseline</option>
             <option title="下标基线对齐">sub</option>
             <option title="上标基线对齐">super</option>
@@ -140,6 +140,15 @@
             <option title="中部与基线半高对齐">middle</option>
             <option title="行底部对齐">bottom</option>
             <option title="文本底部对齐">text-bottom</option>
+        </select>
+    </div>
+    <div class="_f">
+        <label title="float">浮动</label>
+        <select name="float" size="5" data-n="float" class="_list">
+            <option value="" title="默认"> ------ </option>
+            <option title="左浮动">left</option>
+            <option title="右浮动">right</option>
+            <option title="无浮动">none</option>
         </select>
     </div>
 </div>

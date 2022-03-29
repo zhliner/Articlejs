@@ -165,7 +165,7 @@ function processVideo( el, names, valo, ssub, tsub ) {
 
 
 /**
- * 自适应图片。
+ * 最佳图片。
  * 注意保持<img>的正确位置。
  * @param  {Element} el 目标元素
  * @param  {String} names 属性名序列（占位）
@@ -398,7 +398,7 @@ function dataVideo2( els, valo, chk3, [subs1, subs2] ) {
 
 
 /**
- * 自适应图片数据处理（单目标）。
+ * 最佳图片数据处理（单目标）。
  * @param  {Element} el 选取目标集
  * @param  {Object} valo 属性名:值对象
  * @param  {[Element]|''} subs 资源节点集（<source>）
@@ -410,7 +410,7 @@ function dataPicture( el, valo, subs ) {
 
 
 /**
- * 自适应图片数据处理（多目标）。
+ * 最佳图片数据处理（多目标）。
  * @param  {[Element]} els 选取目标集
  * @param  {Object} valo 属性名:值对象
  * @param  {[Element]|''} subs 资源节点集

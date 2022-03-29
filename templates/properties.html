@@ -28,7 +28,7 @@
     <li tpl-node="!prop:sources1, prop:tracks"></li>
 </ul>
 
-<ul class="_prop" tpl-name="property:picture" data-label="自适应图片属性"
+<ul class="_prop" tpl-name="property:picture" data-label="最佳图片属性"
     on="vinit reset|sels children('img') flat;
         vinit reset;
         build|(null) $('form/') valo('src alt width height') $('/pre._code') text picsubs pack(2) pack(2)"
@@ -341,7 +341,7 @@
     <li tpl-node="prop:sources1, prop:tracks"></li>
 </ul>
 
-<!-- 自适应图片 -->
+<!-- 最佳图片 -->
 <ul class="_prop" tpl-name="inlines:picture"
     on="create|$('/pre._code') text picsubs nil $('form/') valo('src alt width height') clean('', null)"
     by="New.img(_1) concat(_1) (null, true) New.picture(_2)"
@@ -699,7 +699,7 @@
     <span><input type="text" name="alt" /></span>
 </li>
 
-<!--兼容图片和自适应图片：
+<!--兼容 图片和最佳图片：
     从 ev('detail') 接收数据。 -->
 <li tpl-name="prop:wh"
     on="value|ev('detail') p.attrVal('width height')"
@@ -739,7 +739,7 @@
     </span>
 </li>
 
-<!-- 自适应图片用 -->
+<!-- 最佳图片用 -->
 <li tpl-name="prop:sources2"
     on="value|sels children('source') attribute('srcset media') clean(null) jsons(4) p.vals1"
     to="/pre|$text">

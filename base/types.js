@@ -71,7 +71,7 @@ export const
     /////////////////////////////////////////////
     AUDIO           = 1,    // 音频 {src, autoplay, loop, controls}
     VIDEO           = 2,    // 视频 {src, autoplay, loop, controls}
-    PICTURE         = 3,    // 自适应图片
+    PICTURE         = 3,    // 最佳图片
     SVG             = 4,    // 图形 {width, height}
     RUBY            = 5,    // 注音
     METER           = 6,    // 量度 {value, max, min, high, low, optimum}

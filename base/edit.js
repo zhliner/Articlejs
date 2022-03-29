@@ -6974,7 +6974,7 @@ export const Kit = {
 
 
     /**
-     * 创建自适应图片（<picture>）子单元。
+     * 创建最佳图片（<picture>）子单元。
      * 即：<source>元素集（不含<img>子单元）。
      * @data: String 配置格式串
      * @return {Promise<[Element]>|''}
@@ -7116,6 +7116,7 @@ export const Kit = {
      */
     mdline( evo ) {
         if ( !Fx.mdline || !evo.data ) {
+            // String|[String]
             return evo.data;
         }
         if ( $.isArray(evo.data) ) {

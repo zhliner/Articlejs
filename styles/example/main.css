@@ -758,10 +758,6 @@ div[role=blank] > * {
     font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
 }
 
-.content code[data-lang] {
-    border: 1px #e8e8e8 solid;
-}
-
 .content table code {
     background-color: transparent;
 }
@@ -775,12 +771,13 @@ div[role=blank] > * {
     overflow: auto;
     box-shadow: 1px 1px 4px #eee;
 }
+.content pre[role=codeblock] * {
+    line-height: 170%;
+}
 .content pre[role=codeblock] > code {
     display: block;
     font-size: 10pt;
-    border-width: 0;
     background-color: transparent;
-    line-height: 160%;
 }
 
 /* 代码表

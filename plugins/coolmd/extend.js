@@ -870,6 +870,10 @@ function convCodeblock( el, lev = 0 ) {
  * 代码表转换。
  * 内部的子语法块不被区分，相同对待。
  * 转换效果与代码块相同。
+ * 注记：
+ * 因为录入时也为输入代码块，故此设计。
+ * 转为块级会丢失行号信息，但语言指定更简洁。
+ *
  * 结构：<ol role="codelist">/[<li>/<code>]+
  * @param  {Element} el 根元素
  * @param  {Number} lev 所在小区块层级，可选
