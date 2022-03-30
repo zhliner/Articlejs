@@ -2910,7 +2910,7 @@ function nthSelector( el ) {
  * @return {String} 片区标题（<h2>）的选择器
  */
 function h2PathSelector( chsn ) {
-    return chsn.map( n => `>section:nth-of-type(${+n})` ).join( ' ' ) + ' >h2';
+    return chsn.map( n => `>section:nth-of-type(${n})` ).join( ' ' ) + ' >h2';
 }
 
 
@@ -7212,11 +7212,16 @@ export const Kit = {
     /**
      * 章节滚动。
      * 滚动目标章节到当前视口。
+     * 0值章节序列会滚动到文章头部（片区<h2>无法定位到）。
      * @data: [Number] 章节序列
      * @return {void}
      */
     chapter( evo ) {
-        let _el = $.get( h2PathSelector(evo.data), $.get('article', contentElem) );
+        let _ns = evo.data,
+            _el = _ns.length === 1 && _ns[0] == 0 ?
+                contentElem.firstElementChild :
+                $.get( h2PathSelector(_ns), $.get('article', contentElem) );
+
         if ( _el ) $.intoView( _el, 1, 1 );
     },
 

@@ -30,7 +30,6 @@
         // 恢复：样式 && 内容
         .then( ed => saveEditor(ed) && $.trigger(_nav, 'recover') && recover(ed, Sys.cimport) )
         .then( ed => ed.frame().contentWindow.focus() )
-        //?... 取消载入动画层。
         // 初次学习内容导入
         .then( () => firstLearn(_btn, 'click') )
         // 1小时内点亮Logo
@@ -81,7 +80,7 @@
             <span>
                 <label>内容样式</label>
                 <select name="styles"
-                    on="change|evo(3) val dup(2) pass;
+                    on="change|evo(3) val dups(2) pass;
                         recover|ev('detail')"
                     by="Kit.main Kit.codes"
                     to="#editorBox|trigger('active');

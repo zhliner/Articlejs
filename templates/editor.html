@@ -121,17 +121,27 @@
     <aside id="outline" class="___Panel Outline" data-pbo=""
         on="medok|ev('detail') dup pathx('article', 'section') str('>ol>li:nth-child(', ')') join str('/nav', ' a') $(_1) pop"
         to="-|text">
-        <!-- click 构造章节选择器，定位显示到视口（非id定位） -->
-        <nav role="toc"
-            on="click(a)|avoid evo(2) pathx('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView">
-            <h4>大纲视图
+        <!-- click(~a) 滚动到文章顶部。 -->
+        <nav role="toc">
+            <h4 on="click(~a)|$('main') children(0) intoView">
+                <a title="文章顶部">大纲视图</a>
                 <b id="g-refresh" title="刷新"
                     on="click|$('#content article')"
                     by="Kit.toclist"
                     to="nav/ol|fill">↻</b>
             </h4>
-            <!-- click 单击子表标题（非<a>）折叠切换 -->
-            <ol role="cascade" on="click(~h5)|evo(2) parent fold(2)"></ol>
+            <!--目录根：
+                mouseenter  显示滚动条（如果需要）。
+                mouseleave  友好隐藏滚动条。
+                click(~a)   构造章节选择器，定位显示到视口（非id定位）
+                click(~h5)  单击子表标题（非<a>）折叠切换。 -->
+            <ol role="cascade"
+                on="mouseenter|('auto');
+                    mouseleave|('hidden');
+                    click(~a)|avoid evo(2) pathx('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView;
+                    click(~h5)|evo(2) parent fold(2)"
+                to="|css('overflow-y');
+                    |css('overflow-y')"></ol>
         </nav>
         <!-- 大纲栏：自动/手动更新。 -->
     </aside>
@@ -141,7 +151,7 @@
     <!--杂项功能：
         适用主区激活范围。 -->
     <div id="editor" class="Editor"
-        on="main.chapter|$('#g-count') val split('.');
+        on="main.chapter|$('#g-count') val dup pass split('.') int;
             main.saving|$('/main#content');
             main.export|sels;
             main.export2|('目 录');

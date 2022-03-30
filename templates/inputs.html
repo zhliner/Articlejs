@@ -997,7 +997,7 @@
                 <!-- 单击切换录入框提示 -->
                 <input type="checkbox" name="trfmt" value="-td"
                     on="click|(['-td', '-fmt'])"
-                    to="|toggleAttr('value')|target prop('value') pop fire('._body/._main', 'tip2x')">[ 格式行 ]
+                    to="|toggleAttr('value')|target prop('value') pop fire('._body/._main', 'tip2x')">格式行
             </label>
         </div>
         <hr tpl-node="input:insert2">
@@ -1006,7 +1006,7 @@
 
 <div class="_body _Table" tpl-name="input:thead"
     on="create|$$('/thead>tr') find('th') text tsecbox obj('table') (true);
-        nodeok|stop tobj dup pass dup(2) data('tbo') eq(_1) end"
+        nodeok|stop tobj dup pass dups(2) data('tbo') eq(_1) end"
     by="New.thead(_2)"
     to="form/|trigger('insfix');
         |data('tbo')|pop fire('/thead', 'new')">
@@ -1039,7 +1039,7 @@
     会暂存实例，选单简单切换不影响已录入。 -->
 <div class="_body _Table" tpl-name="input:tbody"
     on="create|$$('/tbody>tr') find('th,td') text tsecbox obj('table') (true);
-        nodeok|stop tobj dup pass dup(2) data('tbo') eq(_1) end"
+        nodeok|stop tobj dup pass dups(2) data('tbo') eq(_1) end"
     by="New.tbody(_2)"
     to="form/|trigger('instbd');
         |data('tbo')|pop fire('/tbody', 'new')">
@@ -1072,7 +1072,7 @@
 
 <div class="_body _Table" tpl-name="input:tfoot"
     on="create|$$('/tfoot>tr') find('th,td') text tsecbox obj('table') (true);
-        nodeok|stop tobj dup pass dup(2) data('tbo') eq(_1) end"
+        nodeok|stop tobj dup pass dups(2) data('tbo') eq(_1) end"
     by="New.tfoot(_2)"
     to="form/|trigger('insfix');
         |data('tbo')|pop fire('/tfoot', 'new')">

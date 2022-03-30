@@ -20,7 +20,7 @@ code s {
 }
 /* comments */
 code i {
-    font-style: normal;
+    /* font-style: normal; */
     color: #909090;
 }
 

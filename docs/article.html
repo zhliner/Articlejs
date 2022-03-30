@@ -1,16 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-cn">
 <head>
 <meta charset="utf-8" />
 <title>文章内容的规范化结构</title>
 <link rel="shortcut icon" href="../favicon.ico">
-<link rel="stylesheet" href="../styles/example/main.css" />
-<link rel="stylesheet" href="../styles/example/codes.css" />
+<link id="s-main" rel="stylesheet" href="../styles/example/main.css" />
+<link id="s-code" rel="stylesheet" href="../styles/example/codes.css" />
 <link rel="stylesheet" href="../base/tpb/default.css" />
 <script src="../base/tquery/tquery.min.js"></script>
 <style>
     body {
         margin: 0;
+    }
+    body._dark {
+        background-color: #1f1f1f;
     }
     main {
         width: 780px;
@@ -18,6 +21,33 @@
     }
     main > nav > hr {
         cursor: ew-resize;
+    }
+    nav._bar {
+        position: fixed;
+        width: 100%;
+        bottom: 0;
+        left: 0;
+        font-size: 10pt;
+        background-color: #1b465b;
+        padding: 4px 1.2em;
+        color: #6cc67a;
+        box-sizing: border-box;
+    }
+    nav._bar > span {
+        float: right;
+    }
+    nav select {
+        color: #ccc;
+        background-color: #574e37;
+        padding: 1px 0.5em;
+        border-radius: 0.7em;
+        outline: none;
+    }
+    .content {
+        margin-bottom: 4em;
+    }
+    .content nav[role=toc] {
+        height: 97vh;
     }
 </style>
 <script type="module" async>
@@ -30,16 +60,36 @@
     window.By = BaseBy;
 </script>
 </head>
-<!--目录宽度可调：
-    仅在目录为左侧固定时有效。
-    主体内容左侧边距与目录宽度同步增加（两者30px间距）。 -->
-<body lang="zh-cn"
+<!--全局行为：
+    @mousemove @mouseup 配合目录宽度可调。
+    margin_ml 配合目录宽度调整，文章主体左侧边距跟随。
+    bodycls   整体背景风格配合（^_dark）。 -->
+<body
     on="@mousemove:1|movementX(2) dup pass dup;
         @mouseup:1|movementX(null);
-        margin_ml|$('main.content') css('margin-left') int ev('detail') add(_1) add('px')"
+        margin_ml|$('main.content') css('margin-left') int ev('detail') add(_1) add('px');
+        bodycls|('_dark') ev('detail') bool"
     to="nav[role=toc]|width(true) pass|pop goto('margin_ml');
         |off('mousemove');
-        main.content|%marginLeft">
+        main.content|%marginLeft;
+        |toggleClass(_1)">
+    <nav class="_bar">
+        <span>
+            <label>内容样式</label>
+            <!-- 采用元素替换方式，避免从头渲染时内容大幅跳动。 -->
+            <select name="styles"
+                on="change|$('#s-code') dup ('s-code') evo(3) val str('../styles/', '/codes.css') pack(2) obj('id href') pop;
+                    change|$('#s-main') dup ('s-main') evo(3) val str('../styles/', '/main.css') pack(2) obj('id href') pop"
+                by="style(_1) vain remove;
+                    style(_1) vain remove evo(3) prop('selected') attr('-dark')"
+                to="-;
+                    body|trigger('bodycls')">
+                <option value="example"> ------ </option>
+                <option value="hometown">乡愁</option>
+                <option data-dark="yes" value="wildwide">旷野无垠</option>
+            </select>
+        </span>
+    </nav>
     <main class="content">
         <hgroup>
             <h1>文章内容的规范化结构</h1>
@@ -55,27 +105,32 @@
             <p>最后，内容块其实并不是最终的实体文本，最终的实体文本是纯文本或内联单元，如：重点（<code>&lt;strong&gt;</code>）、强调（<code>&lt;em&gt;</code>）、代码（<code>&lt;code&gt;</code>）、注音（<code>&lt;ruby&gt;</code>）、缩写（<code>&lt;abbr&gt;</code>）、标记（<code>&lt;mark&gt;</code>）、图片（<code>&lt;img&gt;</code>）、视频（<code>&lt;video&gt;</code>）等等。</p>
             <p><strong>注：</strong>一篇层级适当的文章通常只有<strong>3-4</strong>个层级，即：<strong>章/节/区/段</strong>。再多的层级并不常见，阅读友好性也会变差。</p>
         </header>
+        <!--click(h4>a)
+            友好：向下回滚一段避免顶部空出。 -->
         <nav role="toc"
             on="click(~h4)|evo(3) fold(2) ('auto');
-                click(h4>a)|$('1/h1') intoView"
-            to="|toggleStyle('height')">
+                click(h4>a)|$('1/h1') intoView (-100)"
+            to="|toggleStyle('height');
+                html|scrollTop(true)">
             <h4><a>【目 录】</a></h4>
             <!--宽度可调整：
-                配合<body>定义实现，仅在目录固定时有效。 -->
+                由<body>配合实现，仅在目录固定时有效。 -->
             <hr on="mousedown|$('nav/') css('position') eq('fixed') pass avoid"
                 to="body|bind('mousemove:1') once('mouseup:1')" />
             <!--行为：
                 mouseenter 滚动条显示
                 mouseleave 滚动条友好隐藏
-                click(a)   构造章节选择器，定位显示到视口。兼容ID锚跳转（无avoid）。
+                click(a)   构造章节选择器，定位显示到视口，兼容ID锚跳转（无avoid）。回滚30像素友好。
+                           注记：如果不是平滑滚动，需延迟（delay）执行。
                 click(~h5) 单击子表标题本身（非<a>）折叠切换。 -->
             <ol role="cascade" data-pbo=""
                 on="mouseenter|('auto');
                     mouseleave|('hidden');
-                    click(a)|evo(2) pathx('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView;
+                    click(~a)|evo(2) pathx('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView (-30);
                     click(~h5)|evo(2) parent fold(2)"
                 to="|css('overflow-y');
-                    |css('overflow-y')">
+                    |css('overflow-y');
+                    html|scrollTop(true, true)">
                 <li>
                     <h5><a href="#层次">层次</a></h5>
                     <ol>
@@ -190,7 +245,7 @@
                 <h2 id="层次">层次</h2>
                 <section role="s2">
                     <h2 id="标题规划">标题规划</h2>
-                    <p>逐层嵌套的 <code>&lt;section&gt;</code> 封装会隔离标题的层次逻辑，但标题自身的层级依然是可以被规划和利用的，这能带来一些好处：内容的层次逻辑更清晰，CSS定位也更简单。</p>
+                    <p>逐层嵌套的 <code>&lt;section&gt;</code> 封装会隔离出标题的层次逻辑，但标题自身的层级依然是可以被规划和利用的，这能带来一些好处：内容的层次逻辑更清晰，CSS定位也更简单。</p>
                     <ul>
                         <li><strong>h1</strong>: 仅用于文章的主标题，通常也就是页面的主标题。</li>
                         <li><strong>h2</strong>: 各区段（<code>&lt;section&gt;</code>）的标题，作为首个子元素存在。</li>
@@ -206,7 +261,7 @@
    Structure of content on the web
 &lt;/<b role="tag">li</b>&gt;
 </code></pre>
-                    <p>这里 <code>&lt;li&gt;</code> 作为一个简单的容器便于CSS表达，而如果使用 <code>&lt;dl&gt;/&lt;dt&gt;,&lt;dd&gt;</code> 结构则会显得比较笨重也不合适。并且 <code>&lt;h6&gt;</code> 如果作为常规的标题分级，在大多数正文中都很难见到（使用概率非常低）。</p>
+                    <p>这里 <code>&lt;li&gt;</code> 作为一个简单的容器方便CSS表达，而如果用 <code>&lt;dl&gt;/&lt;dt&gt;,&lt;dd&gt;</code> 结构则会显得比较笨重。并且 <code>&lt;h6&gt;</code> 如果作为常规的标题分级，在大多数正文中都很难见到（使用率非常低）。</p>
                 </section>
                 <section role="s2">
                     <h2 id="层次示意">层次示意</h2>
@@ -254,6 +309,7 @@
 &lt;<b role="tag">aside</b> role=<s>"seealso"</s>&gt;&lt;/<b role="tag">aside</b>&gt;              <i>&lt;!-- 另参见 --&gt;</i>
 &lt;<b role="tag">footer</b>&gt;&lt;/<b role="tag">footer</b>&gt;                           <i>&lt;!-- 声明 --&gt;</i>
 </code></pre>
+                    <p><em>正文内容</em>可存在于任何一级片区（<code>&lt;section&gt;</code>）内，只要该片区内没有子片区逻辑即可。</p>
                     <aside>
                         <h4>附：Markdown解析</h4>
                         <ul>
@@ -944,6 +1000,7 @@
                     </section>
                     <section role="s3">
                         <h2 id="控件分组">控件分组</h2>
+                        <p>在文章中插入表单控件有时是必要的，比如对于HTML元素的形象描述，或者在页面文章中实现交互（互动文档）。</p>
                         <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">fieldset</b>&gt;
     &lt;<b role="tag">legend</b>&gt;分组标题&lt;/<b role="tag">legend</b>&gt;

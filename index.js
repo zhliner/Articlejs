@@ -60,7 +60,7 @@ const Kit = {
      * @data: String 主题名
      * @return {void}
      */
-    theme: function( evo ) {
+    theme( evo ) {
         let _pf = evo.data;
 
         if ( !_pf.endsWith('.css') ) {
@@ -80,7 +80,7 @@ const Kit = {
      * @data: String 内容样式名
      * @return {void}
      */
-    main: function( evo ) {
+    main( evo ) {
         __editor.style(
             `${ROOT}${Local.styles}/${evo.data}/${Local.mainStyle}`
         );
@@ -95,7 +95,7 @@ const Kit = {
      * @data: String 代码样式名
      * @return {void}
      */
-    codes: function( evo ) {
+    codes( evo ) {
         __editor.codes(
             `${ROOT}${Local.styles}/${evo.data}/${Local.codeStyle}`
         );

@@ -168,7 +168,7 @@
             <!-- 300:延迟显示，400:延迟隐藏
                 注：sm-1/sm-0 只是一个存储键，非用于事件绑定。 -->
             <li id="m-conv" role="menubar" data-pbo="folded"
-                on="@sm-1|evo(3) dup(2) disabled end fold(0) submenu;
+                on="@sm-1|evo(3) dups(2) disabled end fold(0) submenu;
                     @sm-0|evo(3) fold(1);
                     mouseenter|data('tk-0') timeOut(null) evo(3) chain('sm-1') timeOut(300);
                     mouseleave|data('tk-1') timeOut(null) evo(3) chain('sm-0') timeOut(400)"
@@ -204,7 +204,7 @@
                 store|ev('detail') dup rngok pass;
                 show|evo(3) dup lose(false) $('1/') env('pointerXY') menupos(_2);
                 blur|evo(3) lose(true) (null);
-                keydown|ev('key') dup end('Escape') stop slr('/li', '-k', _1) $(_1) dup(2) pass disabled end attr('-val');
+                keydown|ev('key') dup end('Escape') stop slr('/li', '-k', _1) $(_1) dups(2) pass disabled end attr('-val');
                 click(li[data-val])|evo(2) dup disabled end attr('-val');
                 esced|evo(3) (ESC) pop;
                 escpop|('cells', ESC) pop;

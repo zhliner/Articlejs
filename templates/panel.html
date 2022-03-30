@@ -242,7 +242,7 @@
             on="follow|evo(3) children ev('detail');
                 change|evo(3) val $case('on by to', null) $switch('obts', 'empty', 'value') str('attr:') node(_1);
                 attrto|evo(3) val dup pass sel0 pop attrs(_1);
-                addnew|ev('detail') dup(2) $$('/option') prop('value') inside(_) end pop elem('option');
+                addnew|ev('detail') dups(2) $$('/option') prop('value') inside(_) end pop elem('option');
                 select|ev('detail');
                 blank|tpl('attr:empty');
                 keydown|iskey('Delete') pass evo(3) val dup pass evo(3) prop('selected') remove"

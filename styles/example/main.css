@@ -41,6 +41,9 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     padding: 0 20px;
     font-size: 11pt;
     background-color: white;
+
+    /* 避免头部<h1>空白 */
+    border: 1px transparent solid;
 }
 
 .content table {
@@ -229,7 +232,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  *----------------------------------------------------------------------------
  */
 .content nav[role=toc] {
-    padding: 4pt 1px 2pt;
+    padding: 5pt 1px 0;
     border: 1px #e3e3e0 solid;
     background-color: rgba(245, 245, 245, 0.7);
     display: inline-block;

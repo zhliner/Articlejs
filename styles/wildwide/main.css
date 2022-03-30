@@ -36,6 +36,9 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     font-size: 11pt;
     background-color: #282820;
     color: #ccc;
+
+    /* 避免头部<h1>空白 */
+    border: 1px transparent solid;
 }
 .content a {
     color: #0084ff;
@@ -220,38 +223,48 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  *----------------------------------------------------------------------------
  */
 .content nav[role=toc] {
-    padding: 6px 0;
-    border: 1px #e3e3e0 solid;
-    background-color: rgba(245, 245, 245, 0.7);
+    padding: 5pt 1px 0;
+    border: 1px #4f4f4f solid;
     display: inline-block;
     border-radius: 4px;
     font-size: 10pt;
-    box-shadow: 1px 1px 4px #bbb;
+    box-shadow: 1px 1px 4px #000;
     min-width: 20em;
+    background-color: #282820ee;
 }
 
 /* 页面固定 */
 .content nav[role=toc] {
     position: fixed;
-    top: 0.5em;
+    top: 0.4em;
     left: 1em;
     box-sizing: border-box;
-    height: 98%;
-    cursor: default;
+    height: 98vh;
+    width: 20em;
+
+    /* 列表可滚动 */
+    display: flex;
+    flex-direction: column;
 }
 
-/* 目录级联编号 */
+.content nav[role=toc] > hr {
+    height: 1em;
+    border-width: 0;
+    border-bottom: 1px #666 dotted;
+    margin: 0;
+}
+
+/* 目录级联表 */
 .content nav[role=toc] > ol[role=cascade] {
     height: calc(100% - 70px);
     overflow-y: auto;
+    scrollbar-gutter: stable;
 }
 
 .content nav[role=toc] h4 {
     font-size: 1.17em;
     margin: 7px 4px 0;
-    padding-bottom: 10px;
     text-align: center;
-    border-bottom: 1px #ccc dashed;
 }
 
 .content nav[role=toc] > ol {
@@ -261,7 +274,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 .content nav[role=toc] li {
     margin-top: 1px;
     padding-left: 4px;
-    color: #333;
+    color: #999;
 }
 .content nav[role=toc] li,
 .content nav[role=toc] h5,
@@ -270,11 +283,12 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 }
 
 .content nav[role=toc] a {
-    color: #36b;
+    color: #649ccf;
     text-decoration: none;
+    cursor: pointer;
 }
 .content nav[role=toc] a:visited {
-    color: gray;
+    color: #8eaba9;
 }
 
 .content nav[role=toc] a:hover {
@@ -283,7 +297,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 /* 目录&子表折叠 */
 .content nav[role=toc] li[data-pbo=folded] {
-    background-color: #e8f2f2;
+    background-color: #333639;
     border-radius: 4px 2em 0 0;
 }
 .content nav[role=toc] > h4::after,
@@ -300,7 +314,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 .content nav[role=toc][data-pbo=folded] > h4::after,
 .content nav[role=toc] li[data-pbo=folded] > h5::after {
     content: '+';
-    color: #e9a279;
+    color: #bf754a;
 }
 
 
