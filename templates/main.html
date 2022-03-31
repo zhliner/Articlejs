@@ -177,7 +177,11 @@
                     |data('tk-1');
                     |data('tk-0')">
                 <h5><b id="l-convert">转换</b></h5>
-                <menu tpl-source="menu:inlines"></menu>
+                <menu role="submenu" class="_cells" tpl-name="menu:inlines"
+                    on="^obted|$('3/#g-cells') children clone"
+                    to="|fill">
+                    <!-- 复用下面内联创建菜单条目 -->
+                </menu>
             </li>
             <hr>
             <li data-op="toup"><b id="l-toup">升级</b><kbd>[Alt_←]</kbd></li>
@@ -259,7 +263,7 @@
             focus(~audio,...) 单击选取在音/视频元素上无效，故借助聚焦（但无键盘按键信息）操作。
             cancel   选取集取消（ESC）。
             mouseup  弹出内联单元创建表。划选完整嵌套，非空，发送Range。同时存储鼠标指针和滚动条位置。
-            _mouseup 用于程序激发弹出菜单（上下文菜单选取元素）。
+            _mouseup 用于程序激发弹出菜单（上下文菜单“选取”元素时用）。
             mouseover(*),mouseout(*)|...('_hover') 提供样式定位依据。
             mouseleave|end 重置状态栏，除非已有计数指定。
             mousedown|...avoid 避免 Shift+单击 变成划选（已经有划选除外）。
@@ -467,12 +471,12 @@
     </div>
     <!--出错提示：
         click 滚动问题元素（可能为null）到视口中间，主窗口聚焦友好。
-        mouseover 问题元素背影提示。-->
+        mouseenter/mouseleave 问题元素背影提示。如果无存储静默略过。-->
     <div id="err-msg" class="_err" data-pbo="lost"
         on="click|evo(3) source dup pass dup intoView(2) SCAM;
             tips|$('/>a') attr('-hid');
-            mouseenter|('_warn') evo(3) source pop;
-            mouseleave|('_warn') evo(3) source pop;
+            mouseenter|('_warn') evo(3) source dup pass pop;
+            mouseleave|('_warn') evo(3) source dup pass pop;
             off|evo(3) lose;
             on|evo(3) lose(0)"
         by="Kit.errmsg(_1)"
@@ -504,3 +508,34 @@
         <code>?</code>
     </div>
 </div>
+
+
+
+<!--转换条目（子菜单）
+    data-val 待转换目标单元名。
+    <kbd>    单字符快捷键直达。
+    注：仅包含完整的单元（不含中间结构）。
+----------------------------------------------------------------------------->
+
+<!-- 行块单元（仅部分） -->
+<menu role="submenu" tpl-name="menu:blocks">
+    <li data-val="p" title="<p>"><b>段落</b><kbd>p</kbd></li>
+    <li data-k="n" data-val="note" title="<p:note>"><b>注解</b><kbd>n</kbd></li>
+    <li data-k="t" data-val="tips" title="<p:tips>"><b>提示</b><kbd>t</kbd></li>
+    <li data-val="pre" title="<pre>"><b>预排版</b><kbd></kbd></li>
+    <li data-val="address" title="<address>"><b>地址</b><kbd></kbd></li>
+    <li data-k="u" data-val="ul" title="<ul>"><b>无序列表</b><kbd>u</kbd></li>
+    <li data-k="o" data-val="ol" title="<ol>"><b>有序列表</b><kbd>o</kbd></li>
+    <li data-val="ulx" title="<ul:ulx>"><b>无序级联表</b><kbd></kbd></li>
+    <li data-val="olx" title="<ol:olx>"><b>有序级联表</b><kbd></kbd></li>
+    <li data-k="c" data-val="cascade" title="<ol:cascade>"><b>级联编号表</b><kbd>c</kbd></li>
+    <li data-k="b" data-val="blockquote" title="<blockquote>"><b>块引用</b><kbd>b</kbd></li>
+    <li data-k="a" data-val="aside" title="<aside>"><b>批注</b><kbd>a</kbd></li>
+    <li data-val="details" title="<details>"><b>详细内容</b><kbd></kbd></li>
+    <!-- 注：不可为转换目标，因为无<dt>源（逻辑上）。 -->
+    <!-- <li data-k="d" data-val="dl" title="<dl>"><b>描述列表</b><kbd>d</kbd></li> -->
+</menu>
+
+<!-- 空占位菜单（replace） -->
+<menu role="submenu" data-pbo="hidden" tpl-name="menu:empty">
+</menu>

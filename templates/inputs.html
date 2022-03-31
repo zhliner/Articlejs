@@ -980,11 +980,11 @@
 </div>
 
 <div class="_body _Tr" tpl-name="input:tr"
-    on="create|$('/textarea') val dup pass splitx $('/input[name=clean]') prop('checked') pretreat1(_1) mdline trbox obj('tsec')"
-    by="New.tr(_1)"
+    on="create|$('/textarea') val dup pass splitx $('/[name=clean]') prop('checked') pretreat1(_1) $('/[name=fmt]') prop('checked') trfmt(_1) trbox obj('tsec')"
+    by="New2.tr(_1)"
     to="form/|trigger('insert')">
-    <div class="_main" data-td="一行一个单元格" data-fmt="=[ 单元格 ][ 单元格 ][ 单元格 ]"
-        on="tip2x|evo(3) ev('detail') attr(_1);
+    <div class="_main" data-td="一行一个单元格" data-tds="=[ 单元格 ][ 单元格 ][ 单元格 ]"
+        on="tip2x|evo(3) ev('detail') str('-') attr(_1);
             ^obted|evo(3) attr('-td')"
         to="/textarea|$placeholder;
             /textarea|$placeholder">
@@ -994,10 +994,13 @@
         <div class="_option">
             <label title="清除多余空白"><input type="checkbox" name="clean" checked>空白清理</label>
             <label title="支持多行插入">
-                <!-- 单击切换录入框提示 -->
-                <input type="checkbox" name="trfmt" value="-td"
-                    on="click|(['-td', '-fmt'])"
-                    to="|toggleAttr('value')|target prop('value') pop fire('._body/._main', 'tip2x')">格式行
+                <!--格式切换：
+                    click 切换录入框提示
+                    td  一行一个单元格，总共一行。
+                    tds 一行即一行，多个单元格，支持多行。 -->
+                <input type="checkbox" name="fmt" data-t="td"
+                    on="click|(['td', 'tds'])"
+                    to="|toggleAttr('-t')|target attr('-t') pop fire('._body/._main', 'tip2x')">格式行
             </label>
         </div>
         <hr tpl-node="input:insert2">

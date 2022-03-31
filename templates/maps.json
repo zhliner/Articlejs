@@ -1,5 +1,8 @@
 {
     "main.html": [
+        "menu:inlines",
+        "menu:blocks",
+        "menu:empty",
         "main:content",
         "main:slave",
         "main:status",
@@ -11,9 +14,6 @@
         "attr:value",
         "input:empty",
         "item:inlines",
-        "menu:blocks",
-        "menu:empty",
-        "menu:inlines",
         "modal:message",
         "modal:ok",
         "modal:okcancel",

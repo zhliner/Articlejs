@@ -95,6 +95,16 @@ const
     // 用于清除提示信息中的该部分。
     __reClassv  = /\sclass="[\w\s]+"/,
 
+    // 行单元格序列模式。
+    // 格式参考插件 /plugins/coolmd 内设计。
+    // 注意空格是必须的！
+    __reCells   = /^=\[:?\s(.*)\s\]$/,
+
+    // 行单元格风格符序列模式。
+    // 容错表头首列后冒号标识（[: TH :][ TH ][ ... ]）。
+    // 注意空格！
+    __reCellsep = /\s:?\]\[\s/,
+
     // 微编辑：
     // 智能逻辑行适用集。
     // 源行类型：[新行标签名, 父类型约束]
@@ -2660,6 +2670,18 @@ function indentBadit( els ) {
 
 
 /**
+ * 检索首个非章节或顶层章节元素。
+ * @param  {[Element]} els 元素集
+ * @return {Element}
+ */
+function indentUpBadit( els ) {
+    for ( const el of els ) {
+        if ( !isChapter(el) || $.attr(el, 'role') === 's1' ) return el;
+    }
+}
+
+
+/**
  * 检索首个不能重复的元素。
  * 注：用于原地克隆判断。
  * @param  {[Element]} els 元素集
@@ -2796,6 +2818,34 @@ function sameTag( els, tag ) {
 function sameTable( ref, els ) {
     let _n = tableObj(ref).cols();
     return els.every( el => _n === tableObj(el).cols() );
+}
+
+
+/**
+ * 表格行格式验证发现。
+ * 验证查找首个格式错误的行串，
+ * 全部合法时返回null。
+ * @param  {[String]} fmts 表格行格式串集
+ * @return {String|null} 格式错误的行
+ */
+function trFmtBad( fmts ) {
+    for ( const fmt of fmts ) {
+        if ( !__reCells.test(fmt) ) return fmt;
+    }
+    return null;
+}
+
+
+/**
+ * 创建单行MD节点片段（集）。
+ * @param  {String|[String]} data 文本或文本集
+ * @return {DocumentFragment|[DocumentFragment]}
+ */
+function mdlineFragment( data ) {
+    if ( $.isArray(data) ) {
+        return data.map( tt => $.fragment(markdownLine(tt)) );
+    }
+    return $.fragment( markdownLine(data) );
 }
 
 
@@ -3728,6 +3778,7 @@ function last( els ) {
  * 提示错误并提供帮助索引。
  * msgid: [hid, tips]
  * el默认为null避免linkElem()变为取值逻辑。
+ * 注：仅在重置时返回true。
  * @param  {String} msgid 消息ID
  * @param  {Element} el 关联元素，可选
  * @return {true|void}
@@ -3780,7 +3831,7 @@ function statusInfo( msg ) {
  * 错误提示。
  * 返回的错误对象由上级决定抛出或略过。
  * @param  {String} msg 输出消息
- * @param  {Value} data 关联数据
+ * @param  {Value} data 关联数据（存储）
  * @return {Error} 封装的错误对象
  */
 function error( msg, data ) {
@@ -5702,7 +5753,7 @@ export const Edit = {
         if ( !$els.length ) return;
 
         if ( !canIndent1($els) ) {
-            return help( 'only_section', indentBadit($els) );
+            return help( 'only_section_up', indentUpBadit($els) );
         }
         historyPush( new DOMEdit(__Edits.sectionsUp, $els) );
     },
@@ -6553,7 +6604,7 @@ export const Kit = {
      * - 单击路径元素选取或聚焦关联的目标元素。
      * - 出错提示区源目标指示等。
      * data: Element
-     * @return {Element}
+     * @return {Element|null}
      */
     source( evo ) {
         return linkElem( evo.data );
@@ -6565,10 +6616,10 @@ export const Kit = {
     /**
      * 检查范围是否合法。
      * 目标：暂存区/栈顶1项。
-     * 目标为划选范围对象。
-     * 范围需在文本节点或内容元素内，但代码内不应被支持。
-     * 注：
+     * 目标为划选范围对象，范围需在文本节点或内容元素内。
      * 特别允许插图容器内可创建图片链接（<a/img|svg>）。
+     * 注记：
+     * 因为创建单元受限于合法父子关系，所以代码内也支持（仅能创建<b>和<i>）。
      * @data: Range
      * @return {Boolean}
      */
@@ -6577,7 +6628,7 @@ export const Kit = {
             _tv = getType( _el );
 
         evo.data.detach();
-        return T.isContent( _tv ) && _tv !== T.CODE || _tv === T.FIGCONBOX;
+        return T.isContent( _tv ) || _tv === T.FIGCONBOX;
     },
 
     __rngok: 1,
@@ -6791,8 +6842,8 @@ export const Kit = {
 
     /**
      * 文本录入预处理。
-     * 可能已强制切分，支持集合处理。
-     * 清理空白时保留首个空白移除剩余空白，首个空白可能是换行符。
+     * 清理空白时保留首个空白（可能是\n）移除剩余空白。
+     * 支持集合处理。
      * @data: String|[String]
      * @param  {Boolean} clean 是否清理空白
      * @return {String|[String]}
@@ -6810,8 +6861,40 @@ export const Kit = {
 
 
     /**
-     * 换行/空行切分。
-     * 连续多个空行视为一个。
+     * 表格行数据格式处理。
+     * 如果数据成员为格式行，则一项成员即为一行数据。
+     * 数据成员已根据配置作了mdline处理（每个单元格一个文档片段）。
+     * 行数据格式：
+     * =[ 单元格 ][ 单元格 ][ ... ]
+     * 注记：
+     * 表格行格式遵循插件coolmd内对表格的设计。
+     * @data: [String] 单元格或行数据集
+     * @param  {Boolean} isfmt 单元格数据为格式行
+     * @return {[[String]|[DocumentFragment]]} 行单元格序列集（二维）
+     */
+    trfmt( evo, isfmt ) {
+        if ( !isfmt ) {
+            return [ Fx.mdline ? mdlineFragment( evo.data ) : evo.data ];
+        }
+        let _bad = trFmtBad( evo.data );
+
+        if ( _bad ) {
+            // 显示错误行本身（并终止）
+            throw error( _bad, null );
+        }
+        let _fun = Fx.mdline ?
+            s => $.fragment( markdownLine(s) ) :
+            s => s;
+
+        return evo.data.map( ss => ss.match(__reCells)[1].split(__reCellsep).map(_fun) );
+    },
+
+    __trfmt: 1,
+
+
+    /**
+     * 换行或空行切分。
+     * 空行切分时连续多个空行视为一个分隔。
      * @data: String
      * @param  {Boolean} blank 空行切分
      * @return {[String]}
@@ -7115,14 +7198,8 @@ export const Kit = {
      * @return {String|[String]|DocumentFragment|[DocumentFragment]}
      */
     mdline( evo ) {
-        if ( !Fx.mdline || !evo.data ) {
-            // String|[String]
-            return evo.data;
-        }
-        if ( $.isArray(evo.data) ) {
-            return evo.data.map( tt => $.fragment(markdownLine(tt)) );
-        }
-        return $.fragment( markdownLine(evo.data) );
+        return Fx.mdline && evo.data ?
+            mdlineFragment( evo.data ) : evo.data;
     },
 
     __mdline: 1,
@@ -7973,6 +8050,7 @@ customGetter( On, null, Kit, [
     'ismixed',
     'pretreat2',
     'pretreat1',
+    'trfmt',
     'splitx',
     'k3edit',
     'indentcut',

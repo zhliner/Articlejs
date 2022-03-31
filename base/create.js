@@ -1353,11 +1353,9 @@ const ConvInlines = {
     T.S,
     T.U,
     T.VAR,
-
-    // 不支持转换。
-    // 避免代码内标记扰乱，而非代码内创建简单。
-    // T.B,
-    // T.I,
+    // 支持以实现更多灵活性。
+    T.B,
+    T.I,
 ]
 // @return [Object, Node]
 .forEach(function( tv ) {
@@ -2144,17 +2142,15 @@ function elem( tval, data ) {
  *      ....    {String}  正常的元素特性
  * }
  * 注记：
- * 如果需要创建多条子单元，data必须是一个数据集（数组）。
- * 多条创建指重复的子单元而非一个子单元包含多个元素，如：
- * - <tr>   包含多个单元格，但一行的单元格仅视为一次创建
- * - <ruby> 包含固定结构的多个子元素，但一组也只是一次创建
- *
- * 如要重复创建这样的单元，data通常是一个二维数组。
- *
+ * 多次创建指应用数据集各成员重复创建子单元，数据集data必须是一个数组。
+ * 如果子单元本身就是一个集合则视为一次创建，重复创建这样的单元，data通常是一个二维数组。
+ * 如：
+ * 创建多个子<tr>可以用more，但<tr>中创建多个<td>则不是。
+ * 因为前者不固定，根据数据集大小而定，后者为固定数量，逻辑上是一次完成。
  * @param  {Element} el 待构建的目标元素
  * @param  {Object} opts 特性配置集
  * @param  {Node|[Node]|String|Fragment} data 源数据
- * @param  {Boolean} more 是否重复子单元创建
+ * @param  {Boolean} more 多次创建子单元
  * @return {Element|null} el或null
  */
 function build( el, opts, data, more ) {
@@ -2175,6 +2171,7 @@ function build( el, opts, data, more ) {
  * 创建子条目。
  * 由父容器限定，用户无法指定目标类型。
  * 如果指定了参考的兄弟元素，则新内容插入到该元素之前。
+ * 如果子单元是一个集合，则数据各别应用。
  * 适用：
  * - 由create新建开始的子结构迭代完成。
  * - 移动插入中间结构位置时的直接使用。
@@ -2245,7 +2242,8 @@ function create( name, opts, data, more ) {
 
 /**
  * 单元创建器。
- * 创建单个顶层单元，支持多个子单元创建（more）。
+ * 创建单个顶层单元，支持子单元多次创建（more）。
+ * 如<ul>中的不定数量列表项<li>单元。
  * @data: Node|[Node]
  * @param  {String} name 单元名称
  * @return {Function} 创建函数
@@ -2262,8 +2260,9 @@ function creater( name ) {
 
 /**
  * 单元集创建器。
- * 批量创建目标单元（顶层），不支持多子单元创建。
- * @data: [Node]
+ * 批量创建目标单元（顶层），若有多个子单元只能一次创建。
+ * 如果子单元本身就是一个集合（如<tr/td...>），则data通常是一个二维数组。
+ * @data: [Node]|[[Node]]
  * @param  {String} name 单元名称
  * @return {Function} 创建函数
  */

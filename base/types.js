@@ -479,7 +479,7 @@ export const ChildTypes = {
     [ DFN ]:            [ $TEXT, ABBR, ..._SIMPLE ],
     [ BDO ]:            [ $TEXT, A, ..._NOMEDIA ],
     [ TIME ]:           [ $TEXT, ..._SIMPLE ],
-    [ CODE ]:           [ $TEXT, B, I ],
+    [ CODE ]:           [ $TEXT, B, I, S ],
     [ STRONG ]:         [ $TEXT, A, ..._NOMEDIA ],
     [ EM ]:             [ $TEXT, A, ..._NOMEDIA ],
     [ CITE ]:           [ $TEXT, A, ..._NOMEDIA ],

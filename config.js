@@ -219,6 +219,11 @@ const
             '仅章节单元（section）支持缩进操作'
         ],
 
+        'only_section_up': [
+            'edit:indentup',
+            '仅中间章节单元（section）支持缩进提升'
+        ],
+
         'only_child': [
             'edit:onlyone',
             '只能作为唯一子元素存在'

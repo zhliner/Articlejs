@@ -604,6 +604,7 @@ menu._cells {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1px;
+    padding: 2px 1px 6px;
 }
 menu._cells > li {
     padding: 3px 10px 3px 24px;

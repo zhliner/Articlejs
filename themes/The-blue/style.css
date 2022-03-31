@@ -600,6 +600,7 @@ menu._cells {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1px;
+    padding: 2px 1px 6px;
     background-color: #d5fae0;
 }
 menu._cells > li {
