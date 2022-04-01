@@ -116,10 +116,11 @@
         |data('all pls');
         -|add('basic')|goto('pcheck');
         -">
-    <!-- medok 内容区章节标题微编辑更新跟随。
-               注：不支持Undo/Redo变化跟随，用户需手动刷新。-->
+    <!--大纲面板
+        medok 内容区章节标题微编辑更新跟随。不支持Undo/Redo变化跟随，用户需手动刷新。
+              注记：大纲可能未更新，跟随可能找不到条目，故 dup pass 简单略过。 -->
     <aside id="outline" class="___Panel Outline" data-pbo=""
-        on="medok|ev('detail') dup pathx('article', 'section') str('>ol>li:nth-child(', ')') join str('/nav', ' a') $(_1) pop"
+        on="medok|ev('detail') dup pathx('article', 'section') str('>ol>li:nth-child(', ')') join str('/nav', ' a') $(_1) dup pass pop"
         to="-|text">
         <!-- click(~a) 滚动到文章顶部。 -->
         <nav role="toc">

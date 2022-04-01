@@ -39,14 +39,15 @@ const
     STRUCTX     = 1 << 2,   // 结构灵活件（可删除）
     CONTENT     = 1 << 3,   // 内容元素
     INLINES     = 1 << 4,   // 内联单元
-    BLOCKS      = 1 << 5,   // 行块单元
-    SINGLE      = 1 << 6,   // 单一成员（如标题）
-    EMPTY       = 1 << 7,   // 空元素（单标签）
-    COVERT      = 1 << 8,   // 隐蔽的（无法划选）
-    SEALED      = 1 << 9,   // 密封单元（不可合并）
-    FIXED1      = 1 << 10,  // 位置向前固定
-    FIXED2      = 1 << 11,  // 位置向后固定
-    RANGEX      = 1 << 12;  // 可否选取为范围
+    INLSTRUCT   = 1 << 5,   // 内联结构单元（如<rt|rp>
+    BLOCKS      = 1 << 6,   // 行块单元
+    SINGLE      = 1 << 7,   // 单一成员（如标题）
+    EMPTY       = 1 << 8,   // 空元素（单标签）
+    COVERT      = 1 << 9,   // 隐蔽的（无法划选）
+    SEALED      = 1 << 10,  // 密封单元（不可合并）
+    FIXED1      = 1 << 11,  // 位置向前固定
+    FIXED2      = 1 << 12,  // 位置向后固定
+    RANGEX      = 1 << 13;  // 可否选取为范围
 
 
 //
@@ -236,8 +237,8 @@ const Properties = {
     [ FCONA ]:          STRUCT | STRUCTX,
     [ EXPLAIN ]:        STRUCT | STRUCTX | CONTENT,
     // 解包：先文本化，然后内容提升。
-    [ RT ]:             STRUCT | FIXED1 | FIXED2 | CONTENT,
-    [ RP ]:             STRUCT | FIXED1 | FIXED2 | SEALED | COVERT,
+    [ RT ]:             STRUCT | FIXED1 | FIXED2 | CONTENT | INLSTRUCT,
+    [ RP ]:             STRUCT | FIXED1 | FIXED2 | SEALED | COVERT | INLSTRUCT,
     //
     // 内联内容元素
     /////////////////////////////////////////////
@@ -760,6 +761,17 @@ export function isStruct( tval ) {
  */
 export function isStructX( tval ) {
     return !!( Properties[tval] & STRUCTX );
+}
+
+
+/**
+ * 是否为内联结构元素。
+ * 可用于HTML代码格式行（缩进）。
+ * @param  {Number} tval 类型值
+ * @return {Boolean}
+ */
+export function isInlStruct( tval ) {
+    return !!( Properties[tval] & INLSTRUCT );
 }
 
 

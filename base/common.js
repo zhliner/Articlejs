@@ -14,7 +14,7 @@
 
 import $ from "./tpb/config.js";
 import * as T from "./types.js";
-import { beforeFixed, afterFixed, isEmpty, isContent, isInlines, getType } from "./base.js";
+import { beforeFixed, afterFixed, isEmpty, isInlines, getType } from "./base.js";
 import { Scripter } from "../config.js";
 import { Render } from "./tpb/tools/render.js";
 import { Spliter, UmpCaller, UmpString } from "./tpb/tools/spliter.js";
@@ -779,7 +779,7 @@ export class History {
         let _pass = true;
 
         for ( const o of objs ) {
-            if ( o.warn ) {
+            if ( o.warn && o.warn() ) {
                 _pass = window.confirm( o.warn() );
                 if ( !_pass ) break;
             }
@@ -1127,7 +1127,8 @@ function stringAttr( attrs, ind, prefix ) {
  * @return {String}
  */
 function newLineStart( el, indent ) {
-	return el.nodeType === 3 || el.nodeType === 1 && isInlines( el ) ? '' : '\n' + indent;
+    let _tv = getType( el );
+	return el.nodeType === 3 || el.nodeType === 1 && ( T.isInlines(_tv) || T.isInlStruct(_tv) ) ? '' : '\n' + indent;
 }
 
 
@@ -1140,7 +1141,8 @@ function newLineStart( el, indent ) {
  * @return {String}
  */
 function newLineClose( el, indent ) {
-    return el.nodeType === 3 || isInlines( el ) || isContent( el ) || inlineBox( el ) ?
+    let _tv = getType( el );
+    return el.nodeType === 3 || T.isInlines( _tv ) || T.isContent( _tv ) || inlineBox( el ) ?
         '' :
         '\n' + indent;
 }
@@ -1217,7 +1219,7 @@ function obtNice( fmt, ind, prefix ) {
  */
 function inlineBox( el ) {
     let _last = $.contents( el, -1, false, true );
-    return _last.nodeType === 3 || isInlines( _last );
+    return !_last || _last.nodeType === 3 || isInlines( _last );
 }
 
 

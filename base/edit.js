@@ -259,9 +259,12 @@ class CodeRun {
     constructor( handle, ...args ) {
         this._fun = handle;
         this._args = args;
-        this._data;
+
         // 外部只读
         this.count = null;
+
+        this._beg;  // DOM历史栈起始点
+        this._data; // 脚本执行结果
 
         this.redo();
     }
@@ -281,10 +284,10 @@ class CodeRun {
      * 重做。
      */
     redo() {
-        let _old = __TQHistory.size();
+        this._beg = __TQHistory.size();
 
         this._data = this._fun( ...this._args );
-        this.count = __TQHistory.size() - _old;
+        this.count = __TQHistory.size() - this._beg;
     }
 
 
@@ -294,6 +297,15 @@ class CodeRun {
      */
     changed() {
         return this.count > 0;
+    }
+
+
+    /**
+     * 是否包含节点自身变化。
+     * @return {Boolean}
+     */
+    hasNodes() {
+        return __TQHistory.hasNode( this._beg, this.count );
     }
 
 
@@ -1736,16 +1748,16 @@ function selectOne( el, meth ) {
 
 /**
  * 添加元素集选取。
- * 假定父级未选取，会自动清理子级已选取成员。
+ * 父级叔伯元素可能同为选取，因此需上下清理。
  * 用途：虚焦点系列操作。
- * @param {Set} eset 当前选取集
- * @param {Function} gets 获取新元素集回调
+ * @param {[Element} els 当前选取集
+ * @param {Function} getter 获取新元素集回调
  */
-function elementAdds( eset, gets ) {
-    for ( const el of eset ) {
-        __Selects.cleanUp( el );
+function elementAdds( els, getter ) {
+    for ( const el of els ) {
+        __Selects.clean( el );
         // 当前el可能已被叔伯清理掉。
-        __Selects.adds( gets(el) );
+        __Selects.adds( getter(el) );
     }
 }
 
@@ -2056,7 +2068,7 @@ function validNodes( to, meth, data ) {
 function previousCall( hot, n, handle ) {
     n = isNaN(n) ? 1 : n || Infinity;
 
-    if (!hot || n < 0) {
+    if ( !hot || n < 0 ) {
         return;
     }
     let _els = $.prevAll( hot, (_, i) => i <= n );
@@ -2075,7 +2087,7 @@ function previousCall( hot, n, handle ) {
 function nextCall( hot, n, handle ) {
     n = isNaN(n) ? 1 : n || Infinity;
 
-    if (!hot || n < 0) {
+    if ( !hot || n < 0 ) {
         return;
     }
     let _els = $.nextAll( hot, (_, i) => i <= n );
@@ -2774,23 +2786,23 @@ function closestParent( el ) {
  * 注：只有在集合成员都是平级单一选取元素时才正常通过。
  * 注记：
  * 用于虚焦点平级操作前的合法性检测。
- * @param  {Set} eset 元素集
+ * @param  {[Element]} els 元素集
  * @return {void}
  */
-function siblingInvalid( eset ) {
+function siblingInvalid( els ) {
     let _set = new Set(),
         _cnt = 0;
 
-    for ( const [i, el] of eset.entries() ) {
+    for ( const [i, el] of els.entries() ) {
         let _box = el.parentElement;
         _cnt += _box.childElementCount;
 
         if ( _set.add(_box).size === i ) {
-            throw error( 'repeat sibling', el );
+            throw error( Tips.repeatSibling, el );
         }
     }
-    if ( _cnt === eset.size ) {
-        throw error( 'no more sibling' );
+    if ( _cnt === els.size ) {
+        throw error( Tips.aloneSibling, null );
     }
 }
 
@@ -3949,8 +3961,8 @@ function cmdxCalcuate( oper, str ) {
         _op = new CodeRun( _fn, str, __EHot.get() );
 
     if ( _op.changed() ) {
-        _op.warn( Tips.undoWarn );
         historyPush( _op );
+        _op.hasNodes() && _op.warn( Tips.undoWarn );
     }
     return _op.result();
 }
@@ -5230,8 +5242,10 @@ export const Edit = {
      * 下同。
      */
     siblingsVF() {
-        siblingInvalid( __ESet );
-        historyPush( new ESEdit(elementAdds, __ESet, el => $.siblings(el)) )
+        let _els = [ ...__ESet ];
+
+        siblingInvalid( _els );
+        historyPush( new ESEdit(elementAdds, _els, el => $.siblings(el)) )
     },
 
 
@@ -5239,8 +5253,10 @@ export const Edit = {
      * 兄弟同类选取。
      */
     tagsameVF() {
-        siblingInvalid( __ESet );
-        historyPush( new ESEdit(elementAdds, __ESet, el => $.find(`>${el.tagName}`, el.parentElement)) );
+        let _els = [ ...__ESet ];
+
+        siblingInvalid( _els );
+        historyPush( new ESEdit(elementAdds, _els, el => $.find(`>${el.tagName}`, el.parentElement)) );
     },
 
 
@@ -5248,10 +5264,14 @@ export const Edit = {
      * 前向扩选。
      */
     previousVF( n ) {
-        siblingInvalid( __ESet );
-        n = isNaN(n) ? 1 : n;
+        let _els = [ ...__ESet ];
 
-        historyPush( new ESEdit(elementAdds, __ESet, el => $.prevAll(el, (_, i) => i <= n)) );
+        siblingInvalid( _els );
+        n = isNaN(n) ? 1 : n || Infinity;
+
+        if ( n > 0 ) {
+            historyPush( new ESEdit(elementAdds, _els, el => $.prevAll(el, (_, i) => i <= n)) );
+        }
     },
 
 
@@ -5259,10 +5279,12 @@ export const Edit = {
      * 后向扩选。
      */
     nextVF( n ) {
-        siblingInvalid( __ESet );
-        n = isNaN(n) ? 1 : n;
+        let _els = [ ...__ESet ];
 
-        historyPush( new ESEdit(elementAdds, __ESet, el => $.nextAll(el, (_, i) => i <= n)) );
+        siblingInvalid( _els );
+        n = isNaN(n) ? 1 : n || Infinity;
+
+        historyPush( new ESEdit(elementAdds, _els, el => $.nextAll(el, (_, i) => i <= n)) );
     },
 
 
@@ -5272,7 +5294,7 @@ export const Edit = {
      * 友好：焦点定位到集合的首个成员上。
      */
     contentBoxesVF() {
-        let _els = [...__ESet]
+        let _els = [ ...__ESet ]
             .map( el => contentBoxes(el) ).flat();
 
         if ( sameSets(__ESet, _els) ) {
@@ -6140,8 +6162,8 @@ export const Edit = {
 
             // 若改变DOM就进入历史栈。
             if ( _op.changed() ) {
-                _op.warn( Tips.undoWarn );
                 historyPush( _op );
+                _op.hasNodes() && _op.warn( Tips.undoWarn );
             }
             // 结果为假表示正常执行，保存代码并返回null。
             // 结果为Object3，合法性未定，交由后阶处理（是否保存代码）。
@@ -6880,7 +6902,7 @@ export const Kit = {
 
         if ( _bad ) {
             // 显示错误行本身（并终止）
-            throw error( _bad, null );
+            throw error( `Error: ${_bad}`, null );
         }
         let _fun = Fx.mdline ?
             s => $.fragment( markdownLine(s) ) :

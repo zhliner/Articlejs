@@ -151,7 +151,14 @@
                         </li>
                         <li><a href="#内容件">内容件</a></li>
                         <li><a href="#内容行和内容元素">内容行和内容元素</a></li>
-                        <li><a href="#内联单元">内联单元</a></li>
+                        <li>
+                            <h5><a href="#内联单元">内联单元</a></h5>
+                            <ol>
+                                <li><a href="#原生内联单元">原生内联单元</a></li>
+                                <li><a href="#定制单元">定制单元</a></li>
+                                <li><a href="#内联控件">内联控件</a></li>
+                            </ol>
+                        </li>
                     </ol>
                 </li>
                 <li>
@@ -397,229 +404,339 @@
                 </section>
                 <section role="s2">
                     <h2 id="内联单元">内联单元</h2>
-                    <p>只能被包含在内容元素里的元素，没有行块的逻辑，有时也称为行内元素。其中既有可以包含文本的内容元素，也有结构性元素，如文本类的<ruby>注音<rp>(</rp><rt>zhùyīn</rt><rp>)</rp></ruby>（<code>&lt;ruby&gt;/#text,&lt;rp&gt;,&lt;rt&gt;</code>）、媒体类的图片（<code>&lt;picture&gt;</code>）、音频（<code>&lt;audio&gt;</code>）等。</p>
-                    <p>内联单元不是 <strong>内容件</strong>，它们不能作为片区（<code>&lt;section&gt;</code>）的直接子元素出现，而必须被行块级的内容行元素（如 <code>&lt;p&gt;</code>、<code>&lt;li&gt;</code>、<code>&lt;address&gt;</code> 等）封装才行。</p>
-                    <table border="1">
-                        <caption>原生内联单元清单</caption>
-                        <thead>
-                            <tr>
-                                <th>名称</th>
-                                <th>标签</th>
-                                <th>类型/结构</th>
-                                <th>No.</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <th>音频</th>
-                                <td><code>&lt;<b role="tag">audio</b>&gt;&lt;/<b role="tag">audio</b>&gt;</code></td>
-                                <td><code><i>AUDIO /track,source, #text</i></code></td>
-                                <td>1</td>
-                            </tr>
-                            <tr>
-                                <th>视频</th>
-                                <td><code>&lt;<b role="tag">video</b>&gt;&lt;/<b role="tag">video</b>&gt;</code></td>
-                                <td><code><i>VIDEO /track,source, #text</i></code></td>
-                                <td>2</td>
-                            </tr>
-                            <tr>
-                                <th>最佳图</th>
-                                <td><code>&lt;<b role="tag">picture</b>&gt;&lt;/<b role="tag">picture</b>&gt;</code></td>
-                                <td><code><i>PICTURE /source,img</i></code></td>
-                                <td>3</td>
-                            </tr>
-                            <tr>
-                                <th>链接</th>
-                                <td><code>&lt;<b role="tag">a</b>&gt;&lt;/<b role="tag">a</b>&gt;</code></td>
-                                <td><code><i>A</i></code></td>
-                                <td>4</td>
-                            </tr>
-                            <tr>
-                                <th>重点</th>
-                                <td><code>&lt;<b role="tag">strong</b>&gt;&lt;/<b role="tag">strong</b>&gt;</code></td>
-                                <td><code><i>STRONG</i></code></td>
-                                <td>5</td>
-                            </tr>
-                            <tr>
-                                <th>强调</th>
-                                <td><code>&lt;<b role="tag">em</b>&gt;&lt;/<b role="tag">em</b>&gt;</code></td>
-                                <td><code><i>EM</i></code></td>
-                                <td>6</td>
-                            </tr>
-                            <tr>
-                                <th>短引用</th>
-                                <td><code>&lt;<b role="tag">q</b>&gt;&lt;/<b role="tag">q</b>&gt;</code></td>
-                                <td><code><i>Q</i></code></td>
-                                <td>7</td>
-                            </tr>
-                            <tr>
-                                <th>缩写</th>
-                                <td><code>&lt;<b role="tag">abbr</b>&gt;&lt;/<b role="tag">abbr</b>&gt;</code></td>
-                                <td><code><i>ABBR</i></code></td>
-                                <td>8</td>
-                            </tr>
-                            <tr>
-                                <th>来源</th>
-                                <td><code>&lt;<b role="tag">cite</b>&gt;&lt;/<b role="tag">cite</b>&gt;</code></td>
-                                <td><code><i>CITE</i></code></td>
-                                <td>9</td>
-                            </tr>
-                            <tr>
-                                <th>注脚</th>
-                                <td><code>&lt;<b role="tag">small</b>&gt;&lt;/<b role="tag">small</b>&gt;</code></td>
-                                <td><code><i>SMALL</i></code></td>
-                                <td>10</td>
-                            </tr>
-                            <tr>
-                                <th>时间</th>
-                                <td><code>&lt;<b role="tag">time</b>&gt;&lt;/<b role="tag">time</b>&gt;</code></td>
-                                <td><code><i>TIME</i></code></td>
-                                <td>11</td>
-                            </tr>
-                            <tr>
-                                <th>删除</th>
-                                <td><code>&lt;<b role="tag">del</b>&gt;&lt;/<b role="tag">del</b>&gt;</code></td>
-                                <td><code><i>DEL</i></code></td>
-                                <td>12</td>
-                            </tr>
-                            <tr>
-                                <th>插入</th>
-                                <td><code>&lt;<b role="tag">ins</b>&gt;&lt;/<b role="tag">ins</b>&gt;</code></td>
-                                <td><code><i>INS</i></code></td>
-                                <td>13</td>
-                            </tr>
-                            <tr>
-                                <th>下标</th>
-                                <td><code>&lt;<b role="tag">sub</b>&gt;&lt;/<b role="tag">sub</b>&gt;</code></td>
-                                <td><code><i>SUB</i></code></td>
-                                <td>14</td>
-                            </tr>
-                            <tr>
-                                <th>上标</th>
-                                <td><code>&lt;<b role="tag">sup</b>&gt;&lt;/<b role="tag">sup</b>&gt;</code></td>
-                                <td><code><i>SUP</i></code></td>
-                                <td>15</td>
-                            </tr>
-                            <tr>
-                                <th>标记</th>
-                                <td><code>&lt;<b role="tag">mark</b>&gt;&lt;/<b role="tag">mark</b>&gt;</code></td>
-                                <td><code><i>MARK</i></code></td>
-                                <td>16</td>
-                            </tr>
-                            <tr>
-                                <th>代码</th>
-                                <td><code>&lt;<b role="tag">code</b> data-lang=<s>"go"</s>&gt;&lt;/<b role="tag">code</b>&gt;</code></td>
-                                <td><code><i>CODE，可定义语言</i></code></td>
-                                <td>17</td>
-                            </tr>
-                            <tr>
-                                <th>表情</th>
-                                <td><code>&lt;<b role="tag">code</b> role=<s>"orz"</s>&gt;&lt;/<b role="tag">code</b>&gt;</code></td>
-                                <td><code><i>ORZ</i></code></td>
-                                <td>18</td>
-                            </tr>
-                            <tr>
-                                <th>注音</th>
-                                <td><code>&lt;<b role="tag">ruby</b>&gt;&lt;/<b role="tag">ruby</b>&gt;</code></td>
-                                <td><code><i>RUBY /rp,rt</i></code></td>
-                                <td>19</td>
-                            </tr>
-                            <tr>
-                                <th>定义</th>
-                                <td><code>&lt;<b role="tag">dfn</b>&gt;&lt;/<b role="tag">dfn</b>&gt;</code></td>
-                                <td><code><i>DFN</i></code></td>
-                                <td>20</td>
-                            </tr>
-                            <tr>
-                                <th>样本</th>
-                                <td><code>&lt;<b role="tag">samp</b>&gt;&lt;/<b role="tag">samp</b>&gt;</code></td>
-                                <td><code><i>SAMP</i></code></td>
-                                <td>21</td>
-                            </tr>
-                            <tr>
-                                <th>键盘字</th>
-                                <td><code>&lt;<b role="tag">kbd</b>&gt;&lt;/<b role="tag">kbd</b>&gt;</code></td>
-                                <td><code><i>KBD</i></code></td>
-                                <td>22</td>
-                            </tr>
-                            <tr>
-                                <th>失效</th>
-                                <td><code>&lt;<b role="tag">s</b>&gt;&lt;/<b role="tag">s</b>&gt;</code></td>
-                                <td><code><i>S</i></code></td>
-                                <td>23</td>
-                            </tr>
-                            <tr>
-                                <th>注记</th>
-                                <td><code>&lt;<b role="tag">u</b>&gt;&lt;/<b role="tag">u</b>&gt;</code></td>
-                                <td><code><i>U</i></code></td>
-                                <td>24</td>
-                            </tr>
-                            <tr>
-                                <th>变量</th>
-                                <td><code>&lt;<b role="tag">var</b>&gt;&lt;/<b role="tag">var</b>&gt;</code></td>
-                                <td><code><i>VAR</i></code></td>
-                                <td>25</td>
-                            </tr>
-                            <tr>
-                                <th>有向文本</th>
-                                <td><code>&lt;<b role="tag">bdo</b>&gt;&lt;/<b role="tag">bdo</b>&gt;</code></td>
-                                <td><code><i>BDO</i></code></td>
-                                <td>26</td>
-                            </tr>
-                            <tr>
-                                <th>度量</th>
-                                <td><code>&lt;<b role="tag">meter</b>&gt;&lt;/<b role="tag">meter</b>&gt;</code></td>
-                                <td><code><i>METER</i></code></td>
-                                <td>27</td>
-                            </tr>
-                            <tr>
-                                <th>图片</th>
-                                <td><code>&lt;<b role="tag">img</b> /&gt;</code></td>
-                                <td><code><i>IMG</i></code></td>
-                                <td>28</td>
-                            </tr>
-                            <tr>
-                                <th>换行</th>
-                                <td><code>&lt;<b role="tag">br</b> /&gt;</code></td>
-                                <td><code><i>BR</i></code></td>
-                                <td>29</td>
-                            </tr>
-                            <tr>
-                                <th>软换行</th>
-                                <td><code>&lt;<b role="tag">wbr</b> /&gt;</code></td>
-                                <td><code><i>WBR</i></code></td>
-                                <td>30</td>
-                            </tr>
-                            <tr>
-                                <th>空白</th>
-                                <td><code>&lt;<b role="tag">span</b> role=<s>"space"</s>&gt;&lt;/<b role="tag">span</b>&gt;</code></td>
-                                <td><code><i>SPACE</i></code></td>
-                                <td>31</td>
-                            </tr>
-                            <tr>
-                                <th>特用</th>
-                                <td><code>&lt;<b role="tag">b</b>&gt;</code></td>
-                                <td><code><i>代码着色，其它</i></code></td>
-                                <td>32</td>
-                            </tr>
-                            <tr>
-                                <th>特用</th>
-                                <td><code>&lt;<b role="tag">i</b>&gt;</code></td>
-                                <td><code><i>代码注释，其它</i></code></td>
-                                <td>33</td>
-                            </tr>
-                            <tr>
-                                <th>文本节点</th>
-                                <td><code><b role="imp">#text</b></code></td>
-                                <td><code><i>$text</i></code></td>
-                                <td>34</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <p>标准的HTML内联单元虽然品类丰富，但依然稍有欠缺。这里定制了几个可能会常用的新单元类型。</p>
-                    <p>最后一种内联单元是表单控件，它们不是用来表达实体内容的文字或音/视频数据流，而是HTML里特有的。</p>
-                    <p>在普通的文章页面里，表单控件几乎没有意义，因为它们是用来向服务器提供数据的交互元素。但有时，一篇文章里或许需要可视化地表述这些功能性元素，或者作为文档交互的目标，因此也被纳入为可插入。</p>
-                    <p role="note"><strong>注</strong>：因为没有表单容器 <code>&lt;form&gt;</code> 封装，所以操作它们并不会产生提交。</p>
+                    <header>
+                        <p>只能被包含在内容元素里的元素，没有行块的逻辑，有时也称为行内元素。其中既有可以包含文本的内容元素，也有结构性元素，如文本类的<ruby>注音<rp>(</rp><rt>zhùyīn</rt><rp>)</rp></ruby>（<code>&lt;ruby&gt;/#text,&lt;rp&gt;,&lt;rt&gt;</code>）、媒体类的图片（<code>&lt;picture&gt;</code>）、音频（<code>&lt;audio&gt;</code>）等。</p>
+                        <p>内联单元不是 <strong>内容件</strong>，它们不能作为片区（<code>&lt;section&gt;</code>）的直接子元素出现，而必须被行块级的内容行元素（如 <code>&lt;p&gt;</code>、<code>&lt;li&gt;</code>、<code>&lt;address&gt;</code> 等）封装才行。</p>
+                    </header>
+                    <section role="s3">
+                        <h2 id="原生内联单元">原生内联单元</h2>
+                        <p>HTML 标准原生支持的包含内容语义的内联元素。</p>
+                        <table border="1">
+                            <caption>原生内联元素清单</caption>
+                            <thead>
+                                <tr>
+                                    <th>名称</th>
+                                    <th>标签</th>
+                                    <th>类型/结构</th>
+                                    <th>No.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th>音频</th>
+                                    <td><code>&lt;<b role="tag">audio</b>&gt;&lt;/<b role="tag">audio</b>&gt;</code></td>
+                                    <td><code><i>AUDIO /track,source, #text</i></code></td>
+                                    <td>1</td>
+                                </tr>
+                                <tr>
+                                    <th>视频</th>
+                                    <td><code>&lt;<b role="tag">video</b>&gt;&lt;/<b role="tag">video</b>&gt;</code></td>
+                                    <td><code><i>VIDEO /track,source, #text</i></code></td>
+                                    <td>2</td>
+                                </tr>
+                                <tr>
+                                    <th>最佳图</th>
+                                    <td><code>&lt;<b role="tag">picture</b>&gt;&lt;/<b role="tag">picture</b>&gt;</code></td>
+                                    <td><code><i>PICTURE /source,img</i></code></td>
+                                    <td>3</td>
+                                </tr>
+                                <tr>
+                                    <th>链接</th>
+                                    <td><code>&lt;<b role="tag">a</b>&gt;&lt;/<b role="tag">a</b>&gt;</code></td>
+                                    <td><code><i>A</i></code></td>
+                                    <td>4</td>
+                                </tr>
+                                <tr>
+                                    <th>重点</th>
+                                    <td><code>&lt;<b role="tag">strong</b>&gt;&lt;/<b role="tag">strong</b>&gt;</code></td>
+                                    <td><code><i>STRONG</i></code></td>
+                                    <td>5</td>
+                                </tr>
+                                <tr>
+                                    <th>强调</th>
+                                    <td><code>&lt;<b role="tag">em</b>&gt;&lt;/<b role="tag">em</b>&gt;</code></td>
+                                    <td><code><i>EM</i></code></td>
+                                    <td>6</td>
+                                </tr>
+                                <tr>
+                                    <th>短引用</th>
+                                    <td><code>&lt;<b role="tag">q</b>&gt;&lt;/<b role="tag">q</b>&gt;</code></td>
+                                    <td><code><i>Q</i></code></td>
+                                    <td>7</td>
+                                </tr>
+                                <tr>
+                                    <th>缩写</th>
+                                    <td><code>&lt;<b role="tag">abbr</b>&gt;&lt;/<b role="tag">abbr</b>&gt;</code></td>
+                                    <td><code><i>ABBR</i></code></td>
+                                    <td>8</td>
+                                </tr>
+                                <tr>
+                                    <th>来源</th>
+                                    <td><code>&lt;<b role="tag">cite</b>&gt;&lt;/<b role="tag">cite</b>&gt;</code></td>
+                                    <td><code><i>CITE</i></code></td>
+                                    <td>9</td>
+                                </tr>
+                                <tr>
+                                    <th>注脚</th>
+                                    <td><code>&lt;<b role="tag">small</b>&gt;&lt;/<b role="tag">small</b>&gt;</code></td>
+                                    <td><code><i>SMALL</i></code></td>
+                                    <td>10</td>
+                                </tr>
+                                <tr>
+                                    <th>时间</th>
+                                    <td><code>&lt;<b role="tag">time</b>&gt;&lt;/<b role="tag">time</b>&gt;</code></td>
+                                    <td><code><i>TIME</i></code></td>
+                                    <td>11</td>
+                                </tr>
+                                <tr>
+                                    <th>删除</th>
+                                    <td><code>&lt;<b role="tag">del</b>&gt;&lt;/<b role="tag">del</b>&gt;</code></td>
+                                    <td><code><i>DEL</i></code></td>
+                                    <td>12</td>
+                                </tr>
+                                <tr>
+                                    <th>插入</th>
+                                    <td><code>&lt;<b role="tag">ins</b>&gt;&lt;/<b role="tag">ins</b>&gt;</code></td>
+                                    <td><code><i>INS</i></code></td>
+                                    <td>13</td>
+                                </tr>
+                                <tr>
+                                    <th>下标</th>
+                                    <td><code>&lt;<b role="tag">sub</b>&gt;&lt;/<b role="tag">sub</b>&gt;</code></td>
+                                    <td><code><i>SUB</i></code></td>
+                                    <td>14</td>
+                                </tr>
+                                <tr>
+                                    <th>上标</th>
+                                    <td><code>&lt;<b role="tag">sup</b>&gt;&lt;/<b role="tag">sup</b>&gt;</code></td>
+                                    <td><code><i>SUP</i></code></td>
+                                    <td>15</td>
+                                </tr>
+                                <tr>
+                                    <th>标记</th>
+                                    <td><code>&lt;<b role="tag">mark</b>&gt;&lt;/<b role="tag">mark</b>&gt;</code></td>
+                                    <td><code><i>MARK</i></code></td>
+                                    <td>16</td>
+                                </tr>
+                                <tr>
+                                    <th>代码</th>
+                                    <td><code>&lt;<b role="tag">code</b> <b role="atn">data-lang</b>=<s>"go"</s>&gt;&lt;/<b role="tag">code</b>&gt;</code></td>
+                                    <td><code><i>CODE，可定义语言</i></code></td>
+                                    <td>17</td>
+                                </tr>
+                                <tr>
+                                    <th>注音</th>
+                                    <td><code>&lt;<b role="tag">ruby</b>&gt;&lt;/<b role="tag">ruby</b>&gt;</code></td>
+                                    <td><code><i>RUBY /rp,rt</i></code></td>
+                                    <td>18</td>
+                                </tr>
+                                <tr>
+                                    <th>定义</th>
+                                    <td><code>&lt;<b role="tag">dfn</b>&gt;&lt;/<b role="tag">dfn</b>&gt;</code></td>
+                                    <td><code><i>DFN</i></code></td>
+                                    <td>19</td>
+                                </tr>
+                                <tr>
+                                    <th>样本</th>
+                                    <td><code>&lt;<b role="tag">samp</b>&gt;&lt;/<b role="tag">samp</b>&gt;</code></td>
+                                    <td><code><i>SAMP</i></code></td>
+                                    <td>20</td>
+                                </tr>
+                                <tr>
+                                    <th>键盘字</th>
+                                    <td><code>&lt;<b role="tag">kbd</b>&gt;&lt;/<b role="tag">kbd</b>&gt;</code></td>
+                                    <td><code><i>KBD</i></code></td>
+                                    <td>21</td>
+                                </tr>
+                                <tr>
+                                    <th>失效</th>
+                                    <td><code>&lt;<b role="tag">s</b>&gt;&lt;/<b role="tag">s</b>&gt;</code></td>
+                                    <td><code><i>S</i></code></td>
+                                    <td>22</td>
+                                </tr>
+                                <tr>
+                                    <th>注记</th>
+                                    <td><code>&lt;<b role="tag">u</b>&gt;&lt;/<b role="tag">u</b>&gt;</code></td>
+                                    <td><code><i>U</i></code></td>
+                                    <td>23</td>
+                                </tr>
+                                <tr>
+                                    <th>变量</th>
+                                    <td><code>&lt;<b role="tag">var</b>&gt;&lt;/<b role="tag">var</b>&gt;</code></td>
+                                    <td><code><i>VAR</i></code></td>
+                                    <td>24</td>
+                                </tr>
+                                <tr>
+                                    <th>有向文本</th>
+                                    <td><code>&lt;<b role="tag">bdo</b>&gt;&lt;/<b role="tag">bdo</b>&gt;</code></td>
+                                    <td><code><i>BDO</i></code></td>
+                                    <td>25</td>
+                                </tr>
+                                <tr>
+                                    <th>方向隔离</th>
+                                    <td><code>&lt;<b role="tag">bdi</b>&gt;&lt;/<b role="tag">bdi</b>&gt;</code></td>
+                                    <td><code><i>BDI</i></code></td>
+                                    <td>26</td>
+                                </tr>
+                                <tr>
+                                    <th>度量</th>
+                                    <td><code>&lt;<b role="tag">meter</b>&gt;&lt;/<b role="tag">meter</b>&gt;</code></td>
+                                    <td><code><i>METER</i></code></td>
+                                    <td>27</td>
+                                </tr>
+                                <tr>
+                                    <th>图片</th>
+                                    <td><code>&lt;<b role="tag">img</b> /&gt;</code></td>
+                                    <td><code><i>IMG</i></code></td>
+                                    <td>28</td>
+                                </tr>
+                                <tr>
+                                    <th>图形</th>
+                                    <td><code>&lt;<b role="tag">svg</b>&gt;&lt;/<b role="tag">svg</b>&gt;</code></td>
+                                    <td><code><i>SVG /...</i></code></td>
+                                    <td>29</td>
+                                </tr>
+                                <tr>
+                                    <th>换行</th>
+                                    <td><code>&lt;<b role="tag">br</b> /&gt;</code></td>
+                                    <td><code><i>BR</i></code></td>
+                                    <td>30</td>
+                                </tr>
+                                <tr>
+                                    <th>软换行</th>
+                                    <td><code>&lt;<b role="tag">wbr</b> /&gt;</code></td>
+                                    <td><code><i>WBR</i></code></td>
+                                    <td>31</td>
+                                </tr>
+                                <tr>
+                                    <th>特用</th>
+                                    <td><code>&lt;<b role="tag">b</b>&gt;</code></td>
+                                    <td><code><i>代码着色，其它</i></code></td>
+                                    <td>32</td>
+                                </tr>
+                                <tr>
+                                    <th>特用</th>
+                                    <td><code>&lt;<b role="tag">i</b>&gt;</code></td>
+                                    <td><code><i>代码注释，其它</i></code></td>
+                                    <td>33</td>
+                                </tr>
+                                <tr>
+                                    <th>文本节点</th>
+                                    <td><code>#text</code></td>
+                                    <td><code><i>$text</i></code></td>
+                                    <td>34</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+                    <section role="s3">
+                        <h2>定制单元</h2>
+                        <p>标准的HTML内联单元虽然品类丰富，但依然稍有欠缺。这里定制了几个可能会常用的新单元类型。</p>
+                        <table border="1">
+                            <caption>定制内联单元清单</caption>
+                            <thead>
+                                <tr>
+                                    <th>名称</th>
+                                    <th>标签</th>
+                                    <th>类型/结构</th>
+                                    <th>No.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th>表情</th>
+                                    <td><code>&lt;<b role="tag">code</b> <b role="atn">role</b>=<s>"orz"</s>&gt;&lt;/<b role="tag">code</b>&gt;</code></td>
+                                    <td><code><i>ORZ</i></code></td>
+                                    <td>35</td>
+                                </tr>
+                                <tr>
+                                    <th>讲解图</th>
+                                    <td><code>&lt;<b role="tag">span</b> <b role="atn">role</b>=<s>"image"</s>&gt;&lt;/<b role="tag">span</b>&gt;</code></td>
+                                    <td><code><i>IMAGE /img, i:explain</i></code></td>
+                                    <td>36</td>
+                                </tr>
+                                <tr>
+                                    <th>碎片</th>
+                                    <td><code>&lt;<b role="tag">span</b> <b role="atn">role</b>=<s>"crumb"</s>&gt;&lt;/<b role="tag">span</b>&gt;</code></td>
+                                    <td><code><i>CRUMB</i></code></td>
+                                    <td>37</td>
+                                </tr>
+                                <tr>
+                                    <th>空白</th>
+                                    <td><code>&lt;<b role="tag">span</b> <b role="atn">role</b>=<s>"space"</s>&gt;&lt;/<b role="tag">span</b>&gt;</code></td>
+                                    <td><code><i>SPACE</i></code></td>
+                                    <td>38</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+                    <section role="s3">
+                        <h2>内联控件</h2>
+                        <p>最后一种内联单元是表单控件，它们不是用来表达实体内容的文字或音/视频数据流，而是HTML里特有的。</p>
+                        <p>在普通的文章页面里，表单控件几乎没有意义，因为它们是用来向服务器提供数据的交互元素。但有时，一篇文章里或许需要可视化地表述这些功能性元素，或者作为文档交互的目标，因此也被纳入为可插入。</p>
+                        <table border="1">
+                            <caption>内联控件单元清单</caption>
+                            <thead>
+                                <tr>
+                                    <th>名称</th>
+                                    <th>标签</th>
+                                    <th>类型/结构</th>
+                                    <th>No.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th>按钮</th>
+                                    <td><code>&lt;<b role="tag">button</b>&gt;&lt;/<b role="tag">button</b>&gt;</code></td>
+                                    <td><code><i>BUTTON</i></code></td>
+                                    <td>39</td>
+                                </tr>
+                                <tr>
+                                    <th>录入件</th>
+                                    <td><code>&lt;<b role="tag">input</b> /&gt;</code></td>
+                                    <td><code><i>INPUT</i></code></td>
+                                    <td>40</td>
+                                </tr>
+                                <tr>
+                                    <th>标签</th>
+                                    <td><code>&lt;<b role="tag">label</b>&gt;&lt;/<b role="tag">label</b>&gt;</code></td>
+                                    <td><code><i>LABEL</i></code></td>
+                                    <td>41</td>
+                                </tr>
+                                <tr>
+                                    <th>选取项</th>
+                                    <td><code>&lt;<b role="tag">option</b>&gt;&lt;/<b role="tag">option</b>&gt;</code></td>
+                                    <td><code><i>OPTION</i></code></td>
+                                    <td>42</td>
+                                </tr>
+                                <tr>
+                                    <th>输出件</th>
+                                    <td><code>&lt;<b role="tag">output</b>&gt;&lt;/<b role="tag">output</b>&gt;</code></td>
+                                    <td><code><i>OUTPUT</i></code></td>
+                                    <td>43</td>
+                                </tr>
+                                <tr>
+                                    <th>进度条</th>
+                                    <td><code>&lt;<b role="tag">progress</b>&gt;&lt;/<b role="tag">progress</b>&gt;</code></td>
+                                    <td><code><i>PROGRESS</i></code></td>
+                                    <td>44</td>
+                                </tr>
+                                <tr>
+                                    <th>选单</th>
+                                    <td><code>&lt;<b role="tag">select</b>&gt;&lt;/<b role="tag">select</b>&gt;</code></td>
+                                    <td><code><i>SELECT</i></code></td>
+                                    <td>45</td>
+                                </tr>
+                                <tr>
+                                    <th>文本框</th>
+                                    <td><code>&lt;<b role="tag">textarea</b>&gt;&lt;/<b role="tag">textarea</b>&gt;</code></td>
+                                    <td><code><i>TEXTAREA</i></code></td>
+                                    <td>46</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p role="note"><strong>注</strong>：因为没有表单容器 <code>&lt;form&gt;</code> 封装，所以操作它们并不会产生提交。</p>
+                    </section>
                 </section>
             </section>
             <hr />
