@@ -98,7 +98,7 @@ const
     // 行单元格序列模式。
     // 格式参考插件 /plugins/coolmd 内设计。
     // 注意空格是必须的！
-    __reCells   = /^=\[:?\s(.*)\s\]$/,
+    __reCells   = /^\|\[:?\s(.*)\s\]$/,
 
     // 行单元格风格符序列模式。
     // 容错表头首列后冒号标识（[: TH :][ TH ][ ... ]）。
@@ -6897,7 +6897,7 @@ export const Kit = {
      * 如果数据成员为格式行，则一项成员即为一行数据。
      * 数据成员已根据配置作了mdline处理（每个单元格一个文档片段）。
      * 行数据格式：
-     * =[ 单元格 ][ 单元格 ][ ... ]
+     * |[ 单元格 ][ 单元格 ][ ... ]
      * 注记：
      * 表格行格式遵循插件coolmd内对表格的设计。
      * @data: [String] 单元格或行数据集
@@ -6912,7 +6912,7 @@ export const Kit = {
 
         if ( _bad ) {
             // 显示错误行本身（并终止）
-            throw error( `Error: ${_bad}`, null );
+            throw error( `${Tips.trfmtError}${_bad}`, null );
         }
         let _fun = Fx.mdline ?
             s => $.fragment( markdownLine(s) ) :

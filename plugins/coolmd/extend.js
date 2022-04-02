@@ -68,7 +68,7 @@ const
     __cellStart = '[',  // 单元格开头
     __cellEnd   = ']',  // 单元格结尾
     __thFlag    = ':',  // <th>标识、跟随<th>标识
-    __tableFlag = '=',  // 表区块标识（拟双横线）
+    __tableFlag = '|',  // 表区块标识（行首）
 
     // 代码块包围标识串
     __codeRound = "```",

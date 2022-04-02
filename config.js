@@ -167,7 +167,10 @@ const
         // 虚焦点检查提示
         repeatSibling: '错误：选取集已包含多个兄弟元素。',
 
-        aloneSibling: '错误：没有更多的兄弟元素。'
+        aloneSibling: '错误：没有更多的兄弟元素。',
+
+        // 表格行格式错误提示头
+        trfmtError: '格式错误：',
     },
 
 
