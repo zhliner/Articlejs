@@ -112,6 +112,16 @@ export class ESet extends Set {
 
 
     /**
+     * 获取目标元素下标。
+     * @param  {Element} el 目标元素
+     * @return {Number}
+     */
+    index( el ) {
+        return [ ...this ].indexOf( el );
+    }
+
+
+    /**
      * 返回首个成员。
      * @return {Element|void}
      */

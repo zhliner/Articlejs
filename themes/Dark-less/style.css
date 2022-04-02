@@ -48,8 +48,8 @@ div.Editor {
 /* 大纲&帮助面板 */
 aside.Help,
 aside.Outline {
-    width: 240px;
-    min-width: 180px;
+    width: 256px;
+    min-width: 200px;
     background-color: #282824;
 }
 

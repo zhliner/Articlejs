@@ -2107,7 +2107,7 @@ function nextCall( hot, n, handle ) {
 function parentCall( hot, n, handle ) {
     n = isNaN(n) ? 1 : n;
 
-    if (!hot || n <= 0) {
+    if ( !hot || n <= 0 ) {
         return;
     }
     let _to = $.closest( hot, (el, i) => i == n || el === contentElem );
@@ -4674,9 +4674,11 @@ function _tableNoit( ref, els ) {
  * 用于编辑器设置此模块中操作的全局目标。
  * 实参为元素选择器。
  * @param {String} content 编辑器内容根（<main>）
- * @param {String} pathbox 路径蓄力容器
+ * @param {String} covert 隐蔽元素提示容器（如对 <source>）
  * @param {String} pslave 主面板根元素
+ * @param {String} pathbox 路径蓄力容器
  * @param {String} errbox 出错信息提示容器
+ * @param {String} infobox 即时提示信息容器
  * @param {String} outline 大纲视图容器
  * @param {String} midtool 工具栏动态按钮区
  * @param {String} modal 模态框根容器
@@ -4797,7 +4799,11 @@ export const Edit = {
         let _hot = __EHot.get(),
             _nxt = __ESet.next( _hot );
 
-        if ( _nxt && _nxt !== _hot ) setFocus( _nxt );
+        if ( _nxt && _nxt !== _hot ) {
+            setFocus( _nxt );
+            // 当前位置提示
+            statusInfo( `${__ESet.index(_nxt)+1}/${__ESet.size}` );
+        }
     },
 
 
@@ -4808,7 +4814,11 @@ export const Edit = {
         let _hot = __EHot.get(),
             _nxt = __ESet.prev( _hot );
 
-        if ( _nxt && _nxt !== _hot ) setFocus( _nxt );
+        if ( _nxt && _nxt !== _hot ) {
+            setFocus( _nxt );
+            // 当前位置提示
+            statusInfo( `${__ESet.index(_nxt)+1}/${__ESet.size}` );
+        }
     },
 
 

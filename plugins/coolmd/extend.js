@@ -38,13 +38,18 @@ import { htmlEscape } from "../../base/hlparse/base.js";
 // 如果不需要支持，修改为false即可。
 //
 const
-    // 代码元素汉字紧邻优化。
-    // 如果<code>两侧紧邻汉字（非标点），额外添加一个空格以美观。
-    codeHans = true,
-
     // 内联文本空白清理。
     // 首尾文本空白移除，相邻文本节点间隔单个空格。
-    cleanText = true;
+    trimText = true,
+
+    // 代码元素紧邻友好。
+    // 如果<code>两侧紧邻汉字（非标点），额外添加一个空格以美观。
+    friendlyCode = true,
+
+    // 其它需友好的紧邻字符。
+    // 每个字符为一个成员，可添加英文字母以友好。
+    // 注记：+ 字符主要用于快捷键组合时。
+    nearChars = new Set( "+-" );
 
 
 
@@ -787,7 +792,7 @@ function convCode( el ) {
     if ( /[^`]`[^`]/.test(el.textContent) ) {
         _chx = '``';
     }
-    return codeHans ? convCodeHans(el, _chx) : `${_chx}${el.textContent}${_chx}`;
+    return friendlyCode ? codeFriend(el, _chx) : `${_chx}${el.textContent}${_chx}`;
 }
 
 
@@ -827,7 +832,7 @@ function convInline( el ) {
             node.textContent.trim() && _buf.push( htmlEscape(node.textContent) );
         }
     }
-    return cleanText ? _buf.map(s => s.trim()).join(' ') : _buf.join('');
+    return trimText ? _buf.map(s => s.trim()).join(' ') : _buf.join('');
 }
 
 
@@ -907,21 +912,6 @@ function convPre( el, lev ) {
  */
 function convHGroup( el ) {
     return [...el.children].map( hx => convert(hx, __blockFunc) ).join( '\n' );
-}
-
-
-/**
- * 支持汉字优化的代码转换。
- * 紧邻汉字的一侧添加一个空格。
- * @param  {Element} el 代码元素
- * @param  {String} chx 封装字符
- * @return {String}
- */
-function convCodeHans( el, chx ) {
-    let _prev = (el.previousSibling || '').textContent || '',
-        _next = (el.nextSibling || '').textContent || '';
-
-    return codeHans2( chx, el.textContent, _prev, _next );
 }
 
 
@@ -1042,17 +1032,34 @@ function codeBlock( codes, lang = '', prefix = '' ) {
 
 
 /**
- * 汉字包围代码处理。
- * 如果代码元素的前后紧邻汉字，则添加额外的空格。
+ * 代码转换友好。
+ * 紧邻汉字的一侧添加一个空格。
+ * @param  {Element} el 代码元素
+ * @param  {String} chx 封装字符
+ * @return {String}
+ */
+function codeFriend( el, chx ) {
+    let _prev = (el.previousSibling || '').textContent || '',
+        _next = (el.nextSibling || '').textContent || '';
+
+    return codeWarp( chx, el.textContent, _prev, _next );
+}
+
+
+/**
+ * 代码分组处理。
+ * 如果代码元素的前后紧邻汉字或指定的字符，则添加额外的空格。
  * @param  {String} chx 封装字符
  * @param  {String} txt 代码文本
  * @param  {String} beg 前段文本
  * @param  {String} end 后段文本
  * @return {String} MD格式代码串（可能两端外附一个空格）
  */
-function codeHans2( chx, txt, beg, end ) {
-    let _ch1 = isHans( beg[beg.length-1] ) ? ' ' : '',
-        _ch2 = isHans( end[0] ) ? ' ' : '';
+function codeWarp( chx, txt, beg, end ) {
+    let _p = beg[beg.length-1],
+        _n = end[0],
+        _ch1 = isHans(_p) || nearChars.has(_p) ? ' ' : '',
+        _ch2 = isHans(_n) || nearChars.has(_n) ? ' ' : '';
 
     return _ch1 + chx + txt + chx + _ch2;
 }

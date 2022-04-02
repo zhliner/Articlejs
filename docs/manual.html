@@ -56,7 +56,13 @@
                                 <li><a>鼠标点选</a></li>
                                 <li><a>按键选取</a></li>
                                 <li><a>选取扩展</a></li>
-                                <li><a>虚焦点支持</a></li>
+                                <li>
+                                    <h5><a>虚焦点支持</a></h5>
+                                    <ol>
+                                        <li><a>平级类</a></li>
+                                        <li><a>纵深类</a></li>
+                                    </ol>
+                                </li>
                                 <li><a>路径辅助选取</a></li>
                                 <li><a>选取集排序</a></li>
                             </ol>
@@ -147,7 +153,7 @@
                     <p>编辑器初始的常规状态即为<em>普通模式</em>。此时无法对文本进行编辑，但可以对内容进行各种控制。</p>
                     <ul>
                         <li><strong>选取</strong>：鼠标单击选中目标元素，按 <kbd>Ctrl</kbd> 键单击可多选或切换选取。另外还有一些<em>扩展选取</em>的快捷方式。被选中的多个目标元素称为<strong>选取集</strong>，它们是接下来各种操作的目标对象。</li>
-                        <li><strong>移动</strong>：将选取集元素移动到焦点元素之前、之后或内部。如果源元素不是目标位置合法的类型，会自动转换。平级移动非常简单（<kbd>Alt+↑</kbd> 或 <kbd>Alt+↓</kbd>），也不需要转换。</li>
+                        <li><strong>移动</strong>：将选取集元素移动到焦点元素之前、之后或内部。如果源元素不是目标位置合法的类型，会自动转换。平级移动非常简单（<kbd>Alt + ↑</kbd> 或 <kbd>Alt + ↓</kbd>），也不需要转换。</li>
                         <li><strong>克隆</strong>：将选取集元素克隆并插入到焦点元素之前、之后或内部，位置不合法时也会自动转换。原地克隆也很简单，键入热键<kbd>C</kbd>即可，同时也支持<em>前置数字</em>指定克隆的份数。</li>
                         <li><strong>删除</strong>：大部分元素可以按<kbd>Delete</kbd>键直接删除，但拥有固定结构（如表格）的内部元素不可以。删除操作会智能判断目标类型，不能直接删除的只会移除其内容（而不是目标本身）。当然，你也可以<strong>强制删除</strong>它。</li>
                         <li><strong>缩进</strong>：仅适用章节片区。对选中的章节单元进行<em>升级</em>或<em>降级</em>。</li>
@@ -160,9 +166,9 @@
                         <p>普通模式下大量的操作都可以使用热键（快捷键）完成，这可以极大地提高效率。为便于记忆，热键设定遵循如下原则。</p>
                         <ul>
                             <li><kbd>X</kbd>: 某单个键位，完成某个功能操作。如<kbd>C</kbd>键复制当前选取集并原地插入（<code>after</code>）。</li>
-                            <li><kbd>Shift</kbd>+<kbd>X</kbd>: 当前功能增强。如<kbd>Shift+C</kbd>键复制当前选取集，各别插入原元素之后（<code>after</code>）。</li>
-                            <li><kbd>Ctrl</kbd>+<kbd>X</kbd>: 当前功能相关的衍生功能。如<em>修订模式</em>下的<kbd>Ctrl+Enter</kbd>创建一个同类新行。</li>
-                            <li><kbd>Alt</kbd>+<kbd>X</kbd>: 提供当前功能的额外能力，关联性更远一些。如<kbd>Alt+←</kbd>提升当前章节层级。</li>
+                            <li><kbd>Shift</kbd>+<kbd>X</kbd>: 当前功能增强。如<kbd>Shift + C</kbd>键复制当前选取集，各别插入原元素之后（<code>after</code>）。</li>
+                            <li><kbd>Ctrl</kbd>+<kbd>X</kbd>: 当前功能相关的衍生功能。如<em>修订模式</em>下的<kbd>Ctrl + Enter</kbd>创建一个同类新行。</li>
+                            <li><kbd>Alt</kbd>+<kbd>X</kbd>: 提供当前功能的额外能力，关联性更远一些。如<kbd>Alt + ←</kbd>提升当前章节层级。</li>
                         </ul>
                         <p>当然，用户也可以根据自己的喜好修改系统默认的热键配置（详见：<em>base/shortcuts.js</em>）。</p>
                     </aside>
@@ -208,19 +214,19 @@
                         <p>通过鼠标<strong>单击</strong>的方式可以定位焦点元素并实现选取或取消选取。</p>
                         <ul>
                             <li><strong>单选</strong>：<code>单击</code>。鼠标单击目标元素即选中目标，但之前的选取会被取消。</li>
-                            <li><strong>多选</strong>：<kbd>Ctrl</kbd> + <code>单击</code>。目标元素会被添加到当前选取集内。如果目标已经是被选取的，则会取消选取（<strong>切换</strong>）。</li>
-                            <li><strong>聚焦</strong>：<kbd>Alt</kbd> + <code>单击</code>。仅将选取焦点移动到目标元素上，没有选取作用。这在某些需要定位的操作中很有用。</li>
+                            <li><strong>多选</strong>：<kbd>Ctrl</kbd>+ <code>单击</code>。目标元素会被添加到当前选取集内。如果目标已经是被选取的，则会取消选取（<strong>切换</strong>）。</li>
+                            <li><strong>聚焦</strong>：<kbd>Alt</kbd>+ <code>单击</code>。仅将选取焦点移动到目标元素上，没有选取作用。这在某些需要定位的操作中很有用。</li>
                         </ul>
                         <p>下面的鼠标选取有一定的智能性，与焦点元素有关。</p>
                         <ul>
-                            <li><strong>跨选</strong>：<kbd>Shift</kbd> + <code>单击</code>。与焦点元素同级，跨选到目标元素之处的全部兄弟元素。鼠标指向的目标元素（<code>event.target</code>）可能并不与焦点元素同级，但会自动提升至同级。跨选是<strong>同态</strong>逻辑（见下）。</li>
-                            <li><strong>浮选</strong>：<kbd>Shift</kbd> + <kbd>Ctrl</kbd> + <code>单击</code>。以焦点元素所在层级为参考，对目标元素的同层级容器元素执行<strong>切换</strong>选取。</li>
+                            <li><strong>跨选</strong>：<kbd>Shift</kbd>+ <code>单击</code>。与焦点元素同级，跨选到目标元素之处的全部兄弟元素。鼠标指向的目标元素（<code>event.target</code>）可能并不与焦点元素同级，但会自动提升至同级。跨选是<strong>同态</strong>逻辑（见下）。</li>
+                            <li><strong>浮选</strong>：<kbd>Shift</kbd>+<kbd>Ctrl</kbd>+ <code>单击</code>。以焦点元素所在层级为参考，对目标元素的同层级容器元素执行<strong>切换</strong>选取。</li>
                         </ul>
                         <p>下面的鼠标选取与焦点元素无关。</p>
                         <ul>
-                            <li><strong>父多选</strong>：<kbd>Alt</kbd> + <kbd>Ctrl</kbd> + <code>单击</code>。选取或取消选取鼠标单击的目标元素的父元素。这在定位<code>&lt;tr&gt;</code>元素时很有用。</li>
-                            <li><strong>父单选</strong>：<kbd>Alt</kbd> + <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <code>单击</code>。类似父选，但会取消之前的全部选取。</li>
-                            <li><strong>父聚焦</strong>：<kbd>Alt</kbd> + <kbd>Shift</kbd> + <code>单击</code>。仅将选取焦点移动到单击目标的父元素上，不影响当前选取集。</li>
+                            <li><strong>父多选</strong>：<kbd>Alt</kbd>+<kbd>Ctrl</kbd>+ <code>单击</code>。选取或取消选取鼠标单击的目标元素的父元素。这在定位<code>&lt;tr&gt;</code>元素时很有用。</li>
+                            <li><strong>父单选</strong>：<kbd>Alt</kbd>+<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+ <code>单击</code>。类似父选，但会取消之前的全部选取。</li>
+                            <li><strong>父聚焦</strong>：<kbd>Alt</kbd>+<kbd>Shift</kbd>+ <code>单击</code>。仅将选取焦点移动到单击目标的父元素上，不影响当前选取集。</li>
                         </ul>
                         <aside>
                             <h4>同态：</h4>
@@ -235,7 +241,7 @@
                             <li><kbd>Space</kbd>：<strong>选取切换</strong>。焦点元素选取或取消选取。不影响其它已选取元素，类似 <code>Ctrl</code> + <code>单击</code> 的效果。</li>
                             <li><kbd>Shift</kbd> + <em>箭头键</em>：<strong>单选游走</strong>。移动焦点的同时改选到目标元素，其它选取被取消，类似鼠标<code>单击</code>的效果。</li>
                         </ul>
-                        <p role="tips"><strong>提示</strong>：支持 <kbd>Shift</kbd> + <kbd>T</kbd> 单选游走到焦点元素的<strong>顶元素</strong>。顶元素含义见后。</p>
+                        <p role="tips"><strong>提示</strong>：支持 <kbd>Shift</kbd>+<kbd>T</kbd> 单选游走到焦点元素的<strong>顶元素</strong>。顶元素含义见后。</p>
                     </section>
                     <section role="s3">
                         <h2>选取扩展</h2>
@@ -244,46 +250,64 @@
                         <ul>
                             <li><kbd>A</kbd>：<code>All</code>，定位<strong>全部</strong>兄弟元素，使得它们与焦点元素的状态相同。焦点不变。</li>
                             <li><kbd>E</kbd>：<code>Element</code>，定位<strong>同类</strong>的兄弟元素（相同标签），使之与焦点元素状态相同。焦点不变。</li>
-                            <li><kbd>Shift</kbd> + <kbd>E</kbd>：定位<strong>叔伯</strong>元素（父元素的兄弟元素）内的<em>相同标签</em>子元素，使之与焦点元素状态相同。焦点不变。这在选取同一父章节下的子章节的标题时很有用，或者选取表格中的列头（<code>&lt;th&gt;</code>）时有用。</li>
-                            <li><kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>E</kbd>：定位叔伯元素中<strong>标签相同</strong>且所在<strong>位置也相同</strong>的子元素，使之与焦点元素状态相同。焦点不变。这在选取<em>表格中的一列</em>时很有用。或者选取一个列表中<em>每一行的首个子元素</em>（如果标签相同）时有用。</li>
+                            <li><kbd>Shift</kbd>+<kbd>E</kbd>：定位<strong>叔伯</strong>元素（父元素的兄弟元素）内的<em>相同标签</em>子元素，使之与焦点元素状态相同。焦点不变。这在选取同一父章节下的子章节的标题时很有用，或者选取表格中的列头（<code>&lt;th&gt;</code>）时有用。</li>
+                            <li><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>E</kbd>：定位叔伯元素中<strong>标签相同</strong>且所在<strong>位置也相同</strong>的子元素，使之与焦点元素状态相同。焦点不变。这在选取<em>表格中的一列</em>时很有用。或者选取一个列表中<em>每一行的首个子元素</em>（如果标签相同）时有用。</li>
                         </ul>
                         <p role="tips"><strong>提示</strong>：<br />新添加的元素位于选取集内的后部，这样的顺序可能并不是你想要的。按<kbd>S</kbd>键可以按DOM节点流顺序排序选取集。</p>
                         <p>下面的热键在移动焦点的同时会执行<strong>同态</strong>操作。</p>
                         <ul>
-                            <li><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>↑</kbd>：同级<strong>向前</strong>（<code>previous</code>）扩展，支持前置数字指定扩展距离。焦点会移动到最终的元素上。</li>
-                            <li><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>↓</kbd>：同级<strong>向后</strong>（<code>next</code>）扩展，支持同上。</li>
+                            <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>↑/K</kbd>：同级<strong>向前</strong>（<code>previous</code>）扩展，支持前置数字指定扩展距离。焦点会移动到最终的元素上。</li>
+                            <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>↓/J</kbd>：同级<strong>向后</strong>（<code>next</code>）扩展，支持同上。</li>
                         </ul>
                         <p role="note"><strong>注记</strong>：<kbd>Shift</kbd>在这里表示选取增强，<kbd>Ctrl</kbd>则表示<em>多选/切换选取</em>的逻辑，与鼠标多选逻辑相同。</p>
                         <p>下面的热键在移动焦点的同时会执行<strong>选取</strong>操作。<em>注：纵深方向上没有同态逻辑，因为选取成员不能相互包含。</em></p>
                         <ul>
-                            <li><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>←</kbd>：<strong>向上</strong>移动焦点到<em>父元素</em>上，同时选取父元素。支持<em>数字</em>指定距离。</li>
-                            <li><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>→</kbd>：<strong>向下</strong>移动焦点到<em>子元素</em>上，同时选取子元素。支持<em>数字</em>指定目标子元素的下表（<code>0</code>为首个）。</li>
-                            <li><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>T</kbd>：移动焦点到当前焦点元素的顶元素（<code>Top</code>）上并选取。</li>
+                            <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>←/H</kbd>：<strong>向上</strong>移动焦点到<em>父元素</em>上，同时选取父元素。支持<em>数字</em>指定距离。</li>
+                            <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>→/L</kbd>：<strong>向下</strong>移动焦点到<em>子元素</em>上，同时选取子元素。支持<em>数字</em>指定目标子元素的位置下标（从 <code>0</code> 开始），支持负数从末尾算起。</li>
+                            <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd>：移动焦点到当前焦点元素的顶元素（<code>Top</code>）上并选取。</li>
                         </ul>
                         <p>下面的操作与焦点元素状态无关，为固定的<em>选取</em>和<em>取消选取</em>逻辑。</p>
                         <ul>
                             <li><kbd>V</kbd>：同级<strong>反选</strong>。针对焦点元素所在层级，已选取的元素<em>取消选取</em>，未选取的元素<em>选取</em>。焦点不变。</li>
                             <li><kbd>W</kbd>：<strong>宽选</strong>内容子。向下检索焦点元素内全部<strong>内容根</strong>元素，将之添加到选取集。焦点移动到首个成员（<em>以体现视觉变化</em>）。</li>
-                            <li><kbd>Shift</kbd> + <kbd>W</kbd>：同上<strong>宽选</strong>逻辑，但新的内容子元素插入到选取集头部而非末尾。焦点移动到首个成员。</li>
+                            <li><kbd>Shift</kbd>+<kbd>W</kbd>：同上<strong>宽选</strong>逻辑，但新的内容子元素插入到选取集头部而非末尾。焦点移动到首个成员。</li>
                             <li><kbd>Q</kbd>：<strong>排他选取</strong>。取消焦点元素之外的同级已选取，保留焦点元素的选取（<em>若未选取则自动选取</em>）。</li>
-                            <li><kbd>Shift</kbd> + <kbd>Q</kbd>：全局<strong>排他选取</strong>。取消焦点元素之外全部已选取，保留焦点元素的选取或自动选取。</li>
+                            <li><kbd>Shift</kbd>+<kbd>Q</kbd>：全局<strong>排他选取</strong>。取消焦点元素之外全部已选取，保留焦点元素的选取或自动选取。</li>
                             <li><kbd>ESC</kbd>：<strong>取消</strong>全部选取和焦点元素的选取焦点（<strong>注</strong>：可撤销）。</li>
                         </ul>
                     </section>
                     <section role="s3">
                         <h2>虚焦点支持</h2>
-                        <p>大部分的选取操作都是基于<em>焦点元素</em>，但焦点元素只有一个。对于需要批量操作的场景，这并不友好，因此这里引入了<strong>虚焦点</strong>的设计。</p>
-                        <p>虚焦点是把选取集内的<strong>每一个成员都视为焦点元素</strong>，然后执行特定的操作。支持虚焦点的操作并不多，并且只有<strong>选取</strong>而没有<em>同态</em>的逻辑。因为每一个成员都变成了焦点，所以这里有一些限制：</p>
-                        <ol>
-                            <li>仅适用部分简单的选取，比如<kbd>E</kbd>选取同级同类元素，复杂的叔伯元素选取（<kbd>Shift+E</kbd>）则不适用。</li>
-                            <li>平级操作时（如<kbd>E</kbd>）选取集内的成员不能互为兄弟元素，每个成员只能是其父元素内的唯一选取。纵向操作（<kbd>W</kbd>）则无此约束。</li>
-                        </ol>
-                        <p>通常，支持虚焦点的操作会辅以<kbd>Alt</kbd>键。可用操作共<strong>8</strong>个：</p>
-                        <ul>
-                            <li><strong>平级类</strong>：<kbd>A</kbd>、<kbd>E</kbd>、<kbd>Ctrl+Shift+↑</kbd>、<kbd>Ctrl+Shift+↓</kbd>，其中的 <kbd>Ctrl</kbd> 改为 <kbd>Alt</kbd>。每个成员在其父元素内为单选，因为操作之后即失去了唯一性，所以这是<em>一次性</em>的。</li>
-                            <li><strong>纵深类</strong>：<kbd>W</kbd>、<kbd>Ctrl+Shift+→</kbd>、<kbd>Ctrl+Shift+←</kbd>、<kbd>Ctrl+Shift+T</kbd>，其中的 <kbd>Ctrl</kbd>改为 <kbd>Alt</kbd>。向下选取时元素各自独立，向上改选时共同的父级元素会被自动去重。</li>
-                        </ul>
-                        <p>如果操作使用了虚焦点，<em>平级类</em>会保留原来的实际焦点不变，但<em>纵深类</em>则会将焦点移到整个选取集的<strong>首个</strong>成员上。</p>
+                        <header>
+                            <p>大部分的选取操作都是基于<em>焦点元素</em>，但焦点元素只有一个。对于需要批量操作的场景，这并不友好，因此这里引入了<strong>虚焦点</strong>的设计。</p>
+                            <p>虚焦点是把选取集内的<strong>每一个成员都视为焦点元素</strong>，然后执行特定的操作。支持虚焦点的操作并不多，并且只有<strong>选取</strong>而没有<em>同态</em>的逻辑。因为每一个成员都变成了焦点，所以这里有一些限制：</p>
+                            <ol>
+                                <li>仅适用部分简单的选取，比如<kbd>E</kbd>选取同级同类元素，复杂的叔伯元素选取（<kbd>Shift + E</kbd>）则不适用。</li>
+                                <li>平级操作时（如<kbd>E</kbd>）选取集内的成员不能互为兄弟元素，即每个成员只能是其父元素内的唯一选取。纵向操作（<kbd>W</kbd>）则无此约束。</li>
+                            </ol>
+                            <p>通常，支持虚焦点的操作会辅以 <kbd>Alt</kbd> 键（<strong>注</strong>：对应的普通扩展选取辅助键为 <kbd>Ctrl</kbd>）。可用的操作共<strong>8</strong>个。</p>
+                        </header>
+                        <section role="s4">
+                            <h2>平级类</h2>
+                            <ul>
+                                <li><kbd>Alt</kbd>+<kbd>A</kbd>：选取同级全部兄弟元素。参考节点为当前选取集各个成员，下同。</li>
+                                <li><kbd>Alt</kbd>+<kbd>E</kbd>：选取同级全部<strong>同类</strong>元素。</li>
+                                <li><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>↑/K</kbd>：向前（previous）扩选同级兄弟元素，支持数字指定距离。</li>
+                                <li><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>↓/J</kbd>：向后（next）扩选同级兄弟元素，支持数字指定距离。</li>
+                            </ul>
+                            <p role="note"><strong>注意</strong>：每个成员在其父元素内为单选，因为操作之后即失去了唯一性，所以这是<em>一次性</em>的。</p>
+                        </section>
+                        <section role="s4">
+                            <h2>纵深类</h2>
+                            <p>向下选取时元素各自独立，向上改选时共同的父级元素会被自动去重。</p>
+                            <ul>
+                                <li><kbd>Alt</kbd>+<kbd>W</kbd>：向下扩展到内容元素。参考节点为当前选取集各个成员，下同。</li>
+                                <li><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>←/H</kbd>：向上选取父级元素，支持<em>数字</em>指定距离。</li>
+                                <li><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>→/L</kbd>：向下（内）选取子元素，支持<em>数字</em>指定目标子元素的位置下标。支持负数从末尾算起。</li>
+                                <li><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd>：向上选取顶元素。</li>
+                            </ul>
+                            <p role="tips"><strong>提示</strong>：如果操作使用了虚焦点，<em>平级类</em>会保留原来的实际焦点不变，但<em>纵深类</em>则会将焦点移到整个选取集的<strong>首个</strong>成员上。</p>
+                        </section>
                     </section>
                     <section role="s3">
                         <h2>路径辅助选取</h2>
@@ -296,7 +320,7 @@
                         <p>元素的选取方式非常多也很灵活，但选取集内部成员的顺序有时是很重要的，比如<em>合并</em>、<em>移动插入</em>或者系统级的<em>复制</em>/<em>粘贴</em>等。除了通过仔细的按顺序选取外，如果要让选取集成员按DOM节点流排序，可以用如下热键完成。</p>
                         <ul>
                             <li><strong>正序</strong>：<kbd>S</kbd>。选取集按DOM节点流排序，焦点定位到排序后的首个成员。</li>
-                            <li><strong>逆序</strong>：<kbd>Shift+S</kbd>。选取集按DOM节点树逆序排序，焦点定位规则同上（DOM上看为<em>最后一个</em>元素）。</li>
+                            <li><strong>逆序</strong>：<kbd>Shift + S</kbd>。选取集按DOM节点树逆序排序，焦点定位规则同上（DOM上看为<em>最后一个</em>元素）。</li>
                         </ul>
                     </section>
                 </section>
@@ -309,36 +333,36 @@
                         <h2>普通编辑</h2>
                         <ul>
                             <li><strong>删除</strong>：<kbd>Delete</kbd>。删除选取集内的元素，有一定智能性，部分不可单独删除的不会删除（如：<code>&lt;td&gt;</code>、<code>&lt;rb&gt;</code>等）。</li>
-                            <li><strong>内容删除</strong>：<kbd>Shift+Delete</kbd>。删除选取集元素内的可编辑内容（即内容元素里的内容），不含元素自身。</li>
-                            <li><strong>强制删除</strong>：<kbd>Alt+Shift+Delete</kbd>。删除选取集内的任意元素，包括结构中不应被删除的子元素。有一定破坏性。</li>
+                            <li><strong>内容删除</strong>：<kbd>Shift + Delete</kbd>。删除选取集元素内的可编辑内容（即内容元素里的内容），不含元素自身。</li>
+                            <li><strong>强制删除</strong>：<kbd>Alt + Shift + Delete</kbd>。删除选取集内的任意元素，包括结构中不应被删除的子元素。有一定破坏性。</li>
                         </ul>
                         <ul>
                             <li><strong>撤消</strong>：<kbd>U</kbd>。Undo，撤销当前操作的选取或编辑。</li>
                             <li><strong>重做</strong>：<kbd>R</kbd>。Redo，重做被撤销的操作。</li>
                             <li><strong>逆序</strong>：<kbd>X</kbd>。将选取集内的同级兄弟元素逆序重排（移动），未选取的同级元素会保持原位置。</li>
                             <li><strong>合并</strong>：<kbd>Z</kbd>。将选取集内的元素的内容按选取顺序合并为一，<strong>首个</strong>选取的元素为容器，仅适用于内容元素。</li>
-                            <li><strong>规范合并</strong>：<kbd>Alt+Z</kbd>。对整个内容区规范化（<code>normalize</code>合并相邻的文本节点）。通常不需要。这是一种DOM优化，在执行搜索命令时有用，因为搜索会以文本节点为边界，相邻的文字如果属于不同节点，则不能成词。</li>
+                            <li><strong>规范合并</strong>：<kbd>Alt + Z</kbd>。对整个内容区规范化（<code>normalize</code>合并相邻的文本节点）。通常不需要。这是一种DOM优化，在执行搜索命令时有用，因为搜索会以文本节点为边界，相邻的文字如果属于不同节点，则不能成词。</li>
                         </ul>
                         <ul>
                             <li><strong>分组克隆</strong>：<kbd>C</kbd>。以选取集内<strong>相邻的元素</strong>为分组，整体克隆并插入原组之后（<code>after</code>）。选取集更新为新插入的元素。<strong>特例</strong>：如果选取集只有一个成员，支持数字指定克隆数量。</li>
-                            <li><strong>各别克隆</strong>：<kbd>Shift+C</kbd>。对选取集内的每一个成员独自克隆并插入其后（<code>after</code>）。选取集更新为新插入的元素。</li>
+                            <li><strong>各别克隆</strong>：<kbd>Shift + C</kbd>。对选取集内的每一个成员独自克隆并插入其后（<code>after</code>）。选取集更新为新插入的元素。</li>
                         </ul>
                         <ul>
-                            <li><strong>转为大写</strong>：<kbd>Ctrl+U</kbd>。将选取集元素的文本全部转换为大写，如果加按<kbd>Alt</kbd>键，仅首段文本内的首个匹配转换。</li>
-                            <li><strong>转为小写</strong>：<kbd>Ctrl+L</kbd>。将选取集元素的文本全部转换为小写。</li>
+                            <li><strong>转为大写</strong>：<kbd>Ctrl + U</kbd>。将选取集元素的文本全部转换为大写，如果加按<kbd>Alt</kbd>键，仅首段文本内的首个匹配转换。</li>
+                            <li><strong>转为小写</strong>：<kbd>Ctrl + L</kbd>。将选取集元素的文本全部转换为小写。</li>
                         </ul>
                         <p style>以下操作与<em style>焦点元素</em>有关。</p>
                         <ul>
                             <li><strong>向内填充</strong>：<kbd>F</kbd>。将选取集成员<strong>移动</strong>填充到焦点元素之内（<code>fill</code>）。焦点元素<strong>不应当</strong>被选取。若源为非法子元素（结构限制），会自动提取其内容创建目标位置的默认子元素。</li>
-                            <li><strong>克隆填充</strong>：<kbd>Shift+F</kbd>。将选取集成员<strong>克隆</strong>填充到焦点元素之内（<code>fill</code>）。焦点元素可以作为数据源。非法子元素规转换则同上。</li>
+                            <li><strong>克隆填充</strong>：<kbd>Shift + F</kbd>。将选取集成员<strong>克隆</strong>填充到焦点元素之内（<code>fill</code>）。焦点元素可以作为数据源。非法子元素规转换则同上。</li>
                             <li><strong>向内添加</strong>：<kbd>D</kbd>。将选取集成员<strong>移动</strong>添加到焦点元素内末尾（<code>append</code>）。焦点元素<strong>不应当</strong>被选取。非法子元素转换规则同上。</li>
-                            <li><strong>克隆添加</strong>：<kbd>Shift+D</kbd>。将选取集成员<strong>克隆</strong>添加到焦点元素内末尾（<code>append</code>）。焦点元素可以作为数据源。非法子元素转换规则同上。</li>
+                            <li><strong>克隆添加</strong>：<kbd>Shift + D</kbd>。将选取集成员<strong>克隆</strong>添加到焦点元素内末尾（<code>append</code>）。焦点元素可以作为数据源。非法子元素转换规则同上。</li>
                         </ul>
                         <ul>
                             <li><strong>移动前插入</strong>：<kbd>I</kbd>。将选取集成员<strong>移动</strong>并插入到焦点元素之前（<code>before</code>）。不可被删除的元素会移除其<strong>内容</strong>，焦点元素不可选取，非法元素转换规则同前。</li>
-                            <li><strong>克隆前插入</strong>：<kbd>Shift+I</kbd>。将选取集成员<strong>克隆</strong>并插入到焦点元素之前（<code>before</code>）。焦点元素可以作为数据源，非法元素转换规则同前。</li>
+                            <li><strong>克隆前插入</strong>：<kbd>Shift + I</kbd>。将选取集成员<strong>克隆</strong>并插入到焦点元素之前（<code>before</code>）。焦点元素可以作为数据源，非法元素转换规则同前。</li>
                             <li><strong>移动后插入</strong>：<kbd>B</kbd>。将选取集成员<strong>移动</strong>并插入到焦点元素之后（<code>after</code>）。不可删除规则同上，焦点元素不可选取，非法元素转换规则同前。</li>
-                            <li><strong>克隆后插入</strong>：<kbd>Shift+B</kbd>。将选取集成员<strong>克隆</strong>并插入到焦点元素之后（<code>after</code>）。焦点元素可以作为数据源，非法元素转换规则同前。</li>
+                            <li><strong>克隆后插入</strong>：<kbd>Shift + B</kbd>。将选取集成员<strong>克隆</strong>并插入到焦点元素之后（<code>after</code>）。焦点元素可以作为数据源，非法元素转换规则同前。</li>
                         </ul>
                         <aside>
                             <h4>注意：</h4>
@@ -349,12 +373,13 @@
                     <section role="s3">
                         <h2>移动与缩进</h2>
                         <p>移动与缩进是编辑中常见的操作，这里的移动是元素自身的移动，但受限于内容单元固有的<em><code>HTML</code>结构</em>，这里的移动仅限于兄弟元素之间的<strong>平级</strong>移动。</p>
+                        <p>注意下面的箭头键是真实的箭头键（而不是 <code>hjkl</code>）。</p>
                         <p><strong>缩进</strong>的操作只适用于章节，针对<em>章节</em>（<code>s1-s5</code>）或<em>片区</em>（<code>section</code>）单元。包含<strong>升级</strong>和<strong>降级</strong>两种操作。</p>
                         <ul>
-                            <li><strong>向前移动：</strong><kbd>Alt+↑</kbd>。选取集成员在各自父元素内平级移动，支持数字指定距离，超出范围会导致部分或全部逆序插入。<code>0</code> 值表示端部，有汇聚插入的效果。</li>
-                            <li><strong>向后移动：</strong><kbd>Alt+↓</kbd>。数字支持同上，移动行为类似（方向不同）。</li>
-                            <li><strong>章节升级</strong>：<kbd>Alt+←</kbd>。章节或片区左缩进，升级之后会排列到当前父片区之后（<code>after</code>）。<strong>注</strong>：这种层级递升不一定必然表现出视觉差异。</li>
-                            <li><strong>章节降级</strong>：<kbd>Alt+→</kbd>。章节或片区右缩进，会在原地创建一个空的片区容器来包含被降级的片区。</li>
+                            <li><strong>向前移动：</strong><kbd>Alt + ↑</kbd>。选取集成员在各自父元素内平级移动，支持数字指定距离，超出范围会导致部分或全部逆序插入。<code>0</code> 值表示端部，有汇聚插入的效果。</li>
+                            <li><strong>向后移动：</strong><kbd>Alt + ↓</kbd>。数字支持同上，移动行为类似（方向不同）。</li>
+                            <li><strong>章节升级</strong>：<kbd>Alt + ←</kbd>。章节或片区左缩进，升级之后会排列到当前父片区之后（<code>after</code>）。<strong>注</strong>：这种层级递升不一定必然表现出视觉差异。</li>
+                            <li><strong>章节降级</strong>：<kbd>Alt + →</kbd>。章节或片区右缩进，会在原地创建一个空的片区容器来包含被降级的片区。</li>
                         </ul>
                         <aside>
                             <h4>注：</h4>
@@ -368,21 +393,22 @@
                         <p>编辑完成后按<kbd>Enter</kbd>或<kbd>Tab</kbd>键确认并退出。如果是<kbd>Tab</kbd>且选取集内还有元素，则切换到下一个成员。</p>
                         <ul>
                             <li><kbd>M</kbd>：进入微编辑，光标定位到单击点。如果单击点不在元素内，进入后为全选状态。</li>
-                            <li><kbd>Shift+M</kbd>：进入微编辑，光标定位到元素内容的末端。</li>
+                            <li><kbd>Shift</kbd>+<kbd>M</kbd>：进入微编辑，光标定位到元素内容的末端。</li>
                             <li><kbd>Enter</kbd>：确认当前修订（退出微编辑）。</li>
                             <li><kbd>Tab</kbd>：确认当前修订。如果有多个选取，按选取顺序进入到下一个元素的修订。</li>
                         </ul>
-                        <p role="tips"><strong>提示</strong>：非内容元素不能直接进入微编辑，此时可以按<kbd>W</kbd>或<kbd>Shift+W</kbd>选取其内容元素然后再继续。</p>
+                        <p role="tips"><strong>提示</strong>：非内容元素不能直接进入微编辑，此时可以按<kbd>W</kbd>或<kbd>Shift + W</kbd>扩选其内容元素然后再继续。</p>
                     </section>
                     <section role="s3">
                         <h2>定位移动</h2>
                         <p>有时侯需要内容处于准确的平面位置，通常是设置其绝对样式（<code>position:absolute</code>以及<code>left</code>或<code>top</code>值）。这种定位方法需要用户了解一些CSS知识，如对容器设置<code>position:relative</code>样式。</p>
                         <p>如果容器已经设置了<code>position:relative</code>，元素自身设置了<code>position:absolute</code>，通过下面的操作就可以简单调整位置。</p>
+                        <p>注意下面的箭头键是真实的箭头键（而不是 <code>hjkl</code>）。</p>
                         <ul>
-                            <li><kbd>Ctrl+←</kbd>：向左移动<strong>1</strong>像素。加按<kbd>Shift</kbd>则以<strong>10</strong>像素为单位。</li>
-                            <li><kbd>Ctrl+→</kbd>：向右移动<strong>1</strong>像素。加按<kbd>Shift</kbd>键同上。</li>
-                            <li><kbd>Ctrl+↑</kbd>：向上移动<strong>1</strong>像素。加按<kbd>Shift</kbd>键同上。</li>
-                            <li><kbd>Ctrl+↓</kbd>：向下移动<strong>1</strong>像素。加按<kbd>Shift</kbd>键同上。</li>
+                            <li><kbd>Ctrl</kbd>+<kbd>←</kbd>：向左移动<strong>1</strong>像素。加按<kbd>Shift</kbd>则以<strong>10</strong>像素为单位。</li>
+                            <li><kbd>Ctrl</kbd>+<kbd>→</kbd>：向右移动<strong>1</strong>像素。加按<kbd>Shift</kbd>键同上。</li>
+                            <li><kbd>Ctrl</kbd>+<kbd>↑</kbd>：向上移动<strong>1</strong>像素。加按<kbd>Shift</kbd>键同上。</li>
+                            <li><kbd>Ctrl</kbd>+<kbd>↓</kbd>：向下移动<strong>1</strong>像素。加按<kbd>Shift</kbd>键同上。</li>
                         </ul>
                         <aside>
                             <h4>注意：</h4>
@@ -408,9 +434,9 @@
                     <h2>杂项功能</h2>
                     <ul>
                         <li><kbd>P</kbd>：打开目标单元的<strong>属性</strong>编辑框。<em><strong>注</strong>：从右击鼠标弹出的上下文菜单中也可以。</em></li>
-                        <li><kbd>Alt+P</kbd>：<strong>导出</strong>选取单元或全文内容<em>源码</em>，会自动打开导出对话框。</li>
-                        <li><kbd>Alt+Shift+P</kbd>：<strong>导出</strong>全文内容<em>源码</em>，同时会在适当的位置插入文章<strong>目录</strong>（大纲）。与选取元素无关。</li>
-                        <li><kbd>Ctrl+S</kbd>：内容源码<strong>本地暂存</strong>（<code>localStorage</code>）。<em><strong>注</strong>：刷新页面会自动导入之前保存的内容。</em></li>
+                        <li><kbd>Alt</kbd>+<kbd>P</kbd>：<strong>导出</strong>选取单元或全文内容<em>源码</em>，会自动打开导出对话框。</li>
+                        <li><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>：<strong>导出</strong>全文内容<em>源码</em>，同时会在适当的位置插入文章<strong>目录</strong>（大纲）。与选取元素无关。</li>
+                        <li><kbd>Ctrl</kbd>+<kbd>S</kbd>：内容源码<strong>本地暂存</strong>（<code>localStorage</code>）。<em>注：刷新页面会自动导入之前保存的内容。</em></li>
                         <li><kbd>G</kbd>：<strong>章节跳转</strong>。根据键入的章节序列（如：<code>3.12.5</code>），将目标章节滚动到当前视口。<em><strong>注</strong>：需内容区聚焦。</em></li>
                     </ul>
                 </section>
@@ -433,22 +459,22 @@
                     <section role="s3">
                         <h2>文本框&lt;textarea&gt;</h2>
                         <ul>
-                            <li><kbd>Alt+F</kbd>：录入框最大化<strong>切换</strong>（相对于面板）。<em><strong>注</strong>：也可以按<kbd>ESC</kbd>键取消最大化。</em></li>
-                            <li><kbd>Ctrl+Enter</kbd>：直接<strong>提交</strong>插入，效果同单击<code>插入</code>按钮。焦点会保持在录入框内。</li>
-                            <li><kbd>Alt+Ctrl+Enter</kbd>：同上直接<strong>提交</strong>。但如果录入框已最大化，会恢复到普通状态。</li>
+                            <li><kbd>Alt</kbd>+<kbd>F</kbd>：录入框最大化<strong>切换</strong>（相对于面板）。<em>注：也可以按ESC键取消最大化。</em></li>
+                            <li><kbd>Ctrl</kbd>+<kbd>Enter</kbd>：直接<strong>提交</strong>插入，效果同单击 <code>插入</code> 按钮。焦点会保持在录入框内。</li>
+                            <li><kbd>Alt</kbd>+<kbd>Ctrl</kbd>+<kbd>Enter</kbd>：同上直接<strong>提交</strong>。但如果录入框已最大化，会恢复到普通状态。</li>
                         </ul>
                     </section>
                     <section role="s3">
                         <h2>表格单元&lt;th|td&gt;</h2>
                         <ul>
                             <li><kbd>Enter</kbd>：切换到当前列的<strong>下一个</strong>单元格。</li>
-                            <li><kbd>Shift+↓</kbd>：同上当前列<em>向下</em>切换。</li>
-                            <li><kbd>Shift+↑</kbd>：切换到当前列的<strong>上一个</strong>单元格。</li>
-                            <li><kbd>Shift+Enter</kbd>：插入<strong>换行符</strong>（浏览器自身功能保留）。</li>
+                            <li><kbd>Shift</kbd>+<kbd>↓</kbd>：同上当前列<em>向下</em>切换。</li>
+                            <li><kbd>Shift</kbd>+<kbd>↑</kbd>：切换到当前列的<strong>上一个</strong>单元格。</li>
+                            <li><kbd>Shift</kbd>+<kbd>Enter</kbd>：插入<strong>换行符</strong>（浏览器自身功能保留）。</li>
                         </ul>
                         <ul>
-                            <li><kbd>Ctrl+V</kbd>：浏览器<em>粘贴</em>功能，但内容以换行符分段，从当前单元格开始向后<em>连续覆盖</em>。</li>
-                            <li><kbd>Shift+Ctrl+V</kbd> 保留浏览器普通方式粘贴（纯文本）。</li>
+                            <li><kbd>Ctrl</kbd>+<kbd>V</kbd>：浏览器<em>粘贴</em>功能，但内容以换行符分段，从当前单元格开始向后<em>连续覆盖</em>。</li>
+                            <li><kbd>Shift</kbd>+<kbd>Ctrl</kbd>+<kbd>V</kbd> 保留浏览器普通方式粘贴（纯文本）。</li>
                         </ul>
                         <p role="tips"><strong>提示</strong>：智能切分粘贴只支持<em>当前行</em>单元格。如果需要一次性对<em>多行粘贴</em>，可在内容区的普通模式下进行。</p>
                     </section>
@@ -466,15 +492,15 @@
                     <p>约束主要体现在对<kbd>Enter</kbd>键的限制上：</p>
                     <ul>
                         <li><kbd>Enter</kbd>：确认当前修订并退出。</li>
-                        <li><kbd>Shift+Enter</kbd>：插入一个换行<code>&lt;br&gt;</code>元素，在<code>&lt;pre&gt;</code>元素内会插入一个换行字符<code>\n</code>。<em><strong>注</strong>：浏览器自身功能。</em></li>
-                        <li><kbd>Ctrl+Enter</kbd>：新建一个<em>同类</em>空行，原行自动确认。适用于段落类和列表项元素<code>&lt;li&gt;</code>, <code>&lt;dt&gt;,</code><code>&lt;dd&gt;</code>。</li>
-                        <li><kbd>Alt+Enter</kbd>：新建一个<em>逻辑</em>空行，原行自动确认。适用诸如<code>&lt;dt&gt;</code>之后的<code>&lt;dd&gt;</code>，或者<code>&lt;summary&gt;</code>之后的<code>&lt;p&gt;</code>等。</li>
+                        <li><kbd>Shift</kbd>+<kbd>Enter</kbd>：插入一个换行<code>&lt;br&gt;</code>元素，在<code>&lt;pre&gt;</code>元素内会插入一个换行字符<code>\n</code>。<em><strong>注</strong>：浏览器自身功能。</em></li>
+                        <li><kbd>Ctrl</kbd>+<kbd>Enter</kbd>：新建一个<em>同类</em>空行，原行自动确认。适用于段落类和列表项元素<code>&lt;li&gt;</code>, <code>&lt;dt&gt;,</code><code>&lt;dd&gt;</code>。</li>
+                        <li><kbd>Alt</kbd>+<kbd>Enter</kbd>：新建一个<em>逻辑</em>空行，原行自动确认。适用诸如<code>&lt;dt&gt;</code>之后的<code>&lt;dd&gt;</code>，或者<code>&lt;summary&gt;</code>之后的<code>&lt;p&gt;</code>等。</li>
                         <li><kbd>Tab</kbd>：完成当前修订并切换到下一个选取的元素。如果没有其它已选取的元素，则同<kbd>Enter</kbd>。</li>
                         <li><kbd>ESC</kbd>：取消当前修订并退出微编辑。</li>
                     </ul>
                     <aside>
                         <h4>换行兼容性：</h4>
-                        <p><kbd>Enter</kbd>的行为在不同浏览器之间差异较大，<kbd>Shift+Enter</kbd>则较为一致。</p>
+                        <p><kbd>Enter</kbd>的行为在不同浏览器之间差异较大，<kbd>Shift + Enter</kbd>则较为一致。</p>
                         <p><code>&lt;pre&gt;</code>元素在微编辑修订后，其中的换行元素<code>&lt;br&gt;</code>会被强制替换为换行字符<code>\n</code>，以保证内容的一致性。</p>
                     </aside>
                     <p>对于<strong>代码元素</strong><code>&lt;code&gt;</code>，如果元素上有语言定义（<code>data-lang</code>），完成后自动解析语法高亮。</p>
@@ -534,6 +560,8 @@
                     <p>以当前选取集为总集，过滤出目标元素集。支持<em>选择器</em>、<em>数组定位</em>以及<em>过滤函数</em>的筛选形式。</p>
                     <ul>
                         <li><code>String</code>：普通CSS选择器。</li>
+                        <li><code>(String)</code>：不匹配选择器，类似 <code>$.not(...)</code>。注意以小括号包围。</li>
+                        <li><code>(/.../imsu)</code>：正则表达式（匹配节点文本内容）。注意同上。</li>
                         <li><code>[n:m]</code>：冒号分隔的数组下标范围（空格可选），如：<code>[5:10]</code>、<code>[5:]</code>等。</li>
                         <li><code>[x,y,z]</code>：数组下标定位选取，如：<code>[0,3,4]</code>。</li>
                         <li><code>{function}</code>：花括号包围的过滤函数。通常应当使用箭头函数。</li>
@@ -542,7 +570,7 @@
                 <section role="s2">
                     <h2>搜索（<kbd>/</kbd>）</h2>
                     <p>对已选取的集合执行文本搜索，并把结果标记为特殊的<code>&lt;mark&gt;</code>元素。如果当前无选取，则以内容区为范围。</p>
-                    <p>文本搜索以<em>文本节点</em>为上下文，因此跨节点的文本无法组词。如果必要，你可以执行一次节点合并操作（<kbd>Alt+Z</kbd>），以避免无意中断开了连续的文本。这种简化有它的合理性：既然文本被断开了，它们就不应当成为一个<em>词组</em>。</p>
+                    <p>文本搜索以<em>文本节点</em>为上下文，因此跨节点的文本无法组词。如果必要，你可以执行一次节点合并操作（<kbd>Alt + Z</kbd>），以避免无意中断开了连续的文本。这种简化有它的合理性：既然文本被断开了，它们就不应当成为一个<em>词组</em>。</p>
                     <p>搜索词默认为字符串，容错引号包围。同时也支持正则表达。</p>
                     <ul>
                         <li><code>Hello</code>：普通文本，回车后执行检索。键入<code>'Hello'</code>也效果相同。</li>

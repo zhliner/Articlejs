@@ -105,7 +105,7 @@
         keyup   状态栏数字设置（非数字无效）。
         focus   设置选取范围到内部以捕获copy|cut事件。若范围已在内部则忽略，不影响用户划选。
         copy    Range忽略用户已选取不规则选区的情况（交由浏览器复制逻辑），trims清理内容中的换行，规范换行符用途。
-        paste   普通模式下的粘贴。
+        paste   普通模式下的粘贴。源文本首尾空白有效但纯空白无效。
         keydown|ev('shiftKey') 设置末尾追加式粘贴标记。
         keyup|env('paste:append', null) 清除追加粘贴标记（重置）。
         _focus  内容区聚焦（微编辑除外，否则影响光标）。使得上下文菜单显示时，操作非菜单快捷键可取消菜单。
@@ -114,7 +114,7 @@
         on="keydown|env('minied') end (CHK) acmsk $('#g-count') val int hotKey(_2) pass stop;
             keyup|env('minied') end (/^[\d.-]$/) ev('key') test(_1) pass $('#g-count') val ev('key') add(_1);
             cut|env('minied') end avoid sels text trims(' ') trim join('\n');
-            paste|env('minied') end avoid clipboard trim dup pass split('\n') env('paste:append');
+            paste|env('minied') end avoid clipboard dup trim pass split('\n') env('paste:append');
             focus|env('minied') end wRange hasRange('/main') end $('/main') nodeRange(true) addRange;
             copy|env('minied') end sRange(false) end avoid sels text trims(' ') trim join('\n') pop clipboard;
             keydown|env('minied') end ev('shiftKey') pass env('paste:append', true);
@@ -519,7 +519,7 @@
 
 <!-- 行块单元（仅部分） -->
 <menu role="submenu" tpl-name="menu:blocks">
-    <li data-val="p" title="<p>"><b>段落</b><kbd>p</kbd></li>
+    <li data-k="p" data-val="p" title="<p>"><b>段落</b><kbd>p</kbd></li>
     <li data-k="n" data-val="note" title="<p:note>"><b>注解</b><kbd>n</kbd></li>
     <li data-k="t" data-val="tips" title="<p:tips>"><b>提示</b><kbd>t</kbd></li>
     <li data-val="pre" title="<pre>"><b>预排版</b><kbd></kbd></li>
@@ -532,7 +532,7 @@
     <li data-k="b" data-val="blockquote" title="<blockquote>"><b>块引用</b><kbd>b</kbd></li>
     <li data-k="a" data-val="aside" title="<aside>"><b>批注</b><kbd>a</kbd></li>
     <li data-val="details" title="<details>"><b>详细内容</b><kbd></kbd></li>
-    <!-- 注：不可为转换目标，因为无<dt>源（逻辑上）。 -->
+    <!-- 注：<dl>不可为转换目标，因为无<dt>源（逻辑上）。 -->
     <!-- <li data-k="d" data-val="dl" title="<dl>"><b>描述列表</b><kbd>d</kbd></li> -->
 </menu>
 

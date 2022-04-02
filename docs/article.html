@@ -215,10 +215,10 @@
                         <li>
                             <h5><a href="#示例">示例</a></h5>
                             <ol>
-                                <li><a href="#源码1（代码块）">源码1（代码块）</a></li>
-                                <li><a href="#效果1">效果</a></li>
-                                <li><a href="#源码2（代码表）">源码2（代码表）</a></li>
-                                <li><a href="#效果2">效果</a></li>
+                                <li><a href="#源码（代码块）">源码（代码块）</a></li>
+                                <li><a>效果</a></li>
+                                <li><a href="#源码（代码表）">源码（代码表）</a></li>
+                                <li><a>效果</a></li>
                             </ol>
                         </li>
                     </ol>
@@ -274,23 +274,23 @@
                     <h2 id="层次示意">层次示意</h2>
                     <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">h1</b>&gt;&lt;/<b role="tag">h1</b>&gt;                                   <i>&lt;!-- 页/主标题 --&gt;</i>
-&lt;<b role="tag">header</b> role=<s>"abstract"</s>&gt;&lt;/<b role="tag">header</b>&gt;           <i>&lt;!-- 提要 --&gt;</i>
-&lt;<b role="tag">nav</b> role=<s>"toc"</s>&gt;&lt;/<b role="tag">nav</b>&gt;                      <i>&lt;!-- 目录 --&gt;</i>
+&lt;<b role="tag">header</b> <b role="atn">role</b>=<s>"abstract"</s>&gt;&lt;/<b role="tag">header</b>&gt;           <i>&lt;!-- 提要 --&gt;</i>
+&lt;<b role="tag">nav</b> <b role="atn">role</b>=<s>"toc"</s>&gt;&lt;/<b role="tag">nav</b>&gt;                      <i>&lt;!-- 目录 --&gt;</i>
 &lt;<b role="tag">article</b>&gt;                                   <i>&lt;!-- 文章区 --&gt;</i>
     &lt;<b role="tag">header</b>&gt;&lt;/<b role="tag">header</b>&gt;                       <i>&lt;!-- 导言 --&gt;</i>
-    &lt;<b role="tag">section</b> role=<s>"s1"</s>&gt;                     <i>&lt;!-- 章。第一层 section --&gt;</i>
+    &lt;<b role="tag">section</b> <b role="atn">role</b>=<s>"s1"</s>&gt;                     <i>&lt;!-- 章。第一层 section --&gt;</i>
         &lt;<b role="tag">h2</b>&gt;&lt;/<b role="tag">h2</b>&gt;                           <i>&lt;!-- 章标题 --&gt;</i>
         &lt;<b role="tag">header</b>&gt;&lt;/<b role="tag">header</b>&gt;                   <i>&lt;!-- 章导言 --&gt;</i>
-        &lt;<b role="tag">section</b> role=<s>"s2"</s>&gt;                 <i>&lt;!-- 节。第二层 section --&gt;</i>
+        &lt;<b role="tag">section</b> <b role="atn">role</b>=<s>"s2"</s>&gt;                 <i>&lt;!-- 节。第二层 section --&gt;</i>
             &lt;<b role="tag">h2</b>&gt;&lt;/<b role="tag">h2</b>&gt;                       <i>&lt;!-- 节标题 --&gt;</i>
             &lt;<b role="tag">header</b>&gt;&lt;/<b role="tag">header</b>&gt;               <i>&lt;!-- 节导言 --&gt;</i>
-            &lt;<b role="tag">section</b> role=<s>"s3"</s>&gt;             <i>&lt;!-- 区。第三层 section --&gt;</i>
+            &lt;<b role="tag">section</b> <b role="atn">role</b>=<s>"s3"</s>&gt;             <i>&lt;!-- 区。第三层 section --&gt;</i>
                 &lt;<b role="tag">h2</b>&gt;&lt;/<b role="tag">h2</b>&gt;                   <i>&lt;!-- 区标题 --&gt;</i>
                 &lt;<b role="tag">header</b>&gt;&lt;/<b role="tag">header</b>&gt;           <i>&lt;!-- 区导言 --&gt;</i>
-                &lt;<b role="tag">section</b> role=<s>"s4"</s>&gt;         <i>&lt;!-- 段。第四层 section --&gt;</i>
+                &lt;<b role="tag">section</b> <b role="atn">role</b>=<s>"s4"</s>&gt;         <i>&lt;!-- 段。第四层 section --&gt;</i>
                     &lt;<b role="tag">h2</b>&gt;&lt;/<b role="tag">h2</b>&gt;               <i>&lt;!-- 段标题 --&gt;</i>
                     &lt;<b role="tag">header</b>&gt;&lt;/<b role="tag">header</b>&gt;       <i>&lt;!-- 段导言 --&gt;</i>
-                    &lt;<b role="tag">section</b> role=<s>"s5"</s>&gt;     <i>&lt;!-- 末。第五层 section --&gt;</i>
+                    &lt;<b role="tag">section</b> <b role="atn">role</b>=<s>"s5"</s>&gt;     <i>&lt;!-- 末。第五层 section --&gt;</i>
                         &lt;<b role="tag">h2</b>&gt;&lt;/<b role="tag">h2</b>&gt;           <i>&lt;!-- 末标题 --&gt;</i>
                         &lt;<b role="tag">header</b>&gt;&lt;/<b role="tag">header</b>&gt;   <i>&lt;!-- 末导言 --&gt;</i>
                         {content} ...       <i>&lt;!-- 正文内容（各种行块内容件，如：&lt;p&gt;, &lt;ol&gt;） --&gt;</i>
@@ -312,8 +312,8 @@
     ...                                     <i>&lt;!-- 平级 section:s1 --&gt;</i>
     &lt;<b role="tag">footer</b>&gt;&lt;/<b role="tag">footer</b>&gt;                       <i>&lt;!-- 结语 --&gt;</i>
 &lt;/<b role="tag">article</b>&gt;
-&lt;<b role="tag">nav</b> role=<s>"reference"</s>&gt;&lt;/<b role="tag">nav</b>&gt;                <i>&lt;!-- 文献参考 --&gt;</i>
-&lt;<b role="tag">aside</b> role=<s>"seealso"</s>&gt;&lt;/<b role="tag">aside</b>&gt;              <i>&lt;!-- 另参见 --&gt;</i>
+&lt;<b role="tag">nav</b> <b role="atn">role</b>=<s>"reference"</s>&gt;&lt;/<b role="tag">nav</b>&gt;                <i>&lt;!-- 文献参考 --&gt;</i>
+&lt;<b role="tag">aside</b> <b role="atn">role</b>=<s>"seealso"</s>&gt;&lt;/<b role="tag">aside</b>&gt;              <i>&lt;!-- 另参见 --&gt;</i>
 &lt;<b role="tag">footer</b>&gt;&lt;/<b role="tag">footer</b>&gt;                           <i>&lt;!-- 声明 --&gt;</i>
 </code></pre>
                     <p><em>正文内容</em>可存在于任何一级片区（<code>&lt;section&gt;</code>）内，只要该片区内没有子片区逻辑即可。</p>
@@ -341,42 +341,42 @@
                         <p>内部不能直接包含文本或内联元素，有固定的子级结构。</p>
                         <ol role="codelist" data-lang="html">
                             <li><code>&lt;<b role="tag">hgroup</b>&gt;&lt;/<b role="tag">hgroup</b>&gt;                   <i>&lt;!-- 主/副标题组：HGROUP /h1, h3 --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">header</b> role=<s>"abstract"</s>&gt;&lt;/<b role="tag">header</b>&gt;   <i>&lt;!-- 提要：ABSTRACT /h4, p... --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">nav</b> role=<s>"toc"</s>&gt;&lt;/<b role="tag">nav</b>&gt;              <i>&lt;!-- 目录：TOC /h4, ol:cascade/li/a（可多级） --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">nav</b> role=<s>"reference"</s>&gt;&lt;/<b role="tag">nav</b>&gt;        <i>&lt;!-- 文献参考：REFERENCE /h4, ol --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">aside</b> role=<s>"seealso"</s>&gt;&lt;/<b role="tag">aside</b>&gt;      <i>&lt;!-- 另参见：SEEALSO /h4, ul --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">header</b> <b role="atn">role</b>=<s>"abstract"</s>&gt;&lt;/<b role="tag">header</b>&gt;   <i>&lt;!-- 提要：ABSTRACT /h4, p... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">nav</b> <b role="atn">role</b>=<s>"toc"</s>&gt;&lt;/<b role="tag">nav</b>&gt;              <i>&lt;!-- 目录：TOC /h4, ol:cascade/li/a（可多级） --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">nav</b> <b role="atn">role</b>=<s>"reference"</s>&gt;&lt;/<b role="tag">nav</b>&gt;        <i>&lt;!-- 文献参考：REFERENCE /h4, ol --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">aside</b> <b role="atn">role</b>=<s>"seealso"</s>&gt;&lt;/<b role="tag">aside</b>&gt;      <i>&lt;!-- 另参见：SEEALSO /h4, ul --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">header</b>&gt;&lt;/<b role="tag">header</b>&gt;                   <i>&lt;!-- 导言：HEADER /h4, p... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">footer</b>&gt;&lt;/<b role="tag">footer</b>&gt;                   <i>&lt;!-- 结语/小结/页脚：FOOTER /h4, p... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">article</b>&gt;&lt;/<b role="tag">article</b>&gt;                 <i>&lt;!-- 文章区：ARTICLE /header, s1, footer, hr --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">section</b> role=<s>"s1"</s>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 章：S1 /h2, header, s2, footer --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">section</b> role=<s>"s2"</s>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 节：S2 /h2, header, s3, footer --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">section</b> role=<s>"s3"</s>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 区：S3 /h2, header, s4, footer --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">section</b> role=<s>"s4"</s>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 段：S4 /h2, header, s5, footer --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">section</b> role=<s>"s5"</s>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 末：S5 /h2, header, [content], footer --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">section</b> <b role="atn">role</b>=<s>"s1"</s>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 章：S1 /h2, header, s2, footer --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">section</b> <b role="atn">role</b>=<s>"s2"</s>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 节：S2 /h2, header, s3, footer --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">section</b> <b role="atn">role</b>=<s>"s3"</s>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 区：S3 /h2, header, s4, footer --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">section</b> <b role="atn">role</b>=<s>"s4"</s>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 段：S4 /h2, header, s5, footer --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">section</b> <b role="atn">role</b>=<s>"s5"</s>&gt;&lt;/<b role="tag">section</b>&gt;       <i>&lt;!-- 末：S5 /h2, header, [content], footer --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">section</b>&gt;&lt;/<b role="tag">section</b>&gt;                 <i>&lt;!-- 深片区：SECTION /h2, header, [content], footer --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">ul</b>&gt;&lt;/<b role="tag">ul</b>&gt;                           <i>&lt;!-- 无序列表：UL /li... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">ol</b>&gt;&lt;/<b role="tag">ol</b>&gt;                           <i>&lt;!-- 有序列表：OL /li... --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">ol</b> role=<s>"codelist"</s>&gt;&lt;/<b role="tag">ol</b>&gt;           <i>&lt;!-- 代码表：CODELIST /li/code/b, i, #text --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">ul</b> role=<s>"ulx"</s>&gt;&lt;/<b role="tag">ul</b>&gt;                <i>&lt;!-- 无序级联表：ULX /li/h5, ol|ul/... --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">ol</b> role=<s>"olx"</s>&gt;&lt;/<b role="tag">ol</b>&gt;                <i>&lt;!-- 有序级联表：OLX /li/h5, ul|ol/... --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">ol</b> role=<s>"cascade"</s>&gt;&lt;/<b role="tag">ol</b>&gt;            <i>&lt;!-- 级联编号表：CASCADE /li/h5, ol/... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">ol</b> <b role="atn">role</b>=<s>"codelist"</s>&gt;&lt;/<b role="tag">ol</b>&gt;           <i>&lt;!-- 代码表：CODELIST /li/code/b, i, #text --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">ul</b> <b role="atn">role</b>=<s>"ulx"</s>&gt;&lt;/<b role="tag">ul</b>&gt;                <i>&lt;!-- 无序级联表：ULX /li/h5, ol|ul/... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">ol</b> <b role="atn">role</b>=<s>"olx"</s>&gt;&lt;/<b role="tag">ol</b>&gt;                <i>&lt;!-- 有序级联表：OLX /li/h5, ul|ol/... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">ol</b> <b role="atn">role</b>=<s>"cascade"</s>&gt;&lt;/<b role="tag">ol</b>&gt;            <i>&lt;!-- 级联编号表：CASCADE /li/h5, ol/... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">dl</b>&gt;&lt;/<b role="tag">dl</b>&gt;                           <i>&lt;!-- 描述列表：DL /dt, dd... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">table</b>&gt;&lt;/<b role="tag">table</b>&gt;                     <i>&lt;!-- 表格：TABLE /caption, thead, tbody, tfoot/tr/td... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">figure</b>&gt;&lt;/<b role="tag">figure</b>&gt;                   <i>&lt;!-- 插图：FIGURE /figcaption, p, ol, ul... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">blockquote</b>&gt;&lt;/<b role="tag">blockquote</b>&gt;           <i>&lt;!-- 引用块：BLOCKQUOTE /h4, p... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">aside</b>&gt;&lt;/<b role="tag">aside</b>&gt;                     <i>&lt;!-- 批注块：ASIDE /h4, p... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">details</b>&gt;&lt;/<b role="tag">details</b>&gt;                 <i>&lt;!-- 详细内容：DETAILS /sumary, p... --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">pre</b> role=<s>"codeblock"</s>&gt;&lt;/<b role="tag">pre</b>&gt;        <i>&lt;!-- 代码块：CODEBLOCK /code... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">pre</b> <b role="atn">role</b>=<s>"codeblock"</s>&gt;&lt;/<b role="tag">pre</b>&gt;        <i>&lt;!-- 代码块：CODEBLOCK /code... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">fieldset</b>&gt;&lt;/<b role="tag">fieldset</b>&gt;               <i>&lt;!-- 控件分组：FIELDSET /legend, ... --&gt;</i></code></li>
                         </ol>
                     </section>
                     <section role="s3">
                         <h2 id="文本类">文本类</h2>
                         <p>可直接包含文本内容和内联单元，没有固定的DOM结构可单独占据一行的块级元素。</p>
-                        <ol role="codelist" data-lang="html" start="29">
+                        <ol role="codelist" start="29" data-lang="html">
                             <li><code>&lt;<b role="tag">p</b>&gt;&lt;/<b role="tag">p</b>&gt;                 <i>&lt;!-- 段落：P 通用内容容器 --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">p</b> role=<s>"note"</s>&gt;&lt;/<b role="tag">p</b>&gt;     <i>&lt;!-- 注解：NOTE --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">p</b> role=<s>"tips"</s>&gt;&lt;/<b role="tag">p</b>&gt;     <i>&lt;!-- 提示：TIPS --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">p</b> <b role="atn">role</b>=<s>"note"</s>&gt;&lt;/<b role="tag">p</b>&gt;     <i>&lt;!-- 注解：NOTE --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">p</b> <b role="atn">role</b>=<s>"tips"</s>&gt;&lt;/<b role="tag">p</b>&gt;     <i>&lt;!-- 提示：TIPS --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">address</b>&gt;&lt;/<b role="tag">address</b>&gt;     <i>&lt;!-- 地址信息：ADDRESS --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">pre</b>&gt;&lt;/<b role="tag">pre</b>&gt;             <i>&lt;!-- 预排版：PRE 非代码块 --&gt;</i></code></li>
                         </ol>
@@ -386,7 +386,7 @@
                         <p>不包含任何内容，是一个独立存在的单元。</p>
                         <ol role="codelist" data-lang="html" start="34">
                             <li><code>&lt;<b role="tag">hr</b> /&gt;                      <i>&lt;!-- 分隔：HR --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">div</b> role=<s>"blank"</s>&gt;&lt;/<b role="tag">div</b>&gt;    <i>&lt;!-- 白板：BLANK 用于交互展示 --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">div</b> <b role="atn">role</b>=<s>"blank"</s>&gt;&lt;/<b role="tag">div</b>&gt;    <i>&lt;!-- 白板：BLANK 用于交互展示 --&gt;</i></code></li>
                         </ol>
                     <aside>
                         <p><strong>注：</strong>白板可插入内容，但仅适用在运行时下且应当是临时的。</p>
@@ -551,7 +551,7 @@
                                 <tr>
                                     <th>失效</th>
                                     <td><code>&lt;<b role="tag">s</b>&gt;&lt;/<b role="tag">s</b>&gt;</code></td>
-                                    <td><code><i>S</i></code></td>
+                                    <td><code><i>S，代码字符串</i></code></td>
                                     <td>22</td>
                                 </tr>
                                 <tr>
@@ -611,13 +611,13 @@
                                 <tr>
                                     <th>特用</th>
                                     <td><code>&lt;<b role="tag">b</b>&gt;</code></td>
-                                    <td><code><i>代码着色，其它</i></code></td>
+                                    <td><code><i>B，代码着色，其它</i></code></td>
                                     <td>32</td>
                                 </tr>
                                 <tr>
                                     <th>特用</th>
                                     <td><code>&lt;<b role="tag">i</b>&gt;</code></td>
-                                    <td><code><i>代码注释，其它</i></code></td>
+                                    <td><code><i>I，代码注释，其它</i></code></td>
                                     <td>33</td>
                                 </tr>
                                 <tr>
@@ -747,7 +747,7 @@
                     <section role="s3">
                         <h2 id="提要">提要</h2>
                         <pre role="codeblock">
-<code data-lang="html">&lt;<b role="tag">header</b> role=<s>"abstract"</s>&gt;
+<code data-lang="html">&lt;<b role="tag">header</b> <b role="atn">role</b>=<s>"abstract"</s>&gt;
     &lt;<b role="tag">h4</b>&gt;提要&lt;<b role="tag">h4</b>&gt;
     &lt;<b role="tag">p</b>&gt;&lt;/<b role="tag">p</b>&gt; ...
 &lt;/<b role="tag">header</b>&gt;
@@ -756,10 +756,10 @@
                     <section role="s3">
                         <h2 id="目录">目录</h2>
                         <pre role="codeblock">
-<code data-lang="html">&lt;<b role="tag">nav</b> role=<s>"toc"</s>&gt;
+<code data-lang="html">&lt;<b role="tag">nav</b> <b role="atn">role</b>=<s>"toc"</s>&gt;
     &lt;<b role="tag">h4</b>&gt;&lt;/<b role="tag">h4</b>&gt;
-    &lt;<b role="tag">ol</b> role=<s>"cascade"</s>&gt;
-        &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">h5</b>&gt;&lt;<b role="tag">a</b> href=<s>"#..."</s>&gt;&lt;!-- [#text] --&gt;&lt;/<b role="tag">a</b>&gt;&lt;/<b role="tag">h5</b>&gt;&lt;/<b role="tag">li</b>&gt;
+    &lt;<b role="tag">ol</b> <b role="atn">role</b>=<s>"cascade"</s>&gt;
+        &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">h5</b>&gt;&lt;<b role="tag">a</b> <b role="atn">href</b>=<s>"#..."</s>&gt;<i>&lt;!-- [#text] --&gt;</i>&lt;/<b role="tag">a</b>&gt;&lt;/<b role="tag">h5</b>&gt;&lt;/<b role="tag">li</b>&gt;
     &lt;/<b role="tag">ol</b>&gt;
 &lt;/<b role="tag">nav</b>&gt;
 </code></pre>
@@ -768,7 +768,7 @@
                         <h2 id="章节">章节</h2>
                         <p>系统提供 <strong>5</strong> 个默认层级的片区，它们由 <code>role</code> 特性标注，被称为 <strong>章节</strong> 片区（与普通的 <code>&lt;section&gt;</code> 相区别）。</p>
                         <pre role="codeblock">
-<code data-lang="html">&lt;<b role="tag">section</b> role=<s>"s1"</s>&gt;     <i>&lt;!-- s1 ~ s5 --&gt;</i>
+<code data-lang="html">&lt;<b role="tag">section</b> <b role="atn">role</b>=<s>"s1"</s>&gt;     <i>&lt;!-- s1 ~ s5 --&gt;</i>
     &lt;<b role="tag">h2</b>&gt;&lt;/<b role="tag">h2</b>&gt;           <i>&lt;!-- 标题 --&gt;</i>
     &lt;<b role="tag">header</b>&gt;&lt;/<b role="tag">header</b>&gt;   <i>&lt;!-- 导言：可选 --&gt;</i>
     {content} ...       <i>&lt;!-- 内容件 --&gt;</i>
@@ -780,7 +780,7 @@
                         <h2 id="文献参考">文献参考</h2>
                         <p>用有序列表来表达，体现引用出现在原文中的先后位置。</p>
                         <pre role="codeblock">
-<code data-lang="html">&lt;<b role="tag">nav</b> role=<s>"reference"</s>&gt;
+<code data-lang="html">&lt;<b role="tag">nav</b> <b role="atn">role</b>=<s>"reference"</s>&gt;
     &lt;<b role="tag">h4</b>&gt;文献参考&lt;/<b role="tag">h4</b>&gt;
     &lt;<b role="tag">ol</b>&gt;
         &lt;<b role="tag">li</b>&gt;&lt;/<b role="tag">li</b>&gt;...
@@ -792,7 +792,7 @@
                         <h2 id="另参见">另参见</h2>
                         <p>构造为一个无序列表，体现出不区分先后或主次顺序的并列关系。</p>
                         <pre role="codeblock">
-<code data-lang="html">&lt;<b role="tag">aside</b> role=<s>"seealso"</s>&gt;
+<code data-lang="html">&lt;<b role="tag">aside</b> <b role="atn">role</b>=<s>"seealso"</s>&gt;
     &lt;<b role="tag">h4</b>&gt;另参见&lt;/<b role="tag">h4</b>&gt;
     &lt;<b role="tag">ul</b>&gt;
         &lt;<b role="tag">li</b>&gt;&lt;/<b role="tag">li</b>&gt;...
@@ -804,7 +804,7 @@
                         <h2 id="无序级联表">无序级联表</h2>
                         <p>以无序列表 <code>&lt;ul&gt;</code> 为根容器，内含多级子列表（可为任意 <code>&lt;ol&gt;</code> 或 <code>&lt;ul&gt;</code>）。</p>
                         <pre role="codeblock">
-<code data-lang="html">&lt;<b role="tag">ul</b> role=<s>"ulx"</s>&gt;
+<code data-lang="html">&lt;<b role="tag">ul</b> <b role="atn">role</b>=<s>"ulx"</s>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;/<b role="tag">li</b>&gt;
     &lt;<b role="tag">li</b>&gt;
         &lt;<b role="tag">h5</b>&gt;&lt;/<b role="tag">h5</b>&gt; <i>&lt;!-- 级联小标题 --&gt;</i>
@@ -819,7 +819,7 @@
                         <h2 id="有序级联表">有序级联表</h2>
                         <p>以有序列表 <code>&lt;ol&gt;</code> 为根容器，内含多级子列表（可为任意 <code>&lt;ul&gt;</code> 或 <code>&lt;ol&gt;</code>）。</p>
                         <pre role="codeblock">
-<code data-lang="html">&lt;<b role="tag">ol</b> role=<s>"olx"</s>&gt;
+<code data-lang="html">&lt;<b role="tag">ol</b> <b role="atn">role</b>=<s>"olx"</s>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;/<b role="tag">li</b>&gt;
     &lt;<b role="tag">li</b>&gt;
         &lt;<b role="tag">h5</b>&gt;&lt;/<b role="tag">h5</b>&gt; <i>&lt;!-- 级联小标题 --&gt;</i>
@@ -834,7 +834,7 @@
                         <h2 id="级联编号表">级联编号表</h2>
                         <p>仅由有序列（<code>&lt;ol&gt;</code>）表构成，除了最终的层级，列表项（<code>&lt;li&gt;</code>）中仅有两个子元素：小标题（<code>&lt;h5&gt;</code>）和子列表（<code>&lt;ol&gt;</code>）。</p>
                         <pre role="codeblock">
-<code data-lang="html">&lt;<b role="tag">ol</b> role=<s>"cascade"</s>&gt;
+<code data-lang="html">&lt;<b role="tag">ol</b> <b role="atn">role</b>=<s>"cascade"</s>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;/<b role="tag">li</b>&gt;
     &lt;<b role="tag">li</b>&gt; <i>&lt;!-- 由CSS表达序号逻辑 --&gt;</i>
         &lt;<b role="tag">h5</b>&gt;&lt;/<b role="tag">h5</b>&gt;
@@ -852,13 +852,13 @@
                             <li><strong>根级</strong>。书写在 <code>&lt;ol&gt;</code> 元素上，对应整个代码表的默认值。</li>
                             <li><strong>行级</strong>。书写在 <code>&lt;code&gt;</code> 元素上，对应当前行代码的语言，可选。</li>
                         </ol>
-                        <p>元素的 <code>start</code> 属性在引用代码片段时很有用。例：<a href="#源码2（代码表）">源码2（代码表）</a>。</p>
+                        <p>元素的 <code>start</code> 属性在引用代码片段时很有用。例：<a href="#源码（代码表）">源码（代码表）</a>。</p>
                         <pre role="codeblock">
-<code role="html">&lt;<b role="tag">ol</b> role=<s>"codelist"</s> data-lang=<s>"xx"</s> start=<s>"n"</s>&gt;
+<code role="html" data-lang="html">&lt;<b role="tag">ol</b> <b role="atn">role</b>=<s>"codelist"</s> <b role="atn">data-lang</b>=<s>"xx"</s> <b role="atn">start</b>=<s>"n"</s>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt; <i>&lt;!-- 根封装 --&gt;</i>
         ...&lt;<b role="tag">b</b>&gt;... &lt;<b role="tag">i</b>&gt;... <i>&lt;!-- 代码内容，&lt;b&gt;着色封装，&lt;i&gt;注释封装 --&gt;</i>
     &lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
-    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b> data-lang=<s>"xx"</s>&gt; <i>&lt;!-- 嵌入语言覆盖 --&gt;</i>
+    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b> <b role="atn">data-lang</b>=<s>"xx"</s>&gt; <i>&lt;!-- 嵌入语言覆盖 --&gt;</i>
         ...
     &lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
 &lt;/<b role="tag">ol</b>&gt;
@@ -872,35 +872,38 @@
                         <h2 id="代码块">代码块</h2>
                         <p>与代码表一样，包含<code>data-lang</code>特性指定代码所属语言。注意<em>语言</em>是设置在<code>&lt;code&gt;</code>元素而不是<code>&lt;pre&gt;</code>容器上。</p>
                         <pre role="codeblock">
-<code data-lang="html">&lt;<b role="tag">pre</b> role=<s>"codeblock"</s>&gt; <i>&lt;!-- 容许简单换行 --&gt;</i>
-&lt;<b role="tag">code</b> data-lang=<s>"xx"</s>&gt; ...&lt;<b role="tag">b</b>&gt;... &lt;<b role="tag">i</b>&gt;...
+<code data-lang="html">&lt;<b role="tag">pre</b> <b role="atn">role</b>=<s>"codeblock"</s>&gt; <i>&lt;!-- 容许简单换行 --&gt;</i>
+&lt;<b role="tag">code</b> <b role="atn">data-lang</b>=<s>"xx"</s>&gt; ...&lt;<b role="tag">b</b>&gt;... &lt;<b role="tag">i</b>&gt;...
     <i>&lt;!-- 制表符会被转换为空格 --&gt;</i>
 &lt;/<b role="tag">code</b>&gt;
-<i>&lt;!-- 可包含多个&lt;code&gt;块 --&gt;</i>
-...&lt;/<b role="tag">pre</b>&gt; <i>&lt;!-- 末尾应当紧随 --&gt;</i>
+<i>&lt;!-- 可含多个&lt;code&gt;块，注意&lt;code&gt;无缩进 --&gt;</i>
+&lt;<b role="tag">code</b>&gt;...
+&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">pre</b>&gt; <i>&lt;!-- 末尾紧随&lt;code&gt;之后 --&gt;</i>
 </code></pre>
                     </section>
                     <section role="s3">
                         <h2 id="注解">注解</h2>
                         <p>用于解释正文中具体的名词或词组，在UI上可能是一种弹出展示。</p>
                         <pre role="codeblock">
-<code data-lang="html">&lt;<b role="tag">p</b> role=<s>"note"</s>&gt;
+<code data-lang="html">&lt;<b role="tag">p</b> <b role="atn">role</b>=<s>"note"</s>&gt;
     <i>&lt;!-- 文本或内联单元 --&gt;</i>
-&lt;/<b role="tag">p</b>&gt;</code></pre>
+&lt;/<b role="tag">p</b>&gt;
+</code></pre>
                     </section>
                     <section role="s3">
                         <h2 id="提示">提示</h2>
                         <p>一段小型的文本，通常用于小条目下的简单说明。外观可能像无序列表的 <code>&lt;li&gt;</code> 项。</p>
                         <pre role="codeblock">
-<code data-lang="html">&lt;<b role="tag">p</b> role=<s>"tips"</s>&gt;
+<code data-lang="html">&lt;<b role="tag">p</b> <b role="atn">role</b>=<s>"tips"</s>&gt;
     <i>&lt;!-- 文本或内联单元 --&gt;</i>
-&lt;/<b role="tag">p</b>&gt;</code></pre>
+&lt;/<b role="tag">p</b>&gt;
+</code></pre>
                     </section>
                     <section role="s3">
                         <h2 id="白板">白板</h2>
                         <p>这是一种特别的内容单元，用于交互展示。</p>
                         <pre role="codeblock">
-<code data-lang="html">&lt;<b role="tag">div</b> role=<s>"blank"</s>&gt;
+<code data-lang="html">&lt;<b role="tag">div</b> <b role="atn">role</b>=<s>"blank"</s>&gt;
     <i>&lt;!-- 动态表达区 --&gt;</i>
 &lt;/<b role="tag">div</b>&gt;
 </code></pre>
@@ -999,7 +1002,7 @@
                         <h2 id="表格">表格</h2>
                         <p>表格的 <code>border</code> 特性描述了边框的大小，它的值应当是一个数字。但这里对它进行了扩展。</p>
                         <pre role="codeblock">
-<code data-lang="html">&lt;<b role="tag">table</b> border=<s>"1"</s>&gt; <i>&lt;!-- border="0|1|i|r|h|v" --&gt;</i>
+<code data-lang="html">&lt;<b role="tag">table</b> <b role="atn">border</b>=<s>"1"</s>&gt; <i>&lt;!-- border="0|1|i|r|h|v" --&gt;</i>
     &lt;<b role="tag">caption</b>&gt;&lt;/<b role="tag">caption</b>&gt;
     &lt;<b role="tag">thead</b>&gt; <i>&lt;!-- 可选 --&gt;</i>
         &lt;<b role="tag">tr</b>&gt;&lt;<b role="tag">td</b>&gt;&lt;/<b role="tag">td</b>&gt;&lt;/<b role="tag">tr</b>&gt;
@@ -1097,14 +1100,14 @@
                         <p>分隔作为行块对待，样式由外部CSS定义。</p>
                         <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">hr</b> /&gt;
-&lt;<b role="tag">hr</b> role=<s>"dotted"</s> /&gt;  <i>&lt;!-- 虚线 --&gt;</i>
-&lt;<b role="tag">hr</b> role=<s>"solid"</s> /&gt;   <i>&lt;!-- 实线 --&gt;</i>
-&lt;<b role="tag">hr</b> role=<s>"double"</s> /&gt;  <i>&lt;!-- 双划线 --&gt;</i>
-&lt;<b role="tag">hr</b> role=<s>"dashed"</s> /&gt;  <i>&lt;!-- 点划线 --&gt;</i>
-&lt;<b role="tag">hr</b> role=<s>"groove"</s> /&gt;  <i>&lt;!-- 内槽线 --&gt;</i>
-&lt;<b role="tag">hr</b> role=<s>"ridge"</s> /&gt;   <i>&lt;!-- 外槽线 --&gt;</i>
-&lt;<b role="tag">hr</b> role=<s>"inset"</s> /&gt;   <i>&lt;!-- 内嵌线 --&gt;</i>
-&lt;<b role="tag">hr</b> role=<s>"outset"</s> /&gt;  <i>&lt;!-- 外嵌线 --&gt;</i>
+&lt;<b role="tag">hr</b> <b role="atn">role</b>=<s>"dotted"</s> /&gt;  <i>&lt;!-- 虚线 --&gt;</i>
+&lt;<b role="tag">hr</b> <b role="atn">role</b>=<s>"solid"</s> /&gt;   <i>&lt;!-- 实线 --&gt;</i>
+&lt;<b role="tag">hr</b> <b role="atn">role</b>=<s>"double"</s> /&gt;  <i>&lt;!-- 双划线 --&gt;</i>
+&lt;<b role="tag">hr</b> <b role="atn">role</b>=<s>"dashed"</s> /&gt;  <i>&lt;!-- 点划线 --&gt;</i>
+&lt;<b role="tag">hr</b> <b role="atn">role</b>=<s>"groove"</s> /&gt;  <i>&lt;!-- 内槽线 --&gt;</i>
+&lt;<b role="tag">hr</b> <b role="atn">role</b>=<s>"ridge"</s> /&gt;   <i>&lt;!-- 外槽线 --&gt;</i>
+&lt;<b role="tag">hr</b> <b role="atn">role</b>=<s>"inset"</s> /&gt;   <i>&lt;!-- 内嵌线 --&gt;</i>
+&lt;<b role="tag">hr</b> <b role="atn">role</b>=<s>"outset"</s> /&gt;  <i>&lt;!-- 外嵌线 --&gt;</i>
 </code></pre>
                     </section>
                     <section role="s3">
@@ -1255,27 +1258,27 @@
                 <section role="s2">
                     <h2 id="示例">示例</h2>
                     <section role="s3">
-                        <h2 id="源码1（代码块）">源码1（代码块）</h2>
+                        <h2 id="源码（代码块）">源码（代码块）</h2>
                         <pre role="codeblock">
-<code data-lang="html">&lt;<b role="tag">pre</b> role=<s>"codeblock"</s>&gt;
-&lt;<b role="tag">code</b> data-lang=<s>"go"</s>&gt;&lt;<b role="tag">i</b>&gt;// prints its command-line arguments.&lt;/<b role="tag">i</b>&gt;
-&lt;<b role="tag">b</b> role=<s>"kw"</s>&gt;package&lt;/<b role="tag">b</b>&gt; main
-&lt;<b role="tag">b</b> role=<s>"kw"</s>&gt;import&lt;/<b role="tag">b</b>&gt; (
+<code data-lang="html">&lt;<b role="tag">pre</b> <b role="atn">role</b>=<s>"codeblock"</s>&gt;
+&lt;<b role="tag">code</b> <b role="atn">data-lang</b>=<s>"go"</s>&gt;&lt;<b role="tag">i</b>&gt;// prints its command-line arguments.&lt;/<b role="tag">i</b>&gt;
+&lt;<b role="tag">b</b> <b role="atn">role</b>=<s>"kw"</s>&gt;package&lt;/<b role="tag">b</b>&gt; main
+&lt;<b role="tag">b</b> <b role="atn">role</b>=<s>"kw"</s>&gt;import&lt;/<b role="tag">b</b>&gt; (
     &lt;<b role="tag">s</b>&gt;"fmt"&lt;/<b role="tag">s</b>&gt;
     &lt;<b role="tag">s</b>&gt;"os"&lt;/<b role="tag">s</b>&gt;
 )
-&lt;<b role="tag">b</b> role=<s>"kw"</s>&gt;func&lt;/<b role="tag">b</b>&gt; main() {
-    &lt;<b role="tag">b</b> role=<s>"kw"</s>&gt;var&lt;/<b role="tag">b</b>&gt; s, sep &lt;<b role="tag">b</b> role=<s>"dt"</s>&gt;string&lt;/<b role="tag">b</b>&gt;
-    &lt;<b role="tag">b</b> role=<s>"kw"</s>&gt;for&lt;/<b role="tag">b</b>&gt; i &lt;<b role="tag">b</b> role=<s>"op"</s>&gt;:=&lt;/<b role="tag">b</b>&gt; 1; i &lt;<b role="tag">b</b> role=<s>"op"</s>&gt;&amp;lt;&lt;/<b role="tag">b</b>&gt; &lt;<b role="tag">b</b> role=<s>"fn"</s>&gt;len&lt;/<b role="tag">b</b>&gt;(os.Args); i&lt;<b role="tag">b</b> role=<s>"op"</s>&gt;++&lt;/<b role="tag">b</b>&gt; {
-        s &lt;<b role="tag">b</b> role=<s>"op"</s>&gt;+=&lt;/<b role="tag">b</b>&gt; sep &lt;<b role="tag">b</b> role=<s>"op"</s>&gt;+&lt;/<b role="tag">b</b>&gt; os.Args[i]
-        sep &lt;<b role="tag">b</b> role=<s>"op"</s>&gt;=&lt;/<b role="tag">b</b>&gt; &lt;<b role="tag">s</b>&gt;" "&lt;/<b role="tag">s</b>&gt;
+&lt;<b role="tag">b</b> <b role="atn">role</b>=<s>"kw"</s>&gt;func&lt;/<b role="tag">b</b>&gt; main() {
+    &lt;<b role="tag">b</b> <b role="atn">role</b>=<s>"kw"</s>&gt;var&lt;/<b role="tag">b</b>&gt; s, sep &lt;<b role="tag">b</b> <b role="atn">role</b>=<s>"dt"</s>&gt;string&lt;/<b role="tag">b</b>&gt;
+    &lt;<b role="tag">b</b> <b role="atn">role</b>=<s>"kw"</s>&gt;for&lt;/<b role="tag">b</b>&gt; i &lt;<b role="tag">b</b> <b role="atn">role</b>=<s>"op"</s>&gt;:=&lt;/<b role="tag">b</b>&gt; 1; i &lt;<b role="tag">b</b> <b role="atn">role</b>=<s>"op"</s>&gt;<b role="lit">&lt;</b>&lt;/<b role="tag">b</b>&gt; &lt;<b role="tag">b</b> <b role="atn">role</b>=<s>"fn"</s>&gt;len&lt;/<b role="tag">b</b>&gt;(os.Args); i&lt;<b role="tag">b</b> <b role="atn">role</b>=<s>"op"</s>&gt;++&lt;/<b role="tag">b</b>&gt; {
+        s &lt;<b role="tag">b</b> <b role="atn">role</b>=<s>"op"</s>&gt;+=&lt;/<b role="tag">b</b>&gt; sep &lt;<b role="tag">b</b> <b role="atn">role</b>=<s>"op"</s>&gt;+&lt;/<b role="tag">b</b>&gt; os.Args[i]
+        sep &lt;<b role="tag">b</b> <b role="atn">role</b>=<s>"op"</s>&gt;=&lt;/<b role="tag">b</b>&gt; &lt;<b role="tag">s</b>&gt;" "&lt;/<b role="tag">s</b>&gt;
     }
     fmt.Println(s)
 }&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">pre</b>&gt;
 </code></pre>
                     </section>
                     <section role="s3">
-                        <h2 id="效果1">效果</h2>
+                        <h2>效果</h2>
                         <pre role="codeblock">
 <code data-lang="go"><i>// prints its command-line arguments.</i>
 <b role="kw">package</b> main
@@ -1293,22 +1296,22 @@
 }</code></pre>
                     </section>
                     <section role="s3">
-                        <h2 id="源码2（代码表）">源码2（代码表）</h2>
+                        <h2 id="源码（代码表）">源码（代码表）</h2>
                         <pre role="codeblock">
-<code data-lang="html">&lt;<b role="tag">ol</b> role=<s>"codelist"</s> data-lang=<s>"go"</s> start=<s>"3"</s>&gt;
-    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;&lt;<b role="tag">b</b> role=<s>"kw"</s>&gt;import&lt;/<b role="tag">b</b>&gt; &lt;<b role="tag">s</b>&gt;"fmt"&lt;/<b role="tag">s</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
-    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;&lt;<b role="tag">b</b> role=<s>"kw"</s>&gt;func&lt;/<b role="tag">b</b>&gt; main() {&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
+<code data-lang="html">&lt;<b role="tag">ol</b> <b role="atn">role</b>=<s>"codelist"</s> <b role="atn">data-lang</b>=<s>"go"</s> <b role="atn">start</b>=<s>"3"</s>&gt;
+    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;&lt;<b role="tag">b</b> <b role="atn">role</b>=<s>"kw"</s>&gt;import&lt;/<b role="tag">b</b>&gt; &lt;<b role="tag">s</b>&gt;"fmt"&lt;/<b role="tag">s</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
+    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;&lt;<b role="tag">b</b> <b role="atn">role</b>=<s>"kw"</s>&gt;func&lt;/<b role="tag">b</b>&gt; main() {&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;    fmt.Println(&lt;<b role="tag">s</b>&gt;"Hello, 世界"&lt;/<b role="tag">s</b>&gt;) &lt;<b role="tag">i</b>&gt;// 这是一条长行，测试折行的效果。如果编号列的背景色与代码部分不一样的话，CSS可能不宜设计为水平滚动。代码是否为折行，可以通过编号看出来。&lt;/<b role="tag">i</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;}&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
-    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;&lt;<b role="tag">b</b> role=<s>"kw"</s>&gt;type&lt;/<b role="tag">b</b>&gt; MapSort &lt;<b role="tag">b</b> role=<s>"kw"</s>&gt;struct&lt;/<b role="tag">b</b>&gt; {&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
-    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;    m &lt;<b role="tag">b</b> role=<s>"kw"</s>&gt;map&lt;/<b role="tag">b</b>&gt;[&lt;<b role="tag">b</b> role=<s>"dt"</s>&gt;string&lt;/<b role="tag">b</b>&gt;]&lt;<b role="tag">b</b> role=<s>"dt"</s>&gt;int&lt;/<b role="tag">b</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
-    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;    s []&lt;<b role="tag">b</b> role=<s>"dt"</s>&gt;string&lt;/<b role="tag">b</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
+    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;&lt;<b role="tag">b</b> <b role="atn">role</b>=<s>"kw"</s>&gt;type&lt;/<b role="tag">b</b>&gt; MapSort &lt;<b role="tag">b</b> <b role="atn">role</b>=<s>"kw"</s>&gt;struct&lt;/<b role="tag">b</b>&gt; {&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
+    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;    m &lt;<b role="tag">b</b> <b role="atn">role</b>=<s>"kw"</s>&gt;map&lt;/<b role="tag">b</b>&gt;[&lt;<b role="tag">b</b> <b role="atn">role</b>=<s>"dt"</s>&gt;string&lt;/<b role="tag">b</b>&gt;]&lt;<b role="tag">b</b> <b role="atn">role</b>=<s>"dt"</s>&gt;int&lt;/<b role="tag">b</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
+    &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;    s []&lt;<b role="tag">b</b> <b role="atn">role</b>=<s>"dt"</s>&gt;string&lt;/<b role="tag">b</b>&gt;&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
     &lt;<b role="tag">li</b>&gt;&lt;<b role="tag">code</b>&gt;}&lt;/<b role="tag">code</b>&gt;&lt;/<b role="tag">li</b>&gt;
 &lt;/<b role="tag">ol</b>&gt;
 </code></pre>
                     </section>
                     <section role="s3">
-                        <h2 id="效果2">效果</h2>
+                        <h2>效果</h2>
                         <ol role="codelist" data-lang="go" start="3">
                             <li><code><b role="kw">import</b> <s>"fmt"</s></code></li>
                             <li><code><b role="kw">func</b> main() {</code></li>

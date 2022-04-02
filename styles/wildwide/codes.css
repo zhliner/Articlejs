@@ -67,7 +67,7 @@ code b[role=tag] {
 
 /* attribute-name */
 code b[role=atn] {
-    color: #005fcc;
+    color: green;
 }
 
 /* RegExp */
@@ -129,5 +129,9 @@ code b[role=non] {
 }
 
 /* HTML内联样式 */
-[data-lang=html] s > b[role=atn] { color: green }
-[data-lang=html] s > b[role=un] { color: #333 }
+[data-lang=html] s > b[role=atn] {
+    color: #02b6ad
+}
+[data-lang=html] s > b[role=un] {
+    color: #333
+}
