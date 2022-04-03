@@ -74,8 +74,8 @@
     内容区的选取集取消会成为常驻项（栈底保留）。
 -->
 <body
-    on="@mousemove:1|movementX() dup pass;
-        @mousemove:2|movementX() dup pass neg;
+    on="@mousemove:1|movementX dup pass;
+        @mousemove:2|movementX dup pass neg;
         @mouseup|movementX(null);
         pcheck|data('all') arr filter(e=>$.hasClass(e, '_press'));
         pstore|ev('detail') data('pls') dup clear pop;
@@ -95,8 +95,8 @@
         ^finish|$$('#x-outline,#x-help,#x-slave') pop Set(2);
         ^finish|$('#content') (ESC) pop;
         ^finish|(edInit) ('content,g-covert,main-slave,g-path,err-msg,status-info,outline,tools-usual,g-modal,g-contab,beeptip') split(',') str('#') exec(_)"
-    to="#outline|width(true);
-        #help|width(true);
+    to="#outline|width(true, true);
+        #help|width(true, true);
         |off('mousemove');
         |trigger('pstore');
         -|adds;

@@ -69,7 +69,7 @@
         @mouseup:1|movementX(null);
         margin_ml|$('main.content') css('margin-left') int ev('detail') add(_1) add('px');
         bodycls|('_dark') ev('detail') bool"
-    to="nav[role=toc]|width(true) pass|pop goto('margin_ml');
+    to="nav[role=toc]|width(true, true) pass|pop goto('margin_ml');
         |off('mousemove');
         main.content|%marginLeft;
         |toggleClass(_1)">
