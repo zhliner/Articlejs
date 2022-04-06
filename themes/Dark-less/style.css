@@ -290,17 +290,17 @@ aside.Outline {
 .___Panel fieldset {
     padding: 4px;
     border-radius: 7pt;
-    border: 1px #bbb solid;
+    border: 1px #666 solid;
 }
 .___Panel legend {
     padding: 0 4px;
     margin-left: 0.5em;
-    color: #555;
+    color: #bbb;
     font-style: italic;
 }
 .___Panel fieldset > label {
     display: block;
-    margin: 4px 1em;
+    margin: 2pt 1em;
 }
 
 /* 侧栏灰度线 */
@@ -976,7 +976,7 @@ menu._cells code {
 
 .Slave {
     flex: 0 0 auto;
-    min-height: 240px;
+    min-height: 300px;
     height: 28vh;
     background-color: #182e34;
     display: flex;
@@ -1182,6 +1182,9 @@ menu._cells code {
 }
 .Input ._Figure textarea:last-child {
     margin-top: 4px;
+}
+.Input ._Figure fieldset {
+    font-size: small;
 }
 .Input ._inert {
     max-height: 2.4em;
