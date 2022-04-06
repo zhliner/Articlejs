@@ -30,17 +30,19 @@
 - `<form>`      // 块级，作为内容暂不支持。
 - `<datalist>`  // 不可视
 - `<fieldset>`  // 块级，作为块级单元
-- `<legend>`    // 块级，同上
+- `<legend>`    // 上面单元的结构子
+
 - `<button>`
 - `<input>`
-- `<keygen>`    // Web已废弃
 - `<label>`
-- `<optgroup>`  // 半隐藏封装器，暂不支持
 - `<option>`
 - `<output>`
 - `<progress>`
 - `<select>`
 - `<textarea>`
+
+- `<optgroup>`  // 半隐藏封装器，暂不支持
+- `<keygen>`    // Web已废弃
 
 上面未注释的控件为内联元素，可以将它们纳入微编辑的内联单元插入（同时，文本类内联单元可以取消）。两个块级元素则作为块级单元使用。
 

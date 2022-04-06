@@ -625,11 +625,11 @@
             <label><input name="below" type="checkbox" />标题在下</label>
         </header>
         <pre tpl-node="!prop:codes"></pre>
-        <textarea name="explain" placeholder="讲解文字，可选" class="_inert"></textarea>
+        <textarea name="explain" data-pbo="lost" class="_inert" placeholder="讲解文字，可选"></textarea>
     </div>
     <aside>
         <div class="_option">
-            <label>类型
+            <label>资源
                 <select name="type"
                     on="change|evo(3) prop('selected') attr('-tip')"
                     to="._body/pre._code|@-tip">
@@ -638,7 +638,15 @@
                     <option value="svg" data-tip="<svg>...</svg>">SVG源码</option>
                 </select>
             </label>
-            <!-- 注记：讲解定位放到属性定义 -->
+            <hr />
+            <fieldset>
+                <legend>讲解</legend>
+                <label><input type="radio" name="texts" value="" checked />无讲解</label>
+                <label><input type="radio" name="texts" value="explain" />在图片之上</label>
+                <label><input type="radio" name="texts" value="ul" />无序列表</label>
+                <label><input type="radio" name="texts" value="ol" />有序列表</label>
+                <label><input type="radio" name="texts" value="p" />多段落说明</label>
+            </fieldset>
         </div>
         <div tpl-node="input:insert2"> [插入2] </div>
     </aside>
@@ -1205,11 +1213,11 @@
     </aside>
 </div>
 
-<div class="_body _Figbox" obt-src="obts/figimg.json, obts/figsvg.json" tpl-name="input:figconbox"
+<div class="_body _Image" obt-src="obts/figimg.json, obts/figsvg.json" tpl-name="input:image"
     on="create|$('/[name=type]') val"
     to="|trigger(_1)">
     <div class="_main _list">
-        <hr tpl-source="~prop:figconbox" />
+        <hr tpl-source="~prop:image" />
     </div>
     <aside>
         <div class="_option">
@@ -1567,6 +1575,15 @@
 <div class="_body _Inline" tpl-name="input:bdo">
     <div class="_main _list">
         <ul tpl-node="!inlines:bdo"></ul>
+    </div>
+    <aside>
+        <hr tpl-node="input:insert2" title="[插入2]">
+    </aside>
+</div>
+
+<div class="_body _Inline" tpl-name="input:bdi">
+    <div class="_main _list">
+        <ul tpl-node="!inlines:bdi"></ul>
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">

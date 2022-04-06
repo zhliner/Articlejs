@@ -47,7 +47,7 @@ const
     SEALED      = 1 << 10,  // 密封单元（不可合并）
     FIXED1      = 1 << 11,  // 位置向前固定
     FIXED2      = 1 << 12,  // 位置向后固定
-    RANGEX      = 1 << 13;  // 可否选取为范围
+    RANGEX      = 1 << 13;  // 可否选为范围（上下文菜单）
 
 
 //
@@ -78,10 +78,11 @@ export const
     METER           = 6,    // 量度 {value, max, min, high, low, optimum}
     SPACE           = 7,    // 空白
     IMG             = 8,    // 图片 {src, alt, width, height}
-    BR              = 9,    // 换行
-    WBR             = 10,   // 软换行
+    IMAGE           = 9,    // 讲解图（span/img, i:explain）
+    BR              = 10,   // 换行
+    WBR             = 11,   // 软换行
     //
-    // 内联内结构
+    // 内联子结构
     /////////////////////////////////////////////
     TRACK           = 100,  // 字幕轨 {kind, src, srclang, label, default?}
     SOURCE1         = 101,  // 媒体资源 {src, type}
@@ -89,9 +90,8 @@ export const
     PIMG            = 103,  // 最佳图片（Picture:img） 注：有位置要求，故单独定义
     RT              = 104,  // 注音拼音
     RP              = 105,  // 注音拼音包围
-    FCONA           = 106,  // 插图图片链接（Figure/span:a/img|svg），主要用于子单元约束
-    EXPLAIN         = 107,  // 插图讲解 {fix}
-    SVGITEM         = 108,  // 图形内容（仅用于SVG子元素配置）
+    EXPLAIN         = 106,  // 插图讲解 {fix}
+    SVGITEM         = 107,  // 图形内容（仅用于SVG子元素配置）
     //
     // 内联内容元素
     /////////////////////////////////////////////
@@ -102,21 +102,34 @@ export const
     INS             = 204,  // 插入 {datetime, cite}
     DFN             = 205,  // 定义 {title}
     BDO             = 206,  // 有向文本 {dir}
-    TIME            = 207,  // 时间 {datetime}
-    CODE            = 208,  // 代码（code/#text, b, i） {data-lang, data-tab}
-    STRONG          = 209,  // 重点
-    EM              = 210,  // 强调
-    CITE            = 211,  // 来源
-    SMALL           = 212,  // 注脚
-    SUB             = 213,  // 下标
-    SUP             = 214,  // 上标
-    MARK            = 215,  // 标记
-    ORZ             = 216,  // 表情
-    SAMP            = 217,  // 样本
-    KBD             = 218,  // 键盘字
-    S               = 219,  // 失效
-    U               = 220,  // 注记
-    VAR             = 221,  // 变量
+    BDI             = 207,  // 方向隔离
+    TIME            = 208,  // 时间 {datetime}
+    CODE            = 209,  // 代码（code/#text, b, i） {data-lang, data-tab}
+    STRONG          = 210,  // 重点
+    EM              = 211,  // 强调
+    CITE            = 212,  // 来源
+    SMALL           = 213,  // 注脚
+    SUB             = 214,  // 下标
+    SUP             = 215,  // 上标
+    MARK            = 216,  // 标记
+    ORZ             = 217,  // 表情（定制）
+    SAMP            = 218,  // 样本
+    KBD             = 219,  // 键盘字
+    S               = 220,  // 失效
+    U               = 221,  // 注记
+    VAR             = 222,  // 变量
+    CRUMB           = 223,  // 碎片（定制）
+    //
+    // 内联控件
+    /////////////////////////////////////////////
+    BUTTON          = 224,  // 按钮
+    INPUT           = 225,  // 录入件
+    LABEL           = 226,  // 标签
+    OPTION          = 227,  // 选取项
+    OUTPUT          = 228,  // 输出件
+    PROGRESS        = 229,  // 进度条
+    SELECT          = 230,  // 选单
+    TEXTAREA        = 231,  // 文本框
 
     //
     // 行块内容元素
@@ -127,7 +140,7 @@ export const
     PRE             = 303,  // 预排版 （pre/#text, ...）
     ADDRESS         = 304,  // 地址 （address/#text, ...）
     //
-    // 块内结构元素
+    // 块内结构子
     /////////////////////////////////////////////
     H1              = 400,  // 主标题
     H2              = 401,  // 片区标题
@@ -147,17 +160,19 @@ export const
     THEAD           = 415,  // 表头
     TBODY           = 416,  // 表体
     TFOOT           = 417,  // 表脚
+    LEGEND          = 418,  // 控件集标题
+    //
     // 定制结构类
     // 注记：无需LICODE设计，容器非CONTENT即可。
-    CODELI          = 418,  // 代码表条目（li/code） {value}
-    ALI             = 419,  // 链接列表项（li/a）
-    AH4             = 420,  // 目录标签项（h4/a）
-    AH5             = 421,  // 链接小标题（h5/a）
-    XH5LI           = 422,  // 级联表标题项（li/h5, ul）
-    XOLH5LI         = 423,  // 级联表有序标题项（li/h5, ol）
-    XOLAH5LI        = 424,  // 级联表有序链接标题项（li/[h5/a], ol）
-    TOCCASCADE      = 425,  // 目录级联表（ol:cascade/[li/a]）
-    FIGCONBOX       = 426,  // 插图内容块（span/img, i:explain）
+    FCONA           = 419,  // 插图链接图（Figure/a/img|svg），主要用于子单元约束
+    CODELI          = 420,  // 代码表条目（li/code） {value}
+    ALI             = 421,  // 链接列表项（li/a）
+    AH4             = 422,  // 目录标签项（h4/a）
+    AH5             = 423,  // 链接小标题（h5/a）
+    XH5LI           = 424,  // 级联表标题项（li/h5, ul）
+    XOLH5LI         = 425,  // 级联表有序标题项（li/h5, ol）
+    XOLAH5LI        = 426,  // 级联表有序链接标题项（li/[h5/a], ol）
+    TOCCASCADE      = 427,  // 目录级联表（ol:cascade/[li/a]）
     //
     // 行块结构元素
     /////////////////////////////////////////////
@@ -189,9 +204,10 @@ export const
     ASIDE           = 524,  // 批注 （aside/h4, p...）
     DETAILS         = 525,  // 详细内容 （details/summary, p...） {open}
     CODEBLOCK       = 526,  // 代码块 （pre:codeblock/code/#text, b, i）
+    FIELDSET        = 527,  // 控件分组（fieldset/legend, ...）
     // 单体单元。
-    HR              = 527,  // 分隔 （hr） CSS:{borderWidth, width, height}
-    BLANK           = 528,  // 白板 （div:blank/x）
+    HR              = 528,  // 分隔 （hr） CSS:{borderWidth, width, height}
+    BLANK           = 529,  // 白板 （div:blank/x）
 
     //
     // 特殊用途。
@@ -224,6 +240,7 @@ const Properties = {
     [ METER ]:          INLINES | SEALED | RANGEX,
     [ SPACE ]:          INLINES | SEALED,
     [ IMG ]:            INLINES | EMPTY | RANGEX,
+    [ IMAGE ]:          INLINES | STRUCT | SEALED | RANGEX,
     [ BR ]:             INLINES | EMPTY | COVERT,
     [ WBR ]:            INLINES | EMPTY | COVERT,
     //
@@ -234,7 +251,6 @@ const Properties = {
     [ SOURCE1 ]:        STRUCT | STRUCTX | EMPTY | COVERT,
     [ SOURCE2 ]:        STRUCT | STRUCTX | EMPTY | COVERT,
     [ PIMG ]:           STRUCT | EMPTY,
-    [ FCONA ]:          STRUCT | STRUCTX,
     [ EXPLAIN ]:        STRUCT | STRUCTX | CONTENT,
     // 解包：先文本化，然后内容提升。
     [ RT ]:             STRUCT | FIXED1 | FIXED2 | CONTENT | INLSTRUCT,
@@ -295,6 +311,7 @@ const Properties = {
     [ THEAD ]:          STRUCT | STRUCTX | SINGLE,
     [ TFOOT ]:          STRUCT | STRUCTX | SINGLE,
 
+    [ FCONA ]:          STRUCT | STRUCTX,
     [ CODELI ]:         STRUCT | STRUCTX | SEALED,
     [ ALI ]:            STRUCT | STRUCTX | CONTENT, // 宽容
     [ AH4 ]:            STRUCT | SINGLE | FIXED1 | FIXED2 | CONTENT,
@@ -303,8 +320,6 @@ const Properties = {
     [ XOLH5LI ]:        STRUCT | STRUCTX | SEALED,
     [ XOLAH5LI ]:       STRUCT | STRUCTX | SEALED,
     [ TOCCASCADE ]:     STRUCT | FIXED1 | FIXED2 | SEALED,
-    // 插图内允许多个<span>容器。
-    [ FIGCONBOX ]:      STRUCT | STRUCTX,  // SEALED,
 
     //
     // 行块结构元素
@@ -455,6 +470,7 @@ export const ChildTypes = {
     [ METER ]:          [ $TEXT ],
     [ SPACE ]:          null,
     [ IMG ]:            null,
+    [ IMAGE ]:          [ IMG, SVG, EXPLAIN ],
     [ BR ]:             null,
     [ WBR ]:            null,
     //
@@ -467,7 +483,6 @@ export const ChildTypes = {
     [ PIMG ]:           null,
     [ RT ]:             [ $TEXT ],
     [ RP ]:             [ $TEXT ],
-    [ FCONA ]:          [ IMG, SVG ],
     [ EXPLAIN ]:        [ $TEXT, A, ..._NOMEDIA ],  // 插图讲解
     //
     // 内联内容元素
@@ -525,6 +540,7 @@ export const ChildTypes = {
     [ TBODY ]:          [ TR ],
     [ TFOOT ]:          [ TR ],
 
+    [ FCONA ]:          [ IMG, SVG, IMAGE ],
     [ CODELI ]:         [ CODE ],
     [ ALI ]:            [ A ],
     [ AH4 ]:            [ A ],
@@ -533,7 +549,6 @@ export const ChildTypes = {
     [ XOLH5LI ]:        [ H4, OL ],
     [ XOLAH5LI ]:       [ AH5, OL ],
     [ TOCCASCADE ]:     [ ALI, XOLAH5LI ],
-    [ FIGCONBOX ]:      [ IMG, SVG, EXPLAIN, FCONA ],
     //
     // 行块结构元素
     /////////////////////////////////////////////
@@ -556,7 +571,7 @@ export const ChildTypes = {
     [ CASCADE ]:        [ LI, ALI, XOLH5LI, XOLAH5LI ],
     [ DL ]:             [ DT, DD ],
     [ TABLE ]:          [ CAPTION, THEAD, TBODY, TFOOT ],
-    [ FIGURE ]:         [ FIGCAPTION, FIGCONBOX ],
+    [ FIGURE ]:         [ FIGCAPTION, IMAGE, IMG, SVG, FCONA, P, OL, UL ],
     [ BLOCKQUOTE ]:     [ H4, P, ..._BLOLIMIT, TABLE ],
     [ ASIDE ]:          [ H4, P, ..._BLOLIMIT, TABLE ],
     [ DETAILS ]:        [ SUMMARY, P, ..._BLOLIMIT, TABLE ],

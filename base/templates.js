@@ -42,6 +42,7 @@ const InputOptions = {
     [ T.METER ]:        'option:meter',
     [ T.SPACE ]:        'option:space',
     [ T.IMG ]:          'option:img',
+    [ T.IMAGE ]:        'option:image',
     [ T.BR ]:           'option:br',
     [ T.WBR ]:          'option:wbr',
 
@@ -112,7 +113,6 @@ const InputOptions = {
     [ T.XH5LI ]:        'option:xh5li',
     [ T.XOLH5LI ]:      'option:xolh5li',
     [ T.XOLAH5LI ]:     'option:xolah5li',
-    [ T.FIGCONBOX ]:    'option:figconbox',
 
     [ T.HGROUP ]:       'option:hgroup',
     [ T.ARTICLE ]:      'option:article',

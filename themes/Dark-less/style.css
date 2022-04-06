@@ -287,8 +287,20 @@ aside.Outline {
 .___Panel input {
     outline: none;
 }
+.___Panel fieldset {
+    padding: 4px;
+    border-radius: 7pt;
+    border: 1px #bbb solid;
+}
 .___Panel legend {
     padding: 0 4px;
+    margin-left: 0.5em;
+    color: #555;
+    font-style: italic;
+}
+.___Panel fieldset > label {
+    display: block;
+    margin: 4px 1em;
 }
 
 /* 侧栏灰度线 */
@@ -1078,7 +1090,7 @@ menu._cells code {
 .Slave aside hr {
     border: 1px #666 solid;
     border-bottom-color: #111;
-    margin: 6px 0 7px;
+    margin: 6pt 0;
 }
 
 /* 录入框填充 */

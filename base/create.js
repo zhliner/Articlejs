@@ -55,8 +55,10 @@ const Tags = {
     [ T.SVG ]:          'svg',
     [ T.RUBY ]:         'ruby',
     [ T.METER ]:        'meter',
+    [ T.CRUMB ]:        'span\\crumb',
     [ T.SPACE ]:        'span\\space',
     [ T.IMG ]:          'img',
+    [ T.IMAGE ]:        'span\\image',
     [ T.BR ]:           'br',
     [ T.WBR ]:          'wbr',
     //
@@ -135,7 +137,6 @@ const Tags = {
     [ T.XOLH5LI ]:      'li',
     [ T.XOLAH5LI ]:     'li',
     [ T.TOCCASCADE ]:   'ol\\cascade',
-    [ T.FIGCONBOX ]:    'span',
 
     //
     // 行块结构元素
@@ -258,6 +259,27 @@ const Children = {
      */
     [ T.SVGITEM ]: function( ref, box, _, data ) {
         return result( null, svgInsert(ref, box, data), true );
+    },
+
+
+    /**
+     * 仅返回图片元素供递进构建。
+     * @param {Element|null} ref 参考子元素
+     * @param {Element} box 图片容器（<span:image>）
+     * @param {String|Node|[Node]} explain 图片讲解，可选
+     * @param {Element} data 主体内容（<img>|<svg>）
+     */
+    [ T.IMAGE ]: function( ref, box, {explain}, data ) {
+        let [_img, _end] = appendChild(
+            ref,
+            box,
+            data,
+            () => elem( T.IMG )
+        );
+        if ( typeof explain === 'string' ) {
+            explain = appendNode( box, create(T.EXPLAIN, null, explain) );
+        }
+        return result( explain, _img, _end );
     },
 
 
@@ -490,28 +512,7 @@ const Children = {
 
 
     /**
-     * 仅返回图片元素供递进构建。
-     * @param {Element|null} ref 参考子元素
-     * @param {Element} box 图片容器（<span>）
-     * @param {String|Node|[Node]} explain 图片讲解，可选
-     * @param {Element} data 主体内容（<img>|<svg>）
-     */
-    [ T.FIGCONBOX ]: function( ref, box, {explain}, data ) {
-        let [_img, _end] = appendChild(
-            ref,
-            box,
-            data,
-            () => elem( T.IMG )
-        );
-        if ( typeof explain === 'string' ) {
-            explain = appendNode( box, create(T.EXPLAIN, null, explain) );
-        }
-        return result( explain, _img, _end );
-    },
-
-
-    /**
-     * 插图图片链接。
+     * 插图链接图。
      * @param {Element|null} ref 参考子元素
      * @param {Element} el 链接容器（<a>）
      * @param {Element} data 图元素（<img>|<svg>）
@@ -731,7 +732,9 @@ const Children = {
 
     /**
      * 插图/标题。
-     * 合法插入则终止，否则创建默认单元并继续。
+     * 合法插入则终止，否则创建讲解图并继续。
+     * 注记：
+     * 讲解图为插图内容的默认单元。
      * @param {Element|null} ref 参考子元素
      * @param {Element} fig 插图根元素
      * @param {Element|String|[Node]} opts.figcaption 标题元素或其内容
@@ -743,7 +746,7 @@ const Children = {
             ref,
             fig,
             data,
-            () => elem( T.FIGCONBOX )
+            () => elem( T.IMAGE )
         );
         cleanOptions( opts, 'figcaption' );
 
@@ -980,6 +983,7 @@ const Children = {
     T.INS,
     T.DFN,
     T.BDO,
+    T.BDI,
     T.TIME,
     T.STRONG,
     T.EM,
@@ -994,6 +998,7 @@ const Children = {
     T.S,
     T.U,
     T.VAR,
+    T.CRUMB,
 
     // 特用
     T.B,
@@ -1226,6 +1231,7 @@ const Builder = {
 // 注记：默认处理无需定义，罗列供参考。
 //-----------------------------------------------
 // [
+    // T.IMAGE,
     // T.SVGITEM
 
     // 内联内容元素
@@ -1242,8 +1248,9 @@ const Builder = {
     // T.S,
     // T.U,
     // T.VAR,
-    // T.B
-    // T.I
+    // T.BDI,
+    // T.B,
+    // T.I,
 
     // 内容行单元。
     // T.P,
@@ -1275,7 +1282,6 @@ const Builder = {
     // T.AH4,
     // T.AH5,
     // T.TOCCASCADE,
-    // T.FIGCONBOX,
     // T.HGROUP,
     // T.ABSTRACT,
     // T.TOC,

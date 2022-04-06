@@ -3275,7 +3275,7 @@ function inlinePopup( name, rngop ) {
  * @return {Boolean}
  */
 function canInlineWrap( type, subs, cbox ) {
-    if ( type === 'a' && getType(cbox) === T.FIGCONBOX ) {
+    if ( type === 'a' && getType(cbox) === T.FIGURE ) {
         type = 'fcona';
     }
     let _box = create( type ),
@@ -6649,9 +6649,9 @@ export const Kit = {
      * 检查范围是否合法。
      * 目标：暂存区/栈顶1项。
      * 目标为划选范围对象，范围需在文本节点或内容元素内。
-     * 特别允许插图容器内可创建图片链接（<a/img|svg>）。
+     * 特别允许插图内可创建图片链接（<figure>/<a/img|svg|span:image>）。
      * 注记：
-     * 因为创建单元受限于合法父子关系，所以代码内也支持（仅能创建<b>和<i>）。
+     * 因为创建单元受限于合法父子关系，所以代码内也支持弹出创建（仅<b>,<i>）。
      * @data: Range
      * @return {Boolean}
      */
@@ -6660,7 +6660,7 @@ export const Kit = {
             _tv = getType( _el );
 
         evo.data.detach();
-        return T.isContent( _tv ) || _tv === T.FIGCONBOX;
+        return T.isContent( _tv ) || _tv === T.FIGURE && !evo.data.collapsed && !evo.data.toString();
     },
 
     __rngok: 1,
@@ -7520,7 +7520,7 @@ export const Kit = {
      */
     rngelem( evo, name ) {
         if ( name === 'a' &&
-            getType(rangeCommonElement(evo.data)) === T.FIGCONBOX ) {
+            getType(rangeCommonElement(evo.data)) === T.FIGURE ) {
             name = 'fcona';
         }
         let _op0 = clearSets(),

@@ -572,6 +572,13 @@
     <textarea name="code" class="_code"></textarea>
 </div>
 
+<!--方向隔离：
+    仅简单创建不支持方向指定，因为浏览器可自动判断。
+    注记：用户可通过特性面板设置。 -->
+<ul class="_prop" obt-src="obts/etext.json" tpl-name="inlines:bdi">
+    <textarea name="bdi"></textarea>
+</ul>
+
 
 
 <!--属性条目：（prop:xxx）
@@ -1049,13 +1056,13 @@
     </li>
 </ul>
 
-<!--插图内容块：图形/图片切换
+<!--讲解图：图形/图片切换
     svg 显示SVG源码录入框。
     img 显示普通图片录入条目清单。
     to:
-    见 input:figconbox 模板定义。
+    见 input:image 模板定义。
 -->
-<ul class="_prop" tpl-name="prop:figconbox"
+<ul class="_prop" tpl-name="prop:image"
     on="svg|evo(3) children not(':last-child') lose(true) $('/li') lose(false) ('svg');
         img|evo(3) children not(':last-child') lose(false) $('/li') lose(true) ('img')"
     to="._body/[name=type]|val;

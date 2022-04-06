@@ -55,6 +55,8 @@ const LogicRoles = new Set([
     'orz',
     'space',
     'explain',
+    'image',
+    'crumb',
 ]);
 
 
@@ -79,6 +81,7 @@ const OnlyChild = new Set([
 
 //
 // 定制结构判断取值。
+// 用于标签相同但没有明确role定义存在歧义的元素。
 // 可能为游离节点，也可能存在于DOM树中。
 // {tagName: function(Element): Number}
 // 注记：
@@ -121,23 +124,6 @@ const CustomStruct = {
 
 
     /**
-     * 两种可能：
-     * - SPACE: 空白。
-     * - FIGCONBOX: 插图子结构（figure/span/img, i:explain）。
-     * 非此两种时返回null标识（非法）。
-     * @param  {Element} el 当前元素
-     * @param  {Element} box 适配父容器
-     * @return {Number} 单元值
-     */
-    SPAN( el, box ) {
-        if ( box && box.tagName === 'FIGURE' ) {
-            return T.FIGCONBOX;
-        }
-        return el.hasAttribute('space') && !el.childNodes.length ? T.SPACE : null;
-    },
-
-
-    /**
      * 三种可能：
      * - IMG:   内容元素里的内联图片。
      * - PIMG:  最佳图片内的占位图片（:last-child）。
@@ -172,13 +158,13 @@ const CustomStruct = {
     /**
      * 两种可能：
      * - A:     内容元素内的普通链接单元。
-     * - FCONA: 插图图片链接（Figure/span:<a>）
+     * - FCONA: 插图链接图（Figure/a/img|svg...）
      * @param  {Element} el 当前元素
      * @param  {Element} box 适配父容器
      * @return {Number} 单元值
      */
     A( el, box ) {
-        return box && getType(box) === T.FIGCONBOX ? T.FCONA : T.A;
+        return box && getType(box) === T.FIGURE ? T.FCONA : T.A;
     },
 
 };
@@ -251,10 +237,11 @@ const StructVerify = {
 
 
     /**
-     * 仅两种可能：
+     * 三种可能：
      * 类型本身受目标父容器约束，简单验证也可。
      * - SPACE: 内联空白。
-     * - FIGCONBOX: 插图子结构（figure/span/img, i:explain）。
+     * - IMAGE: 讲解图（span/img, i:explain）。
+     * - CRUMB: 内联碎片。
      * @param  {Element} el 当前元素
      * @return {Boolean} 是否合法
      */
@@ -265,7 +252,12 @@ const StructVerify = {
         },
 
         {
-            type:  T.FIGCONBOX,
+            type:  T.IMAGE,
+            check: () => true
+        },
+
+        {
+            type:  T.CRUMB,
             check: () => true
         },
     ],
@@ -422,7 +414,7 @@ function contentRoot( beg, end ) {
 
     if ( !T.isInlines(_tv) ) {
         // 容错定制结构：
-        // 如：CODELI/code, FIGCONBOX/img 子单元为内联，但父容器非内容元素。
+        // 如：CODELI/code 子单元为内联，但父容器非内容元素。
         // 因此转为单元根获取。
         return T.isContent(_tv) ? beg : entityRoot( beg, end );
     }

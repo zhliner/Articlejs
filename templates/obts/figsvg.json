@@ -1,6 +1,6 @@
 {
     "//": "创建插图子单元（<svg>）。",
     "on": "svg|$('/pre._code') text fragment('svg') children(0) $('/[name=explain]') val obj('explain')",
-    "by": "New.figconbox(_1)",
+    "by": "New.image(_1)",
     "to": "form/|trigger('insert')"
 }
