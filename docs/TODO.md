@@ -32,14 +32,14 @@
 - `<fieldset>`  // 块级，作为块级单元
 - `<legend>`    // 上面单元的结构子
 
+- `<label>`
 - `<button>`
 - `<input>`
-- `<label>`
+- `<textarea>`
+- `<select>`
 - `<option>`
 - `<output>`
 - `<progress>`
-- `<select>`
-- `<textarea>`
 
 - `<optgroup>`  // 半隐藏封装器，暂不支持
 - `<keygen>`    // Web已废弃
