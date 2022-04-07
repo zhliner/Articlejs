@@ -63,6 +63,7 @@ const InputOptions = {
     [ T.INS ]:          'option:ins',
     [ T.DFN ]:          'option:dfn',
     [ T.BDO ]:          'option:bdo',
+    [ T.BDI ]:          'option:bdi',
     [ T.TIME ]:         'option:times',
     [ T.CODE ]:         'option:code',
     [ T.STRONG ]:       'option:strong',
@@ -78,6 +79,7 @@ const InputOptions = {
     [ T.S ]:            'option:s',
     [ T.U ]:            'option:u',
     [ T.VAR ]:          'option:var',
+    [ T.CRUMB ]:        'option:crumb',
     // 不支持单独创建
     // [ T.B ]:         null,
     // [ T.I ]:         null,

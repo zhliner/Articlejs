@@ -92,14 +92,16 @@
             </label>
         </div>
         <!--固定选单
+            change str用前缀（inlines:）构造模板名。
             input.select 快捷键选取。从data-k特性取值触发。
-            change str 用前缀（inlines:）构造模板名。 -->
+            keydown 数字键快速抵达分组。 -->
         <select name="inlines" size="5" class="_list _inlines" tpl-name="item:inlines"
             on="change|evo(3) val dup pass str('inlines:') tpl(_1);
-                input.select|ev('detail') slr('/','-k', _1) $(_1) dup pass prop('value')"
+                input.select|ev('detail') slr('/','-k', _1) $(_1) dup pass prop('value');
+                keydown|ev('key') slr('/optgroup', '-k', _1) $(_1) dup pass intoView"
             to="2/._main|fill;
                 |val|change">
-            <optgroup label="实体单元" data-v="1">
+            <optgroup label="1. 实体单元" data-k="1">
                 <option tpl-node="
                     option:audio,
                     option:video,
@@ -111,7 +113,7 @@
                     option:br,
                     option:wbr"></option>
             </optgroup>
-            <optgroup label="文本&属性" data-v="2">
+            <optgroup label="2. 文本&属性" data-k="2">
                 <option tpl-node="
                     option:a,
                     option:times,
@@ -123,7 +125,7 @@
                     option:bdo,
                     option:ruby"></option>
             </optgroup>
-            <optgroup label="纯文本类" data-v="3">
+            <optgroup label="3. 纯文本类" data-k="3">
                 <option tpl-node="
                     option:strong,
                     option:em,
@@ -138,10 +140,20 @@
                     option:u,
                     option:var,
                     option:code,
-                    option:orz"></option>
+                    option:orz,
+                    option:bdi,
+                    option:crumb"></option>
             </optgroup>
-            <optgroup label="表单控件" data-v="4">
-                <option></option>
+            <optgroup label="4. 表单控件" data-k="4">
+                <option tpl-node="
+                    option:button,
+                    option:input,
+                    option:label,
+                    option:option,
+                    option:output,
+                    option:progress,
+                    option:select,
+                    option:textarea"></option>
             </optgroup>
         </select>
     </div>

@@ -308,9 +308,9 @@
 
 
 
-<!--内联单元：
-    微编辑下待插入单元引用。
-    普通模式下内联单元插入的嵌入引用（部分）。
+<!--内联单元定义：
+    - 微编辑下待插入单元引用。
+    - 普通模式下内联单元插入的嵌入引用（部分）。
 ----------------------------------------------------------------------------->
 
 <!--分项文本：
@@ -569,15 +569,22 @@
     on="create|$('/textarea') val dup pass"
     by="New.orz"
     to="form/|trigger('insert')">
-    <textarea name="code" class="_code"></textarea>
+    <textarea name="orz" class="_code"></textarea>
 </div>
 
 <!--方向隔离：
     仅简单创建不支持方向指定，因为浏览器可自动判断。
     注记：用户可通过特性面板设置。 -->
-<ul class="_prop" obt-src="obts/etext.json" tpl-name="inlines:bdi">
+<div class="_prop" obt-src="obts/etext.json" tpl-name="inlines:bdi">
     <textarea name="bdi"></textarea>
-</ul>
+</div>
+
+<div class="_prop" tpl-name="inlines:crumb"
+    on="create|$('/textarea') val dup pass"
+    by="New.crumb"
+    to="form/|trigger('insert')">
+    <textarea name="crumb"></textarea>
+</div>
 
 
 

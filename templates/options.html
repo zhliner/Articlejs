@@ -3,8 +3,8 @@
     取值后会前置 input:（普通录入）或 inlines:（微编辑）以构造模板名。
 ----------------------------------------------------------------------------->
 
-<!--内联单元选单
-    适用微编辑和普通模式下内联单元关联 -->
+<!--选单：内联单元
+    用于微编辑和普通模式下内联单元关联 -->
 <option title="#text" value="text" tpl-name="option:text">文本</option>
 
 <option title="<audio>" value="audio" tpl-name="option:audio">音频</option>
@@ -13,7 +13,6 @@
 <option title="<svg>" value="svg" tpl-name="option:svg">图形</option>
 <option data-k="r" title="<ruby/#text,rp,rt>" value="ruby" tpl-name="option:ruby">注音单元〔r〕</option>
 <option title="<meter>" value="meter" tpl-name="option:meter">度量标示</option>
-<option title="<span:space>" value="space" tpl-name="option:space">空白段</option>
 <option data-k="i" title="<img>" value="img" tpl-name="option:img">图片〔i〕</option>
 <option title="<br>" value="br" tpl-name="option:br">换行</option>
 <option title="<wbr>" value="wbr" tpl-name="option:wbr">软换行</option>
@@ -42,15 +41,31 @@
 <option title="<sub>" value="sub" tpl-name="option:sub">下标</option>
 <option title="<sup>" value="sup" tpl-name="option:sup">上标</option>
 <option data-k="m" title="<mark>" value="mark" tpl-name="option:mark">标记〔m〕</option>
-<option data-k="o" title="<code:orz>" value="orz" tpl-name="option:orz">表情〔o〕</option>
 <option title="<samp>" value="samp" tpl-name="option:samp">样本</option>
 <option data-k="k" title="<kbd>" value="kbd" tpl-name="option:kbd">键盘字〔k〕</option>
 <option title="<s>" value="s" tpl-name="option:s">失效</option>
 <option data-k="u" title="<u>" value="u" tpl-name="option:u">注记〔u〕</option>
 <option title="<var>" value="var" tpl-name="option:var">变量</option>
 
+<!-- 定制单元 -->
+<option title="<span:space>" value="space" tpl-name="option:space">空白段</option>
+<option data-k="o" title="<code:orz>" value="orz" tpl-name="option:orz">表情〔o〕</option>
+<option title="<span:crumb>" value="crumb" tpl-name="option:crumb">碎片</option>
+<option title="<span:image/img,i:explain>" value="image" tpl-name="option:image">讲解图</option>
 
-<!--行块单元选单
+<!-- 内联控件 -->
+<option title="<button>" value="button" tpl-name="option:button">按钮</option>
+<option title="<input>" value="input" tpl-name="option:input">录入件</option>
+<option data-k="l" title="<label>" value="label" tpl-name="option:label">标签</option>
+<option title="<option>" value="option" tpl-name="option:option">选取项</option>
+<option title="<output>" value="output" tpl-name="option:output">输出件</option>
+<option title="<progress>" value="progress" tpl-name="option:progress">进度条</option>
+<option title="<select>" value="select" tpl-name="option:select">选单</option>
+<option title="<textarea>" value="textarea" tpl-name="option:textarea">文本框</option>
+
+
+
+<!--选单：行块单元
     仅适用普通模式下行块单元的插入关联 -->
 <option data-k="p" title="<p>" value="p" tpl-name="option:p">段落〔p〕</option>
 <option data-k="n" title="<p:note>" value="note" tpl-name="option:note">注解〔n〕</option>
@@ -84,6 +99,7 @@
 <option title="<aside>" value="aside" tpl-name="option:aside">批注块</option>
 <option data-k="d" title="<details>" value="details" tpl-name="option:details">详细内容〔d〕</option>
 <option data-k="c" title="<pre:codeblock>" value="codeblock" tpl-name="option:codeblock">代码块〔c〕</option>
+<option title="<fieldset>" value="fieldset" tpl-name="option:fieldset">控件分组</option>
 
 <option title="<hr>" value="hr" tpl-name="option:hr">分割</option>
 <option title="<div:blank>" value="blank" tpl-name="option:blank">白板</option>
@@ -115,4 +131,3 @@
 <option title="<li/h5,ul>" value="xh5li" tpl-name="option:xh5li">无序子列表</option>
 <option title="<li/h5,ol>" value="xolh5li" tpl-name="option:xolh5li">有序子列表</option>
 <option title="<li/[h5/a],ol>" value="xolah5li" tpl-name="option:xolah5li">链接项子列表</option>
-<option title="<span:image/img,i:explain>" value="image" tpl-name="option:image">讲解图</option>

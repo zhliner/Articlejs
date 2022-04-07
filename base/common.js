@@ -1138,7 +1138,7 @@ function stringAttr( attrs, ind, prefix ) {
  */
 function newLineStart( el, indent ) {
     let _tv = getType( el );
-	return el.nodeType === 3 || el.nodeType === 1 && ( T.isInlines(_tv) || T.isInlStruct(_tv) ) ? '' : '\n' + indent;
+	return el.nodeType === 3 || el.nodeType === 1 && ( T.isInlines(_tv) || T.isKeepline(_tv) ) ? '' : '\n' + indent;
 }
 
 

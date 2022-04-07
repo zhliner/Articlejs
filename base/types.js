@@ -33,21 +33,21 @@ import $ from "./tpb/config.js";
 // 4. FIXED2  位置向后固定。自己不能移动，其它元素也不能插入之后。
 //
 const
-    TEXT        = 0,        // 文本节点
+    TEXT        = 0,        // 文本节点（注：无位运算）
     SPECIAL     = 1,        // 特别用途
     STRUCT      = 1 << 1,   // 结构元素
     STRUCTX     = 1 << 2,   // 结构灵活件（可删除）
     CONTENT     = 1 << 3,   // 内容元素
     INLINES     = 1 << 4,   // 内联单元
-    INLSTRUCT   = 1 << 5,   // 内联结构单元（如<rt|rp>
-    BLOCKS      = 1 << 6,   // 行块单元
-    SINGLE      = 1 << 7,   // 单一成员（如标题）
-    EMPTY       = 1 << 8,   // 空元素（单标签）
-    COVERT      = 1 << 9,   // 隐蔽的（无法划选）
-    SEALED      = 1 << 10,  // 密封单元（不可合并）
-    FIXED1      = 1 << 11,  // 位置向前固定
-    FIXED2      = 1 << 12,  // 位置向后固定
-    RANGEX      = 1 << 13;  // 可否选为范围（上下文菜单）
+    BLOCKS      = 1 << 5,   // 行块单元
+    SINGLE      = 1 << 6,   // 单一成员（如标题）
+    EMPTY       = 1 << 7,   // 空元素（单标签）
+    COVERT      = 1 << 8,   // 隐蔽的（无法划选）
+    SEALED      = 1 << 9,   // 密封单元（不可合并）
+    FIXED1      = 1 << 10,  // 位置向前固定
+    FIXED2      = 1 << 11,  // 位置向后固定
+    RANGEX      = 1 << 12,  // 可否选为范围（上下文菜单）
+    KEEPLINE    = 1 << 13;  // 行保持（如<rt|rp>）。与父容器保持在一行的内联结构子
 
 
 //
@@ -92,6 +92,7 @@ export const
     RP              = 105,  // 注音拼音包围
     EXPLAIN         = 106,  // 插图讲解 {fix}
     SVGITEM         = 107,  // 图形内容（仅用于SVG子元素配置）
+    OPTION          = 108,  // 选取项（控件）
     //
     // 内联内容元素
     /////////////////////////////////////////////
@@ -122,14 +123,13 @@ export const
     //
     // 内联控件
     /////////////////////////////////////////////
-    BUTTON          = 224,  // 按钮
-    INPUT           = 225,  // 录入件
-    LABEL           = 226,  // 标签
-    OPTION          = 227,  // 选取项
-    OUTPUT          = 228,  // 输出件
-    PROGRESS        = 229,  // 进度条
-    SELECT          = 230,  // 选单
-    TEXTAREA        = 231,  // 文本框
+    LABEL           = 224,  // 标签
+    BUTTON          = 225,  // 按钮
+    INPUT           = 226,  // 录入件
+    TEXTAREA        = 227,  // 文本框
+    SELECT          = 228,  // 选单
+    OUTPUT          = 229,  // 输出件
+    PROGRESS        = 230,  // 进度条
 
     //
     // 行块内容元素
@@ -151,16 +151,16 @@ export const
     SUMMARY         = 406,  // 内容摘要
     FIGCAPTION      = 407,  // 插图标题
     CAPTION         = 408,  // 表格标题
-    LI              = 409,  // 列表项（通用）
-    DT              = 410,  // 描述列表条目
-    DD              = 411,  // 描述列表数据
-    TH              = 412,  // 表头单元格
-    TD              = 413,  // 单元格
-    TR              = 414,  // 表格行
-    THEAD           = 415,  // 表头
-    TBODY           = 416,  // 表体
-    TFOOT           = 417,  // 表脚
-    LEGEND          = 418,  // 控件集标题
+    LEGEND          = 409,  // 控件集标题
+    LI              = 410,  // 列表项（通用）
+    DT              = 411,  // 描述列表条目
+    DD              = 412,  // 描述列表数据
+    TH              = 413,  // 表头单元格
+    TD              = 414,  // 单元格
+    TR              = 415,  // 表格行
+    THEAD           = 416,  // 表头
+    TBODY           = 417,  // 表体
+    TFOOT           = 418,  // 表脚
     //
     // 定制结构类
     // 注记：无需LICODE设计，容器非CONTENT即可。
@@ -246,15 +246,15 @@ const Properties = {
     //
     // 内联结构子
     /////////////////////////////////////////////
-    [ SVGITEM ]:        STRUCT | STRUCTX,
     [ TRACK ]:          STRUCT | STRUCTX | EMPTY | COVERT,
     [ SOURCE1 ]:        STRUCT | STRUCTX | EMPTY | COVERT,
     [ SOURCE2 ]:        STRUCT | STRUCTX | EMPTY | COVERT,
     [ PIMG ]:           STRUCT | EMPTY,
+    [ RT ]:             STRUCT | FIXED1 | FIXED2 | CONTENT | KEEPLINE,
+    [ RP ]:             STRUCT | FIXED1 | FIXED2 | SEALED | COVERT | KEEPLINE,
     [ EXPLAIN ]:        STRUCT | STRUCTX | CONTENT,
-    // 解包：先文本化，然后内容提升。
-    [ RT ]:             STRUCT | FIXED1 | FIXED2 | CONTENT | INLSTRUCT,
-    [ RP ]:             STRUCT | FIXED1 | FIXED2 | SEALED | COVERT | INLSTRUCT,
+    [ SVGITEM ]:        STRUCT | STRUCTX,
+    [ OPTION ]:         STRUCT | STRUCTX | SEALED,
     //
     // 内联内容元素
     /////////////////////////////////////////////
@@ -265,6 +265,7 @@ const Properties = {
     [ INS ]:            INLINES | CONTENT | RANGEX,
     [ DFN ]:            INLINES | CONTENT | RANGEX,
     [ BDO ]:            INLINES | CONTENT | RANGEX,
+    [ BDI ]:            INLINES | CONTENT | RANGEX,
     [ TIME ]:           INLINES | CONTENT | RANGEX,  // SEALED
     [ CODE ]:           INLINES | CONTENT | RANGEX,  // SEALED
     [ STRONG ]:         INLINES | CONTENT | RANGEX,
@@ -280,6 +281,18 @@ const Properties = {
     [ S ]:              INLINES | CONTENT | RANGEX,
     [ U ]:              INLINES | CONTENT | RANGEX,
     [ VAR ]:            INLINES | CONTENT | RANGEX,
+    [ CRUMB ]:          INLINES | CONTENT | RANGEX,
+    //
+    // 内联控件
+    /////////////////////////////////////////////
+    [ LABEL ]:          INLINES | CONTENT,
+    [ BUTTON ]:         INLINES | SEALED,
+    [ INPUT ]:          INLINES | SEALED | EMPTY,
+    [ TEXTAREA ]:       INLINES | SEALED,
+    [ SELECT ]:         INLINES | STRUCT | SEALED,
+    [ OUTPUT ]:         INLINES | SEALED,
+    [ PROGRESS ]:       INLINES | SEALED,
+
 
     //
     // 行块内容元素
@@ -301,6 +314,7 @@ const Properties = {
     [ SUMMARY ]:        STRUCT | SINGLE | FIXED1 | CONTENT,
     [ FIGCAPTION ]:     STRUCT | SINGLE | STRUCTX | CONTENT, // 可移动
     [ CAPTION ]:        STRUCT | SINGLE | STRUCTX | FIXED1 | CONTENT,
+    [ LEGEND ]:         STRUCT | SINGLE | STRUCTX | FIXED1 | CONTENT,
     [ LI ]:             STRUCT | STRUCTX | CONTENT,
     [ DT ]:             STRUCT | STRUCTX | CONTENT,
     [ DD ]:             STRUCT | STRUCTX | CONTENT,
@@ -346,11 +360,12 @@ const Properties = {
     [ CASCADE ]:        BLOCKS | STRUCT,
     [ DL ]:             BLOCKS | STRUCT,
     [ TABLE ]:          BLOCKS | STRUCT,  // 支持多<tbody>
-    [ FIGURE ]:         BLOCKS | STRUCT,  // 支持多<span/img, i:explain>
+    [ FIGURE ]:         BLOCKS | STRUCT,
     [ BLOCKQUOTE ]:     BLOCKS | STRUCT,
     [ ASIDE ]:          BLOCKS | STRUCT,
     [ DETAILS ]:        BLOCKS | STRUCT,
     [ CODEBLOCK ]:      BLOCKS | STRUCT,  // SEALED（可多块）
+    [ FIELDSET ]:       BLOCKS | STRUCT,
     // 行块单体元素
     [ HR ]:             BLOCKS | EMPTY,
     [ BLANK ]:          BLOCKS | SEALED,
@@ -476,7 +491,6 @@ export const ChildTypes = {
     //
     // 内联内结构
     /////////////////////////////////////////////
-    [ SVGITEM ]:        [ SVGITEM ],
     [ TRACK ]:          null,
     [ SOURCE1 ]:        null,
     [ SOURCE2 ]:        null,
@@ -484,6 +498,8 @@ export const ChildTypes = {
     [ RT ]:             [ $TEXT ],
     [ RP ]:             [ $TEXT ],
     [ EXPLAIN ]:        [ $TEXT, A, ..._NOMEDIA ],  // 插图讲解
+    [ SVGITEM ]:        [ SVGITEM ],
+    [ OPTION ]:         [ $TEXT ],
     //
     // 内联内容元素
     /////////////////////////////////////////////
@@ -494,6 +510,7 @@ export const ChildTypes = {
     [ INS ]:            [ $TEXT, A, ..._NOMEDIA ],
     [ DFN ]:            [ $TEXT, ABBR, ..._SIMPLE ],
     [ BDO ]:            [ $TEXT, A, ..._NOMEDIA ],
+    [ BDI ]:            [ $TEXT, A, ..._NOMEDIA ],
     [ TIME ]:           [ $TEXT, ..._SIMPLE ],
     [ CODE ]:           [ $TEXT, B, I, S ],
     [ STRONG ]:         [ $TEXT, A, ..._NOMEDIA ],
@@ -509,6 +526,18 @@ export const ChildTypes = {
     [ S ]:              [ $TEXT, A, ..._NOMEDIA ],
     [ U ]:              [ $TEXT, A, ..._NOMEDIA ],
     [ VAR ]:            [ $TEXT, ..._SIMPLE ],
+    [ CRUMB ]:          [ $TEXT, ..._SIMPLE ],
+    //
+    // 内联控件
+    /////////////////////////////////////////////
+    [ LABEL ]:          [ $TEXT, BUTTON, INPUT, TEXTAREA, OUTPUT, PROGRESS, SELECT ],
+    [ BUTTON ]:         [ $TEXT, ..._SIMPLE ],
+    [ INPUT ]:          null,
+    [ TEXTAREA ]:       [ $TEXT ],
+    [ SELECT ]:         [ $TEXT, OPTION ],
+    [ OUTPUT ]:         [ $TEXT, ..._SIMPLE ],
+    [ PROGRESS ]:       [ $TEXT ],
+
 
     //
     // 行块内容元素
@@ -530,6 +559,7 @@ export const ChildTypes = {
     [ SUMMARY ]:        [ $TEXT, A, ..._NOMEDIA, I ],
     [ FIGCAPTION ]:     [ $TEXT, A, ..._NOMEDIA, I ],
     [ CAPTION ]:        [ $TEXT, A, ..._NOMEDIA, I ],
+    [ LEGEND ]:         [ $TEXT ],
     [ DT ]:             [ $TEXT, A, ..._NOMEDIA, SVG, IMG, I ],
     [ LI ]:             [ $TEXT, A, ..._INLALL ],
     [ DD ]:             [ $TEXT, A, ..._INLALL ],
@@ -576,6 +606,9 @@ export const ChildTypes = {
     [ ASIDE ]:          [ H4, P, ..._BLOLIMIT, TABLE ],
     [ DETAILS ]:        [ SUMMARY, P, ..._BLOLIMIT, TABLE ],
     [ CODEBLOCK ]:      [ CODE ],
+    // 尽少子元素集合
+    [ FIELDSET ]:       [ LEGEND, P, UL, OL, LABEL, TEXTAREA ],
+
     // 单体单元
     [ HR ]:             null,
     [ BLANK ]:          null,
@@ -781,12 +814,12 @@ export function isStructX( tval ) {
 
 /**
  * 是否为内联结构元素。
- * 可用于HTML代码格式行（缩进）。
+ * 可用于HTML代码格式化（缩进处理时）。
  * @param  {Number} tval 类型值
  * @return {Boolean}
  */
-export function isInlStruct( tval ) {
-    return !!( Properties[tval] & INLSTRUCT );
+export function isKeepline( tval ) {
+    return !!( Properties[tval] & KEEPLINE );
 }
 
 

@@ -1,5 +1,5 @@
 {
-    "//": "创建纯文本单元：从文本框名称取单元名。",
+    "//": "创建纯文本单元：从文本框名称取标签名直接创建。",
     "on": "create|$('/textarea') val dup pass $('/textarea') attr('name') pick(0) elem(_1)",
     "to": "form/|trigger('insert')"
 }
