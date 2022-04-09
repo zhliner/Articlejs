@@ -81,7 +81,7 @@
     @keydown:x  屏蔽浏览器内置的3个编辑快捷键。兼容性：windows, MacOS。
 -->
 <div class="___Content" tpl-name="main:content"
-    on="@keydown|iskey(2) scam('shift') either end stop ev('key') pass('Enter', 'Tab') avoid ev('key') SCAM;
+    on="@keydown|iskey(14) scam('shift') either end stop ev('key') pass('Enter', 'Tab') avoid ev('key') SCAM;
         cancel|env('minied') pass stop;
         medok|env('minied') pass stop;
         medin|env('minied') end stop delay;
@@ -89,7 +89,7 @@
         esced|evo(3) (ESC) pop;
         escpop|('med', ESC) pop;
         @paste|avoid clipboard trims(' ') html exeCmd('insertHTML', _1);
-        @keydown:x|SCAM('ctrl', 'meta') pass iskey(6) pass avoid"
+        @keydown:x|SCAM('ctrl', 'meta') pass iskey(20) pass avoid"
     by="Kit.medpass(_1);
         Kit.medcancel"
     to="-;

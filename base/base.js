@@ -565,6 +565,30 @@ function _customVerify( el, subs, cfg ) {
 }
 
 
+/**
+ * 内联单元分组设置。
+ * 根据内联单元的不同类型分组：
+ * - 文本类（inlText），需要是内容元素。
+ * - 实体类（inlEntity），非文本类、非控件元素。
+ * - 控件类（inlCtrl），表单控件元素。
+ * @param  {Number} tval 内联单元类型值
+ * @param  {Map<String:[Number]>} buf 值分组缓存集
+ * @return {void}
+ */
+function _inlinesTeam( tval, buf ) {
+    let _type = 'inlEntity';
+
+    // <label>也为内容元素，因此在前。
+    if ( T.isFormCtrl(tval) ) {
+        _type = 'inlCtrl';
+    }
+    else if ( T.isContent(tval) ) {
+        _type = 'inlText';
+    }
+    buf.get( _type ).push( tval );
+}
+
+
 
 //
 // 导出。
@@ -631,7 +655,7 @@ export function isChildType( box, subv ) {
  * 如果传递类型值，则简单返回子类型值集。
  * 返回空串可便于展开为空集。
  * @param  {Element|Number} box 目标容器元素或类型值
- * @return {Set|''}
+ * @return {Set<Number>|''}
  */
 export function childTypes( box ) {
     if ( typeof box === 'number' ) {
@@ -641,6 +665,30 @@ export function childTypes( box ) {
         _subs = T.ChildTypesX[ _tval ];
 
     return _subs ? new Set( T.sectionSubs(box, _subs) ) : T.ChildTypes[ _tval ] || '';
+}
+
+
+/**
+ * 内联单元分组。
+ * 根据内联单元的不同类型分组。
+ * - 文本类（inlText）。
+ * - 实体类（inlEntity）。
+ * - 控件类（inlCtrl）。
+ * 用途：
+ * 内联单元普通模式插入时分组视觉友好。
+ * @param  {[Number]} tvs 内联单元类型值集
+ * @return {Map<String:[Number]>} 值分组缓存集
+ */
+export function inlinesTeam( tvs ) {
+    let _buf = new Map([
+        [ 'inlEntity', [] ],
+        [ 'inlText', [] ],
+        [ 'inlCtrl', [] ]
+    ]);
+    for ( const tval of tvs ) {
+        _inlinesTeam( tval, _buf );
+    }
+    return _buf;
 }
 
 

@@ -25,7 +25,7 @@ import { isContent, isCovert, virtualBox, contentBoxes, tableObj, tableNode, clo
 import { ESet, EHot, ESetHot, ECursor, History, CStorage, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, parseJSON, scriptRun, niceHtml, markdownLine, cleanInline } from './common.js';
 import { tabSpaces, rangeTextLine, indentedPart, shortIndent, highLight } from "./coding.js";
 import { children, create, tocList, convType, convData, convToType } from "./create.js";
-import { options, propertyTpl } from "./templates.js";
+import { optionsTpl, propertyTpl } from "./templates.js";
 import { Spliter, UmpString, UmpCaller } from "./tpb/tools/spliter.js";
 import cfg from "./shortcuts.js";
 
@@ -3127,9 +3127,7 @@ function delayFire( el, evn, tm = 1, ...rest ) {
  * @return {[String]} 模板名集
  */
 function childOptions( els ) {
-    return options(
-        els.filter( el => !T.isSealed( getType(el) ) )
-    );
+    return optionsTpl( els.filter(el => !T.isSealed(getType(el))) );
 }
 
 
@@ -3140,6 +3138,34 @@ function childOptions( els ) {
  */
 function siblingOptions( els ) {
     return childOptions( [...parentsSet(els)] );
+}
+
+
+/**
+ * 构造选单元素集组。
+ * 组名为映射键名，也即<optgroup>的label属性值。
+ * 注记：
+ * 该组名已在前阶构造中应用设置了。
+ * @param  {Map<String:[String]>} map 选单集组
+ * @param  {Templater} tplr 模板管理器实例
+ * @return {[<optgroup>]}
+ */
+function optionsGroup( map, tplr ) {
+    let _buf = [];
+
+    for ( const [k, ns] of map ) {
+        if ( !ns.length ) {
+            continue;
+        }
+        let _opg = $.attr( $.elem('optgroup'), 'label', k );
+
+        $.fill(
+            _opg,
+            ns.map( n => tplr.node(n) )
+        )
+        _buf.push( _opg );
+    }
+    return _buf;
 }
 
 
@@ -6818,7 +6844,7 @@ export const Kit = {
      * 选单条目定义在同一个模板文件中且已经载入。
      * @data: [Element] 已选取集
      * @param  {String} type 位置类型（siblings|children）
-     * @return {[Element]|null} 选单元素集（[<option>]）
+     * @return {[Element]} 选单条目集（[<option>|<optgroup>]）
      */
     inslist( evo, type ) {
         if ( !evo.data.length ) {
@@ -6827,7 +6853,7 @@ export const Kit = {
         let _ns = __levelHandles[type]( evo.data ),
             _ts = TplsPool.get( TplrName );
 
-        return _ns.length ? _ns.map( n => _ts.node(n) ) : null;
+        return $.isArray(_ns) ? _ns.map(n => _ts.node(n)) : optionsGroup(_ns, _ts);
     },
 
     __inslist: 1,

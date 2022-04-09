@@ -42,12 +42,13 @@ const
     BLOCKS      = 1 << 5,   // 行块单元
     SINGLE      = 1 << 6,   // 单一成员（如标题）
     EMPTY       = 1 << 7,   // 空元素（单标签）
-    COVERT      = 1 << 8,   // 隐蔽的（无法划选）
-    SEALED      = 1 << 9,   // 密封单元（不可合并）
-    FIXED1      = 1 << 10,  // 位置向前固定
-    FIXED2      = 1 << 11,  // 位置向后固定
-    RANGEX      = 1 << 12,  // 可否选为范围（上下文菜单）
-    KEEPLINE    = 1 << 13;  // 行保持（如<rt|rp>）。与父容器保持在一行的内联结构子
+    FORMCTRL    = 1 << 8,   // 表单控件
+    COVERT      = 1 << 9,   // 隐蔽的（无法划选）
+    SEALED      = 1 << 10,  // 密封单元（不可合并）
+    FIXED1      = 1 << 11,  // 位置向前固定
+    FIXED2      = 1 << 12,  // 位置向后固定
+    RANGEX      = 1 << 13,  // 可否选为范围（上下文菜单）
+    KEEPLINE    = 1 << 14;  // 行保持（如<rt|rp>）。与父容器保持在一行的内联结构子
 
 
 //
@@ -254,7 +255,7 @@ const Properties = {
     [ RP ]:             STRUCT | FIXED1 | FIXED2 | SEALED | COVERT | KEEPLINE,
     [ EXPLAIN ]:        STRUCT | STRUCTX | CONTENT,
     [ SVGITEM ]:        STRUCT | STRUCTX,
-    [ OPTION ]:         STRUCT | STRUCTX | SEALED,
+    [ OPTION ]:         STRUCT | STRUCTX | SEALED | FORMCTRL,
     //
     // 内联内容元素
     /////////////////////////////////////////////
@@ -285,13 +286,13 @@ const Properties = {
     //
     // 内联控件
     /////////////////////////////////////////////
-    [ LABEL ]:          INLINES | CONTENT,
-    [ BUTTON ]:         INLINES | SEALED,
-    [ INPUT ]:          INLINES | SEALED | EMPTY,
-    [ TEXTAREA ]:       INLINES | SEALED,
-    [ SELECT ]:         INLINES | STRUCT | SEALED,
-    [ OUTPUT ]:         INLINES | SEALED,
-    [ PROGRESS ]:       INLINES | SEALED,
+    [ LABEL ]:          INLINES | FORMCTRL | CONTENT,
+    [ BUTTON ]:         INLINES | FORMCTRL | SEALED,
+    [ INPUT ]:          INLINES | FORMCTRL | SEALED | EMPTY,
+    [ TEXTAREA ]:       INLINES | FORMCTRL | SEALED,
+    [ SELECT ]:         INLINES | FORMCTRL | STRUCT | SEALED,
+    [ OUTPUT ]:         INLINES | FORMCTRL | SEALED,
+    [ PROGRESS ]:       INLINES | FORMCTRL | SEALED,
 
 
     //
@@ -314,7 +315,7 @@ const Properties = {
     [ SUMMARY ]:        STRUCT | SINGLE | FIXED1 | CONTENT,
     [ FIGCAPTION ]:     STRUCT | SINGLE | STRUCTX | CONTENT, // 可移动
     [ CAPTION ]:        STRUCT | SINGLE | STRUCTX | FIXED1 | CONTENT,
-    [ LEGEND ]:         STRUCT | SINGLE | STRUCTX | FIXED1 | CONTENT,
+    [ LEGEND ]:         STRUCT | SINGLE | FIXED1 | CONTENT | FORMCTRL,
     [ LI ]:             STRUCT | STRUCTX | CONTENT,
     [ DT ]:             STRUCT | STRUCTX | CONTENT,
     [ DD ]:             STRUCT | STRUCTX | CONTENT,
@@ -365,7 +366,7 @@ const Properties = {
     [ ASIDE ]:          BLOCKS | STRUCT,
     [ DETAILS ]:        BLOCKS | STRUCT,
     [ CODEBLOCK ]:      BLOCKS | STRUCT,  // SEALED（可多块）
-    [ FIELDSET ]:       BLOCKS | STRUCT,
+    [ FIELDSET ]:       BLOCKS | STRUCT | FORMCTRL,
     // 行块单体元素
     [ HR ]:             BLOCKS | EMPTY,
     [ BLANK ]:          BLOCKS | SEALED,
@@ -416,12 +417,6 @@ const _INLVIEW = [ BR, WBR, SPACE ];
 
 
 
-// 全部
-// 不含独立的<a>,<b>,<i>。
-const _INLALL = [
-    ..._INLMEDIA, ..._INLTEXT, ..._REVIEW, ..._INLVIEW
-];
-
 // 非媒体
 const _NOMEDIA = [
     ..._INLTEXT, ..._REVIEW, ..._INLVIEW
@@ -431,6 +426,13 @@ const _NOMEDIA = [
 const _SIMPLE = [
     ..._REVIEW, ..._INLVIEW, CODE
 ];
+
+// 全部
+// 不含独立的<a>,<b>,<i>。
+const _INLALL = [
+    ..._INLMEDIA, ..._INLTEXT, ..._REVIEW, ..._INLVIEW, LABEL
+];
+
 
 
 //
@@ -503,7 +505,7 @@ export const ChildTypes = {
     //
     // 内联内容元素
     /////////////////////////////////////////////
-    [ A ]:              [ $TEXT, ..._INLALL ],
+    [ A ]:              [ $TEXT, ..._NOMEDIA, IMG, SVG ],
     [ Q ]:              [ $TEXT, A, ..._NOMEDIA ],
     [ ABBR ]:           [ $TEXT, ..._SIMPLE ],
     [ DEL ]:            [ $TEXT, A, ..._NOMEDIA ],
@@ -664,12 +666,32 @@ export const ChildTypesX = {
 
 
 /**
+ * 是否为文本节点。
+ * @param  {Number} tval 类型值
+ * @return {Boolean}
+ */
+export function isText( tval ) {
+    return tval === 0;
+}
+
+
+/**
  * 是否为空元素。
  * @param  {Number} tval 类型值
  * @return {Boolean}
  */
 export function isEmpty( tval ) {
     return !!( Properties[tval] & EMPTY );
+}
+
+
+/**
+ * 是否为表单控件。
+ * @param  {Number} tval 类型值
+ * @return {Boolean}
+ */
+export function isFormCtrl( tval ) {
+    return !!( Properties[tval] & FORMCTRL );
 }
 
 

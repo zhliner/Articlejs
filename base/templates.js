@@ -15,9 +15,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
-import $ from "./tpb/config.js";
 import * as T from "./types.js";
-import { childTypes, isChildType } from "./base.js";
+import { childTypes, isChildType, inlinesTeam } from "./base.js";
+import { Tips } from "../config.js";
 
 
 //
@@ -217,24 +217,20 @@ const siblingNone = new Set([
 ]);
 
 
-
-//
-// 导出
-//////////////////////////////////////////////////////////////////////////////
-
-
 /**
- * 获取向内插入条目集。
- * 不支持多选表格向内插入表区域，因为表格有列数和列头分别。
+ * 获取向内插入的条目集。
+ * 即检查构造合法的子单元交集。
  * 包容/简化：
  * - 多选表区域向内插入表格行时，单元格错误由用户自己负责。
  * - 多选代码容器时，不同语言的问题由用户自己负责。
  * @param  {[Element]} els 目标元素集
- * @return {[String]} 模板名集
+ * @return {[Number]} 合法子单元类型值集
  */
-export function options( els ) {
+function options( els ) {
     let _ref = els.shift();
 
+    // 不支持多选表格向内插入表区域，
+    // 因为表格有列数和列头分别。
     if ( !_ref || _ref.tagName === 'TABLE' && els.length > 0 ) {
         return [];
     }
@@ -245,7 +241,51 @@ export function options( els ) {
             tv => els.every( box => isChildType(box, tv) )
         );
     }
-    return $.map( _subs.filter(tv => !siblingNone.has(tv)), tv => InputOptions[tv] );
+    return _subs.filter( tv => !siblingNone.has(tv) );
+}
+
+
+/**
+ * 内联单元类型值分组。
+ * 在普通模式插入时构造分组选单（视觉友好）。
+ * @param  {[Number]} tvs 类型值集
+ * @return {Map<String:[String]>}
+ */
+function inlinesTpls( tvs ) {
+    let _buf = new Map();
+
+    for ( const [key, ts] of inlinesTeam(tvs) ) {
+        _buf.set(
+            Tips[ key ],
+            ts.map( t => InputOptions[t] )
+        );
+    }
+    return _buf;
+}
+
+
+
+//
+// 导出
+//////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * 获取插入条目集的模板名序列。
+ * 如果返回一个Map，表示应当构造为一个分组选单。
+ * @param  {[Element]} els 目标元素集
+ * @return {[String]|Map<String:[String]>} 模板名集或集组
+ */
+export function optionsTpl( els ) {
+    let _tvs = options( els );
+
+    if ( !_tvs.length ) {
+        return null;
+    }
+    if ( T.isText(_tvs[0]) || T.isInlines(_tvs[0]) ) {
+        return inlinesTpls( _tvs );
+    }
+    return _tvs.map( tv => InputOptions[tv] );
 }
 
 

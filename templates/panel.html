@@ -51,11 +51,13 @@
         <!--动态选单
             input.select 快捷键选取。从data-k特性取值触发（仅部分）。
             change 空选单时采用empty模板，str 用前缀构造最终模板名。
+            keydown 数字键快速抵达分组（内联单元时有用）。
             备忘：
             勿用scroll聚焦。内容区切换选取后选单重构会激发本事件，使内容区失焦（不友好）。 -->
         <select id="input-items" name="items" size="5" class="_list"
             on="change|evo(3) val or('empty') str('input:') tpl(_1);
-                input.select|ev('detail') slr('/','-k', _1) $(_1) dup pass prop('value')"
+                input.select|ev('detail') slr('/','-k', _1) $(_1) dup pass prop('value');
+                keydown|ev('key') iskey(10) pass str('/optgroup:nth-child(', ')') $(_1) dup pass intoView"
             to="form/._body|replace;
                 |val|goto('change')">
             <!-- 动态更新：与目标关联的合法单元。 -->
@@ -98,10 +100,10 @@
         <select name="inlines" size="5" class="_list _inlines" tpl-name="item:inlines"
             on="change|evo(3) val dup pass str('inlines:') tpl(_1);
                 input.select|ev('detail') slr('/','-k', _1) $(_1) dup pass prop('value');
-                keydown|ev('key') slr('/optgroup', '-k', _1) $(_1) dup pass intoView"
+                keydown|ev('key') iskey(10) pass str('/optgroup:nth-child(', ')') $(_1) dup pass intoView"
             to="2/._main|fill;
                 |val|change">
-            <optgroup label="1. 实体单元" data-k="1">
+            <optgroup label="1. 实体单元">
                 <option tpl-node="
                     option:audio,
                     option:video,
@@ -113,7 +115,7 @@
                     option:br,
                     option:wbr"></option>
             </optgroup>
-            <optgroup label="2. 文本&属性" data-k="2">
+            <optgroup label="2. 文本&属性">
                 <option tpl-node="
                     option:a,
                     option:times,
@@ -125,7 +127,7 @@
                     option:bdo,
                     option:ruby"></option>
             </optgroup>
-            <optgroup label="3. 纯文本类" data-k="3">
+            <optgroup label="3. 纯文本类">
                 <option tpl-node="
                     option:strong,
                     option:em,
@@ -144,7 +146,7 @@
                     option:bdi,
                     option:crumb"></option>
             </optgroup>
-            <optgroup label="4. 表单控件" data-k="4">
+            <optgroup label="4. 表单控件">
                 <option tpl-node="
                     option:label,
                     option:button,
