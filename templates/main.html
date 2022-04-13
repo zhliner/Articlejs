@@ -177,10 +177,10 @@
                     |data('tk-1');
                     |data('tk-0')">
                 <h5><b id="l-convert">转换</b></h5>
+                <!-- 复用内联创建菜单条目 -->
                 <menu role="submenu" class="_cells" tpl-name="menu:inlines"
                     on="^obted|$('3/#g-cells') children clone"
                     to="|fill">
-                    <!-- 复用下面内联创建菜单条目 -->
                 </menu>
             </li>
             <hr>
@@ -241,8 +241,7 @@
             <li data-k="m" data-val="mark" title="<mark>"><b><mark>标记</mark></b><kbd>m</kbd></li>
             <li data-k="r" data-val="ruby" title="<ruby>">
                 <b><ruby>注音
-                    <rp>(</rp><rt>zhù yīn</rt><rp>)</rp>
-                    </ruby></b>
+                    <rp>(</rp><rt>zhù yīn</rt><rp>)</rp></ruby></b>
                 <kbd>r</kbd>
             </li>
             <li data-k="o" data-val="orz" title="表情<code:orz>"><b><code role="orz">(^_^)</code></b><kbd>o</kbd></li>
@@ -252,6 +251,8 @@
             <li data-val="s" title="<s>"><b><s>失效</s></b><kbd></kbd></li>
             <li data-k="v" data-val="var" title="<var>"><b><var>变量</var></b><kbd>v</kbd></li>
             <li data-k="u" data-val="u" title="<u>"><b><u>注记</u></b><kbd>u</kbd></li>
+            <li data-val="bdi" title="<bdi>"><b><bdi>方向隔离</bdi></b><kbd></kbd></li>
+            <li data-val="crumb" title="<span:crumb>"><b><span role="crumb">碎片段</span></b><kbd></kbd></li>
             <li data-k="b" data-val="bdo" title="<bdo dir=rtl>"><b><bdo dir="rtl">有向文本</bdo></b><kbd>b</kbd></li>
             <li data-pbo="disabled">&nbsp;</li>
             <li data-val="b" title="<b>"><b>特用&lt;b&gt;</b><kbd></kbd></li>

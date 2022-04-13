@@ -55,7 +55,6 @@ const Tags = {
     [ T.SVG ]:          'svg',
     [ T.RUBY ]:         'ruby',
     [ T.METER ]:        'meter',
-    [ T.CRUMB ]:        'span\\crumb',
     [ T.SPACE ]:        'span\\space',
     [ T.IMG ]:          'img',
     [ T.IMAGE ]:        'span\\image',
@@ -98,6 +97,8 @@ const Tags = {
     [ T.U ]:            'u',
     [ T.VAR ]:          'var',
     [ T.BDO ]:          'bdo',
+    [ T.BDI ]:          'bdi',
+    [ T.CRUMB ]:        'span\\crumb',
 
     //
     // 行块内容元素
@@ -1359,6 +1360,8 @@ const ConvInlines = {
     T.S,
     T.U,
     T.VAR,
+    T.BDI,
+    T.CRUMB,
     // 支持以实现更多灵活性。
     T.B,
     T.I,

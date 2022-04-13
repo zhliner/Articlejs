@@ -2,7 +2,7 @@
 // ++++++++++++++++++++++++++++++++++++++++++++
 //  Project: Coolj-ED v0.2.0
 //  E-Mail:  zhliner@gmail.com
-//  Copyright (c) 2021 铁皮工作室  GPL/GNU v3 License
+//  Copyright (c) 2022 铁皮工作室  GPL/GNU v3 License
 //
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -56,12 +56,12 @@ const
 // 单元值定义。
 // 用于标识元素的类型，便于简单高效地判断（而不是每次都作复杂的检查）。
 //
-// - 内联结构元素：     [0, 99]     不能包含文本或其它内联单元，有固定的内部结构或空结构。
-// - 内联内结构元素：   [100, 199]  其它内联结构元素的内部成员，自身不是独立的内联单元。可能为内容元素。
-// - 内联内容元素：     [200, 299]  可直接包含文本或其它内联单元。
-// - 行块内容元素：     [300, 399]  可直接包含文本节点和内联单元，但属于行块逻辑而不是内联成员。
-// - 块内结构元素：     [400, 499]  行块结构元素内部的元素，不能充当独立的单元。可为内容元素。
-// - 行块结构元素：     [500, ~]    不能直接包含文本或内联单元（含单体单元）。
+// - 内联结构元素：     不能包含文本或其它内联单元，有固定的内部结构或空结构。
+// - 内联内结构元素：   其它内联结构元素的内部成员，自身不是独立的内联单元。可能为内容元素。
+// - 内联内容元素：     可直接包含文本或其它内联单元。
+// - 行块内容元素：     可直接包含文本节点和内联单元，但属于行块逻辑而不是内联成员。
+// - 块内结构元素：     行块结构元素内部的元素，不能充当独立的单元。可为内容元素。
+// - 结构行块元素：     不能直接包含文本或内联单元（含单体单元）。
 //
 // 导出：
 // 基本值导出供其它模块使用（配置定义）。
@@ -71,155 +71,157 @@ export const
     //
     // 内联结构&单元素
     /////////////////////////////////////////////
-    AUDIO           = 1,    // 音频 {src, autoplay, loop, controls}
-    VIDEO           = 2,    // 视频 {src, autoplay, loop, controls}
-    PICTURE         = 3,    // 最佳图片
-    SVG             = 4,    // 图形 {width, height}
-    RUBY            = 5,    // 注音
-    METER           = 6,    // 量度 {value, max, min, high, low, optimum}
-    SPACE           = 7,    // 空白
-    IMG             = 8,    // 图片 {src, alt, width, height}
-    IMAGE           = 9,    // 讲解图（span/img, i:explain）
-    BR              = 10,   // 换行
-    WBR             = 11,   // 软换行
+    AUDIO           = 100,  // 音频 {src, autoplay, loop, controls}
+    VIDEO           = 101,  // 视频 {src, autoplay, loop, controls}
+    PICTURE         = 102,  // 最佳图片
+    SVG             = 103,  // 图形 {width, height}
+    RUBY            = 104,  // 注音
+    METER           = 105,  // 量度 {value, max, min, high, low, optimum}
+    SPACE           = 106,  // 空白
+    IMG             = 107,  // 图片 {src, alt, width, height}
+    IMAGE           = 108,  // 讲解图（span/img, i:explain）
+    BR              = 109,  // 换行
+    WBR             = 110,  // 软换行
     //
     // 内联子结构
     /////////////////////////////////////////////
-    TRACK           = 100,  // 字幕轨 {kind, src, srclang, label, default?}
-    SOURCE1         = 101,  // 媒体资源 {src, type}
-    SOURCE2         = 102,  // 图片资源 {srcset, media}
-    PIMG            = 103,  // 最佳图片（Picture:img） 注：有位置要求，故单独定义
-    RT              = 104,  // 注音拼音
-    RP              = 105,  // 注音拼音包围
-    EXPLAIN         = 106,  // 插图讲解 {fix}
-    SVGITEM         = 107,  // 图形内容（仅用于SVG子元素配置）
-    OPTION          = 108,  // 选取项（控件）
+    TRACK           = 200,  // 字幕轨 {kind, src, srclang, label, default?}
+    SOURCE1         = 201,  // 媒体资源 {src, type}
+    SOURCE2         = 202,  // 图片资源 {srcset, media}
+    PIMG            = 203,  // 最佳图片（Picture:img） 注：有位置要求，故单独定义
+    RT              = 204,  // 注音拼音
+    RP              = 205,  // 注音拼音包围
+    EXPLAIN         = 206,  // 插图讲解 {fix}
+    SVGITEM         = 207,  // 图形内容（仅用于SVG子元素配置）
+    OPTION          = 208,  // 选取项（控件）
     //
     // 内联内容元素
     /////////////////////////////////////////////
-    A               = 200,  // 链接 {href, target, title}
-    Q               = 201,  // 短引用 {cite}
-    ABBR            = 202,  // 缩写 {title}
-    DEL             = 203,  // 删除 {datetime, cite}
-    INS             = 204,  // 插入 {datetime, cite}
-    DFN             = 205,  // 定义 {title}
-    BDO             = 206,  // 有向文本 {dir}
-    BDI             = 207,  // 方向隔离
-    TIME            = 208,  // 时间 {datetime}
-    CODE            = 209,  // 代码（code/#text, b, i） {data-lang, data-tab}
-    STRONG          = 210,  // 重点
-    EM              = 211,  // 强调
-    CITE            = 212,  // 来源
-    SMALL           = 213,  // 注脚
-    SUB             = 214,  // 下标
-    SUP             = 215,  // 上标
-    MARK            = 216,  // 标记
-    ORZ             = 217,  // 表情（定制）
-    SAMP            = 218,  // 样本
-    KBD             = 219,  // 键盘字
-    S               = 220,  // 失效
-    U               = 221,  // 注记
-    VAR             = 222,  // 变量
-    CRUMB           = 223,  // 碎片（定制）
+    A               = 300,  // 链接 {href, target, title}
+    Q               = 301,  // 短引用 {cite}
+    ABBR            = 302,  // 缩写 {title}
+    DEL             = 303,  // 删除 {datetime, cite}
+    INS             = 304,  // 插入 {datetime, cite}
+    DFN             = 305,  // 定义 {title}
+    BDO             = 306,  // 有向文本 {dir}
+    BDI             = 307,  // 方向隔离
+    TIME            = 308,  // 时间 {datetime}
+    CODE            = 309,  // 代码（code/#text, b, i） {data-lang, data-tab}
+    STRONG          = 310,  // 重点
+    EM              = 311,  // 强调
+    CITE            = 312,  // 来源
+    SMALL           = 313,  // 注脚
+    SUB             = 314,  // 下标
+    SUP             = 315,  // 上标
+    MARK            = 316,  // 标记
+    ORZ             = 317,  // 表情（定制）
+    SAMP            = 318,  // 样本
+    KBD             = 319,  // 键盘字
+    S               = 320,  // 失效
+    U               = 321,  // 注记
+    VAR             = 322,  // 变量
+    CRUMB           = 323,  // 碎片（定制）
     //
     // 内联控件
     /////////////////////////////////////////////
-    LABEL           = 224,  // 标签
-    BUTTON          = 225,  // 按钮
-    INPUT           = 226,  // 录入件
-    TEXTAREA        = 227,  // 文本框
-    SELECT          = 228,  // 选单
-    OUTPUT          = 229,  // 输出件
-    PROGRESS        = 230,  // 进度条
+    LABEL           = 324,  // 标签
+    BUTTON          = 325,  // 按钮
+    INPUT           = 326,  // 录入件
+    TEXTAREA        = 327,  // 文本框
+    SELECT          = 328,  // 选单
+    OUTPUT          = 329,  // 输出件
+    PROGRESS        = 330,  // 进度条
 
     //
     // 行块内容元素
     /////////////////////////////////////////////
-    P               = 300,  // 段落 （p/#text, ...）
-    NOTE            = 301,  // 注解 （p:note/#text, ...）
-    TIPS            = 302,  // 提示 （p:tips/#text, ...）
-    PRE             = 303,  // 预排版 （pre/#text, ...）
-    ADDRESS         = 304,  // 地址 （address/#text, ...）
+    P               = 400,  // 段落 （p/#text, ...）
+    NOTE            = 401,  // 注解 （p:note/#text, ...）
+    TIPS            = 402,  // 提示 （p:tips/#text, ...）
+    PRE             = 403,  // 预排版 （pre/#text, ...）
+    ADDRESS         = 404,  // 地址 （address/#text, ...）
+
     //
     // 块内结构子
     /////////////////////////////////////////////
-    H1              = 400,  // 主标题
-    H2              = 401,  // 片区标题
-    H3              = 402,  // 小区块标题
-    H4              = 403,  // 列表项标题条目
-    H5              = 404,  // <h5>标题
-    H6              = 405,  // <h6>标题
-    SUMMARY         = 406,  // 内容摘要
-    FIGCAPTION      = 407,  // 插图标题
-    CAPTION         = 408,  // 表格标题
-    LEGEND          = 409,  // 控件集标题
-    LI              = 410,  // 列表项（通用）
-    DT              = 411,  // 描述列表条目
-    DD              = 412,  // 描述列表数据
-    TH              = 413,  // 表头单元格
-    TD              = 414,  // 单元格
-    TR              = 415,  // 表格行
-    THEAD           = 416,  // 表头
-    TBODY           = 417,  // 表体
-    TFOOT           = 418,  // 表脚
+    H1              = 500,  // 主标题
+    H2              = 501,  // 片区标题
+    H3              = 502,  // 小区块标题
+    H4              = 503,  // 列表项标题条目
+    H5              = 504,  // <h5>标题
+    H6              = 505,  // <h6>标题
+    SUMMARY         = 506,  // 内容摘要
+    FIGCAPTION      = 507,  // 插图标题
+    CAPTION         = 508,  // 表格标题
+    LEGEND          = 509,  // 控件集标题
+    LI              = 510,  // 列表项（通用）
+    DT              = 511,  // 描述列表条目
+    DD              = 512,  // 描述列表数据
+    TH              = 513,  // 表头单元格
+    TD              = 514,  // 单元格
+    TR              = 515,  // 表格行
+    THEAD           = 516,  // 表头
+    TBODY           = 517,  // 表体
+    TFOOT           = 518,  // 表脚
     //
     // 定制结构类
     // 注记：无需LICODE设计，容器非CONTENT即可。
-    FCONA           = 419,  // 插图链接图（Figure/a/img|svg），主要用于子单元约束
-    CODELI          = 420,  // 代码表条目（li/code） {value}
-    ALI             = 421,  // 链接列表项（li/a）
-    AH4             = 422,  // 目录标签项（h4/a）
-    AH5             = 423,  // 链接小标题（h5/a）
-    XH5LI           = 424,  // 级联表标题项（li/h5, ul）
-    XOLH5LI         = 425,  // 级联表有序标题项（li/h5, ol）
-    XOLAH5LI        = 426,  // 级联表有序链接标题项（li/[h5/a], ol）
-    TOCCASCADE      = 427,  // 目录级联表（ol:cascade/[li/a]）
+    FCONA           = 519,  // 插图链接图（Figure/a/img|svg），主要用于子单元约束
+    CODELI          = 520,  // 代码表条目（li/code） {value}
+    ALI             = 521,  // 链接列表项（li/a）
+    AH4             = 522,  // 目录标签项（h4/a）
+    AH5             = 523,  // 链接小标题（h5/a）
+    XH5LI           = 524,  // 级联表标题项（li/h5, ul）
+    XOLH5LI         = 525,  // 级联表有序标题项（li/h5, ol）
+    XOLAH5LI        = 526,  // 级联表有序链接标题项（li/[h5/a], ol）
+    TOCCASCADE      = 527,  // 目录级联表（ol:cascade/[li/a]）
+
     //
     // 行块结构元素
     /////////////////////////////////////////////
-    HGROUP          = 500,  // 主/副标题组 （hgroup/h1, h3）
+    HGROUP          = 600,  // 主/副标题组 （hgroup/h1, h3）
     // S1-5保持有序连续
-    S1              = 501,  // 章 （section:s1/h2, header?, s2 | {content}, footer?）
-    S2              = 502,  // 节 （section:s2/h2, header?, s3 | {content}, footer?）
-    S3              = 503,  // 区 （section:s3/h2, header?, s4 | {content}, footer?）
-    S4              = 504,  // 段 （section:s4/h2, header?, s5 | {content}, footer?）
-    S5              = 505,  // 末 （section:s5/h2, header?, {content}, footer?）
-    ABSTRACT        = 506,  // 提要 （header:abstract/h4, p...）
-    TOC             = 507,  // 目录 （nav:toc/h4, ol:cascade/li/(h5/a), ol/[li/a]+）
-    REFERENCE       = 508,  // 文献参考 （nav:reference/h4, ol）
-    SEEALSO         = 509,  // 另参见 （aside:seealso/h4, ul）
-    HEADER          = 510,  // 导言 （header/h4, p...）
-    FOOTER          = 511,  // 结语/小结/声明 （footer/h4, p...）
-    ARTICLE         = 512,  // 文章区 （article/header?, s1 | {content}, footer?, hr?）
-    SECTION         = 513,  // 深片区 ([s5]/section)
-    UL              = 514,  // 无序列表 （ul/li）
-    OL              = 515,  // 有序列表 （ol/li）
-    CODELIST        = 516,  // 代码表 （ol:codelist/li/code/#text, b, i） {data-lang, data-tab, start}
-    ULX             = 517,  // 无序级联表 （ul/li/h5, ul|ol/...）
-    OLX             = 518,  // 有序级联表 （ol/li/h5, ol|ul/...）
-    CASCADE         = 519,  // 级联编号表 （ol:cascade/li/h5, ol/li/...）
-    DL              = 520,  // 描述列表 （dl/dt, dd+）
-    TABLE           = 521,  // 表格 （table/thead, tbody, tfoot/tr/th, td）
-    FIGURE          = 522,  // 插图 （figure/figcaption, span/img, i:explain）
-    BLOCKQUOTE      = 523,  // 块引用 （blockquote/h4, p...） {cite}
-    ASIDE           = 524,  // 批注 （aside/h4, p...）
-    DETAILS         = 525,  // 详细内容 （details/summary, p...） {open}
-    CODEBLOCK       = 526,  // 代码块 （pre:codeblock/code/#text, b, i）
-    FIELDSET        = 527,  // 控件分组（fieldset/legend, ...）
+    S1              = 601,  // 章 （section:s1/h2, header?, s2 | {content}, footer?）
+    S2              = 602,  // 节 （section:s2/h2, header?, s3 | {content}, footer?）
+    S3              = 603,  // 区 （section:s3/h2, header?, s4 | {content}, footer?）
+    S4              = 604,  // 段 （section:s4/h2, header?, s5 | {content}, footer?）
+    S5              = 605,  // 末 （section:s5/h2, header?, {content}, footer?）
+    ABSTRACT        = 606,  // 提要 （header:abstract/h4, p...）
+    TOC             = 607,  // 目录 （nav:toc/h4, ol:cascade/li/(h5/a), ol/[li/a]+）
+    REFERENCE       = 608,  // 文献参考 （nav:reference/h4, ol）
+    SEEALSO         = 609,  // 另参见 （aside:seealso/h4, ul）
+    HEADER          = 610,  // 导言 （header/h4, p...）
+    FOOTER          = 611,  // 结语/小结/声明 （footer/h4, p...）
+    ARTICLE         = 612,  // 文章区 （article/header?, s1 | {content}, footer?, hr?）
+    SECTION         = 613,  // 深片区 ([s5]/section)
+    UL              = 614,  // 无序列表 （ul/li）
+    OL              = 615,  // 有序列表 （ol/li）
+    CODELIST        = 616,  // 代码表 （ol:codelist/li/code/#text, b, i） {data-lang, data-tab, start}
+    ULX             = 617,  // 无序级联表 （ul/li/h5, ul|ol/...）
+    OLX             = 618,  // 有序级联表 （ol/li/h5, ol|ul/...）
+    CASCADE         = 619,  // 级联编号表 （ol:cascade/li/h5, ol/li/...）
+    DL              = 620,  // 描述列表 （dl/dt, dd+）
+    TABLE           = 621,  // 表格 （table/thead, tbody, tfoot/tr/th, td）
+    FIGURE          = 622,  // 插图 （figure/figcaption, span/img, i:explain）
+    BLOCKQUOTE      = 623,  // 块引用 （blockquote/h4, p...） {cite}
+    ASIDE           = 624,  // 批注 （aside/h4, p...）
+    DETAILS         = 625,  // 详细内容 （details/summary, p...） {open}
+    CODEBLOCK       = 626,  // 代码块 （pre:codeblock/code/#text, b, i）
+    FIELDSET        = 627,  // 控件分组（fieldset/legend, ...）
     // 单体单元。
-    HR              = 528,  // 分隔 （hr） CSS:{borderWidth, width, height}
-    BLANK           = 529,  // 白板 （div:blank/x）
+    HR              = 628,  // 分隔 （hr） CSS:{borderWidth, width, height}
+    BLANK           = 629,  // 白板 （div:blank/x）
 
     //
     // 特殊用途。
-    // 注：不作为独立的内联单元。
+    // 不作为独立的内联单元。
     /////////////////////////////////////////////
     B       = -1,   // 代码关键字封装
     I       = -2,   // 代码注释/标题编号
 
     //
     // 文章顶层容器。
-    // 不属于内容单元故单列。编辑器逻辑需要。
+    // 不属于内容单元故单列（编辑逻辑需要）。
     /////////////////////////////////////////////
     MAIN    = -10;
 
@@ -315,7 +317,7 @@ const Properties = {
     [ SUMMARY ]:        STRUCT | SINGLE | FIXED1 | CONTENT,
     [ FIGCAPTION ]:     STRUCT | SINGLE | STRUCTX | CONTENT, // 可移动
     [ CAPTION ]:        STRUCT | SINGLE | STRUCTX | FIXED1 | CONTENT,
-    [ LEGEND ]:         STRUCT | SINGLE | FIXED1 | CONTENT | FORMCTRL,
+    [ LEGEND ]:         STRUCT | SINGLE | STRUCTX | FIXED1 | CONTENT | FORMCTRL,
     [ LI ]:             STRUCT | STRUCTX | CONTENT,
     [ DT ]:             STRUCT | STRUCTX | CONTENT,
     [ DD ]:             STRUCT | STRUCTX | CONTENT,
@@ -365,7 +367,7 @@ const Properties = {
     [ BLOCKQUOTE ]:     BLOCKS | STRUCT,
     [ ASIDE ]:          BLOCKS | STRUCT,
     [ DETAILS ]:        BLOCKS | STRUCT,
-    [ CODEBLOCK ]:      BLOCKS | STRUCT,  // SEALED（可多块）
+    [ CODEBLOCK ]:      BLOCKS | STRUCT,  // SEALED（可内含多块）
     [ FIELDSET ]:       BLOCKS | STRUCT | FORMCTRL,
     // 行块单体元素
     [ HR ]:             BLOCKS | EMPTY,
@@ -402,7 +404,7 @@ const _INLTEXT =
 [
     Q, ABBR, DFN, BDO, TIME,
     CODE, RUBY,
-    STRONG, EM, CITE, SMALL, SUB, SUP, MARK, ORZ, SAMP, KBD, VAR,
+    STRONG, EM, CITE, SMALL, SUB, SUP, MARK, ORZ, SAMP, KBD, VAR, BDI, CRUMB
 ];
 
 //
@@ -415,6 +417,11 @@ const _REVIEW = [ DEL, INS, S, U ];
 //
 const _INLVIEW = [ BR, WBR, SPACE ];
 
+//
+// 内联实体控件。
+// 不含封装容器<label>和结构子<option>。
+//
+const _INLCTRL = [ BUTTON, INPUT, TEXTAREA, OUTPUT, PROGRESS, SELECT ];
 
 
 // 非媒体
@@ -430,7 +437,10 @@ const _SIMPLE = [
 // 全部
 // 不含独立的<a>,<b>,<i>。
 const _INLALL = [
-    ..._INLMEDIA, ..._INLTEXT, ..._REVIEW, ..._INLVIEW, LABEL
+    ..._INLMEDIA, ..._INLTEXT, ..._REVIEW, ..._INLVIEW,
+
+    // 宽松约束，插入更自由。
+    LABEL, ..._INLCTRL
 ];
 
 
@@ -444,7 +454,7 @@ const _INLALL = [
 // 受限行块单元集。
 // 适用部分用途较明确的行块，作为其内部嵌套的小块。
 //
-const _BLOLIMIT = [ BLOCKQUOTE, ASIDE, UL, OL ];
+const _BLOLIMIT = [ BLOCKQUOTE, ASIDE, UL, OL, FIELDSET ];
 
 
 //
@@ -459,7 +469,7 @@ const _BLOCKITS =
 [
     P, NOTE, TIPS, PRE,
     UL, OL, CODELIST, ULX, OLX, CASCADE, DL, TABLE, FIGURE, BLOCKQUOTE, ASIDE, DETAILS, CODEBLOCK,
-    BLANK,
+    BLANK, FIELDSET
 ];
 
 
@@ -532,7 +542,7 @@ export const ChildTypes = {
     //
     // 内联控件
     /////////////////////////////////////////////
-    [ LABEL ]:          [ $TEXT, BUTTON, INPUT, TEXTAREA, OUTPUT, PROGRESS, SELECT ],
+    [ LABEL ]:          [ $TEXT, ..._INLCTRL, B, I ],
     [ BUTTON ]:         [ $TEXT, ..._SIMPLE ],
     [ INPUT ]:          null,
     [ TEXTAREA ]:       [ $TEXT ],

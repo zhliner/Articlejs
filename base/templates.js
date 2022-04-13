@@ -142,6 +142,7 @@ const InputOptions = {
     [ T.ASIDE ]:        'option:aside',
     [ T.DETAILS ]:      'option:details',
     [ T.CODEBLOCK ]:    'option:codeblock',
+    [ T.FIELDSET ]:     'option:fieldset',
 
     [ T.HR ]:           'option:hr',
     [ T.BLANK ]:        'option:blank',

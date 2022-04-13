@@ -1200,12 +1200,32 @@ menu._cells code {
     min-height: 32px;
 }
 
+/* 引用块 */
 .Input ._Blockquote ._cite {
     margin-bottom: 3px;
 }
 .Input ._Blockquote ._cite input {
     border-color: #8fbac2;
     border-top-right-radius: 25px;
+}
+
+/* 控件分组 */
+.Input ._Fieldset ._main {
+    border: 1px #93c8e2 solid;
+    border-radius: 5px 1px 1px 5px;
+}
+.Input ._Fieldset fieldset {
+    flex: 1 1 auto;
+    margin: 1.2em 1.4em;
+    border: 1px gray solid;
+}
+.Input ._Fieldset legend {
+    padding: 0 1pt;
+}
+.Input ._Fieldset ._main input {
+    border-color: #60acd2;
+    background-color: #ffe;
+    padding: 3px 6px;
 }
 
 /* 分割（覆盖） */

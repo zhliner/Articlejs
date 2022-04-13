@@ -702,7 +702,7 @@
     <div class="_main">
         <header class="_affix">
             <input type="text" name="summary" placeholder="摘要" class="_scale" />
-            <label><input type="checkbox" name="open" checked />默认展开</label>
+            <label><input type="checkbox" name="open" />默认展开</label>
         </header>
         <textarea name="details" placeholder="详细内容"></textarea>
     </div>
@@ -732,6 +732,26 @@
             </label>
         </div>
         <div tpl-node="input:insert2"> [插入2] </div>
+    </aside>
+</div>
+
+<!-- 控件分组 -->
+<div class="_body _Fieldset" tpl-name="input:fieldset"
+    on="create|$('/input[name=legend]') val obj('legend')"
+    by="New.legend(_1)"
+    to="form/|trigger('insert')">
+    <div class="_main">
+        <fieldset>
+            <legend title="<legend>">
+                <input type="text" name="legend" placeholder="标题（可选）" />
+            </legend>
+        </fieldset>
+    </div>
+    <aside>
+        <pre tpl-node="input:option1, input:insert2">
+            [选项1]
+            [插入2]
+        </pre>
     </aside>
 </div>
 

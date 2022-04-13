@@ -741,6 +741,11 @@ div[role=blank] > * {
     padding: 1px 5px;
 }
 
+/* 碎片段 */
+.content span[role=crumb] {
+    font-style: italic;
+}
+
 /* 空白 */
 .content span[role=space] {
     display: inline-block;
