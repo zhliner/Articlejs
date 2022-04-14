@@ -1216,16 +1216,18 @@ menu._cells code {
 }
 .Input ._Fieldset fieldset {
     flex: 1 1 auto;
-    margin: 1.2em 1.4em;
+    margin: 1.2em 1.4em 0.4em;
     border: 1px gray solid;
 }
 .Input ._Fieldset legend {
     padding: 0 1pt;
 }
-.Input ._Fieldset ._main input {
+.Input ._Fieldset legend input {
     border-color: #60acd2;
     background-color: #ffe;
-    padding: 3px 6px;
+}
+.Input ._Fieldset ._prop input {
+    width: 40%;
 }
 
 /* 分割（覆盖） */

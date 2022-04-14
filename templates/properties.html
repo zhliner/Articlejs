@@ -8,7 +8,7 @@
 
 <ul class="_prop" tpl-name="property:audio" data-label="音频属性"
     on="vinit reset|sels;
-        build|(null) $('form/') dup pop(2) valo('src') checked('autoplay loop controls') $('/pre._code') text mediasubs pack(3) pack(2)"
+        build|(null) $('form/') dup pop(2) valobj('src') checked('autoplay loop controls') $('/pre._code') text mediasubs pack(3) pack(2)"
     to="(/>li)|trigger('value');
         form/|trigger('apply')">
     <li tpl-node="!prop:src"></li>
@@ -19,7 +19,7 @@
 
 <ul class="_prop" tpl-name="property:video" data-label="视频属性"
     on="vinit reset|sels;
-        build|(null) $('form/') dup pop(2) valo('src poster width height') checked('autoplay loop controls') $$('/pre._code') text spread mediasubs(_1) pack(3) pack(2)"
+        build|(null) $('form/') dup pop(2) valobj('src poster width height') checked('autoplay loop controls') $$('/pre._code') text spread mediasubs(_1) pack(3) pack(2)"
     to="(/>li)|trigger('value');
         form/|trigger('apply')">
     <li tpl-node="!prop:src, prop:poster"></li>
@@ -31,7 +31,7 @@
 <ul class="_prop" tpl-name="property:picture" data-label="最佳图片属性"
     on="vinit reset|sels children('img') flat;
         vinit reset;
-        build|(null) $('form/') valo('src alt width height') $('/pre._code') text picsubs pack(2) pack(2)"
+        build|(null) $('form/') valobj('src alt width height') $('/pre._code') text picsubs pack(2) pack(2)"
     to="(/>li)(:last-child)|trigger('value');
         />li:last-child|trigger('value');
         form/|trigger('apply')">
@@ -42,7 +42,7 @@
 
 <ul class="_prop" tpl-name="property:img" data-label="图片属性"
     on="vinit reset|sels;
-        build|('src alt width height') dup $('form/') pop value(_1) pack(2)"
+        build|('src alt width height') dup $('form/') pop values(_1) pack(2)"
     to="(/>li)|trigger('value');
         form/|trigger('apply')">
     <li tpl-node="!prop:src, prop:alt"></li>
@@ -51,7 +51,7 @@
 
 <ul class="_prop" tpl-name="property:svg" data-label="SVG属性"
     on="vinit reset;
-        build|('width height') dup $('form/') pop value(_1) pack(2)"
+        build|('width height') dup $('form/') pop values(_1) pack(2)"
     to="(/>li)|trigger('value');
         form/|trigger('apply')">
     <li tpl-node="!prop:width, prop:height"></li>
@@ -59,7 +59,7 @@
 
 <ul class="_prop" tpl-name="property:ruby" data-label="注音属性"
     on="vinit reset;
-        build|(null) $('form/') pop value('rt rbt') pack(2)"
+        build|(null) $('form/') values('rt rbt') pack(2)"
     to="(/>li)|trigger('value');
         form/|trigger('apply')">
     <li tpl-node="!prop:rt, prop:rbt, prop:rp"></li>
@@ -67,7 +67,7 @@
 
 <ul class="_prop" tpl-name="property:times" data-label="时间设定"
     on="vinit reset;
-        build|('datetime') $('form/') pop value('date time') pack(2)"
+        build|('datetime') $('form/') values('date time') pack(2)"
     to="(/>li)|trigger('value');
         form/|trigger('apply')">
     <li tpl-node="!prop:date, prop:time"></li>
@@ -75,7 +75,7 @@
 
 <ul class="_prop" tpl-name="property:meter" data-label="度量属性"
     on="vinit reset;
-        build|('value max min high low optimum') dup $('form/') pop value(_1) pack(2)"
+        build|('value max min high low optimum') dup $('form/') pop values(_1) pack(2)"
     to="(/>li)|trigger('value');
         form/|trigger('apply')">
     <li tpl-node="!prop:number, prop:maxmin, prop:highlow, prop:optimum"></li>
@@ -91,7 +91,7 @@
 
 <ul class="_prop" tpl-name="property:a" data-label="链接属性"
     on="vinit reset;
-        build|('href target title') dup $('form/') pop value(_1) pack(2)"
+        build|('href target title') dup $('form/') pop values(_1) pack(2)"
     to="(/>li)|trigger('value');
         form/|trigger('apply')">
     <li tpl-node="!prop:href, prop:target, prop:title"></li>
@@ -115,7 +115,7 @@
 
 <ul class="_prop" tpl-name="property:del" data-label="删除属性"
     on="vinit reset;
-        build|('datetime cite') $('form/') pop value('date time cite') pack(2)"
+        build|('datetime cite') $('form/') values('date time cite') pack(2)"
     to="(/>li)|trigger('value');
         form/|trigger('apply')">
     <li tpl-node="!prop:date, prop:time"></li>
@@ -172,7 +172,7 @@
 
 <ul class="_prop" tpl-name="property:codelist" data-label="代码表属性"
     on="vinit reset;
-        build|(null) $('form/') pop value('lang start parse') pack(2)"
+        build|(null) $('form/') values('lang start parse') pack(2)"
     to="(/>li)|trigger('value');
         form/|trigger('apply')">
     <li tpl-node="!prop:start"></li>
@@ -190,7 +190,7 @@
 
 <ul class="_prop" tpl-name="property:ol" data-label="有序列表属性"
     on="vinit reset;
-        build|('start type reversed') $('form/') dup pop(2) value('start type') checked('reversed') concat(_1) pack(2)"
+        build|('start type reversed') $('form/') dup pop(2) values('start type') checked('reversed') concat(_1) pack(2)"
     to="(/>li)|trigger('value');
         form/|trigger('apply')">
     <li tpl-node="!prop:start, prop:sntype, prop:reversed"></li>
@@ -207,17 +207,17 @@
     delay 跳过当前事件流程以便解绑，避免after后激发nodeok无限循环。-->
 <ul class="_prop" tpl-name="property:li" data-label="列表项属性"
     on="vinit reset;
-        build|('value type') dup $('form/') pop value(_1) pack(2);
+        build|('value type') dup $('form/') pop values(_1) pack(2);
         ^nodeok(~li)|({class:'_tips', text:'（不常用）'}) Element('i')"
     to="(/>li)|trigger('value');
         form/|trigger('apply');
         /[name=type]|after">
-    <li tpl-node="!prop:value, prop:sntype"></li>
+    <li tpl-node="!prop:nth, prop:sntype"></li>
 </ul>
 
 <ul class="_prop" tpl-name="property:table" data-label="表格属性"
     on="vinit reset;
-        build|(null) $('/select') val arr $('form/') pop checked('th0 th1') concat(_1) pack(2)"
+        build|(null) $('/select') val arr $('form/') checked('th0 th1') concat(_1) pack(2)"
     to="(/>li)|trigger('value');
         form/|trigger('apply')">
     <li tpl-node="!prop:tborder, prop:vth"></li>
@@ -233,7 +233,7 @@
 
 <ul class="_prop" tpl-name="property:blank" data-label="白板属性"
     on="vinit reset;
-        build|('width height') dup $('form/') pop value(_1) pack(2)"
+        build|('width height') dup $('form/') pop values(_1) pack(2)"
     to="(/>li)|trigger('value');
         form/|trigger('apply')">
     <li tpl-node="!prop:cwidth, prop:cheight"></li>
@@ -322,7 +322,7 @@
 
 <!-- 音频 -->
 <ul class="_prop" data-new="audio" tpl-name="inlines:audio"
-    on="create|$('/pre._code') text mediasubs $('form/') valo('src autoplay loop controls') (true)"
+    on="create|$('/pre._code') text mediasubs $('form/') valobj('src autoplay loop controls') (true)"
     by="New.audio(_2)"
     to="form/|trigger('insert')">
     <li tpl-node="prop:src"></li>
@@ -332,7 +332,7 @@
 </ul>
 
 <ul class="_prop" tpl-name="inlines:video"
-    on="create|$$('/pre._code') text spread mediasubs(_1) flat $('form/') valo('src poster autoplay loop controls width height') clean('', null) (true)"
+    on="create|$$('/pre._code') text spread mediasubs(_1) flat $('form/') valobj('src poster autoplay loop controls width height') clean('', null) (true)"
     by="New.video(_2)"
     to="form/|trigger('insert')">
     <li tpl-node="prop:src, prop:poster"></li>
@@ -343,7 +343,7 @@
 
 <!-- 最佳图片 -->
 <ul class="_prop" tpl-name="inlines:picture"
-    on="create|$('/pre._code') text picsubs nil $('form/') valo('src alt width height') clean('', null)"
+    on="create|$('/pre._code') text picsubs nil $('form/') valobj('src alt width height') clean('', null)"
     by="New.img(_1) concat(_1) (null, true) New.picture(_2)"
     to="form/|trigger('insert')">
     <li tpl-node="prop:src, prop:alt"></li>
@@ -369,7 +369,7 @@
 
 <!-- 图片 -->
 <ul class="_prop" tpl-name="inlines:img"
-    on="create|$('form/') valo('src alt width height') clean('', null)"
+    on="create|$('form/') valobj('src alt width height') clean('', null)"
     by="New.img(_1)"
     to="form/|trigger('insert')">
     <li tpl-node="prop:src, prop:alt"></li>
@@ -395,7 +395,7 @@
 
 <!-- 短引用 -->
 <ul class="_prop" tpl-name="inlines:q"
-    on="create|$('/[name=text]') val dup pass $('form/') valo('cite') clean('', null)"
+    on="create|$('/[name=text]') val dup pass $('form/') valobj('cite') clean('', null)"
     by="New.q(_1)"
     to="form/|trigger('insert')">
     <hr tpl-node="prop:text1, prop:cite" />
@@ -403,7 +403,7 @@
 
 <!-- 日期/时间 -->
 <ul class="_prop" tpl-name="inlines:times"
-    on="create|$('/[name=text]') val $('form/') valo('date time')"
+    on="create|$('/[name=text]') val $('form/') valobj('date time')"
     by="New.time(_1)"
     to="form/|trigger('insert')">
     <li tpl-node="prop:datetext, prop:date, prop:time"></li>
@@ -411,7 +411,7 @@
 
 <!-- 插入性 -->
 <ul class="_prop" tpl-name="inlines:ins"
-    on="create|$('/[name=content]') val dup pass $('form/') valo('date time cite')"
+    on="create|$('/[name=content]') val dup pass $('form/') valobj('date time cite')"
     by="New.ins(_1)"
     to="form/|trigger('insert')">
     <li tpl-node="prop:text2"></li>
@@ -421,7 +421,7 @@
 
 <!-- 已删除 -->
 <ul class="_prop" tpl-name="inlines:del"
-    on="create|$('/[name=content]') val dup pass $('form/') valo('date time cite')"
+    on="create|$('/[name=content]') val dup pass $('form/') valobj('date time cite')"
     by="New.del(_1)"
     to="form/|trigger('insert')">
     <li tpl-node="prop:text2"></li>
@@ -431,7 +431,7 @@
 
 <!-- 缩写 -->
 <ul class="_prop" tpl-name="inlines:abbr"
-    on="create|$('/[name=text]') val dup pass $('form/') valo('title') clean('', null)"
+    on="create|$('/[name=text]') val dup pass $('form/') valobj('title') clean('', null)"
     by="New.abbr(_1)"
     to="form/|trigger('insert')">
     <li tpl-node="prop:text1, prop:title"></li>
@@ -439,7 +439,7 @@
 
 <!-- 定义条目 -->
 <ul class="_prop" tpl-name="inlines:dfn"
-    on="create|$('/[name=text]') val dup pass $('form/') valo('title') clean('', null)"
+    on="create|$('/[name=text]') val dup pass $('form/') valobj('title') clean('', null)"
     by="New.dfn(_1)"
     to="form/|trigger('insert')">
     <hr tpl-node="prop:text1, prop:title" />
@@ -447,7 +447,7 @@
 
 <!-- 量度标示 -->
 <ul class="_prop" tpl-name="inlines:meter"
-    on="create|$('form/') valo('value max min high low optimum') clean('', null)"
+    on="create|$('form/') valobj('value max min high low optimum') clean('', null)"
     by="New.meter(_1)"
     to="form/|trigger('insert')">
     <li tpl-node="prop:number"></li>
@@ -466,7 +466,7 @@
 
 <!-- 注音单元 -->
 <ul class="_prop" tpl-name="inlines:ruby"
-    on="create|$('/[name=rbt]') val dup pass $('form/') valo('rt rpl rpr')"
+    on="create|$('/[name=rbt]') val dup pass $('form/') valobj('rt rpl rpr')"
     by="New.ruby(_1)"
     to="form/|trigger('insert')">
     <li tpl-node="prop:rbt"></li>
@@ -636,7 +636,7 @@
 </li>
 
 <!-- 适用：<li> -->
-<li obt-src="obts/prop1.json" tpl-name="prop:value">
+<li obt-src="obts/prop1.json" tpl-name="prop:nth">
     <b>行编号</b>
     <span><input type="text" name="value" class="_chars" placeholder="1" /></span>
 </li>
@@ -777,7 +777,7 @@
 </li>
 
 <li obt-src="obts/prop1.json" tpl-name="prop:id">
-    <b>ID定义</b>
+    <b title="id">ID定义</b>
     <span><input type="text" name="id" /></span>
 </li>
 
@@ -1009,6 +1009,25 @@
     <span><textarea name="content" rows="3"></textarea></span>
 </li>
 
+
+<!-- 控件属性 -->
+
+<li obt-src="obts/prop1.json" tpl-name="prop:id2">
+    <b title="id">ID</b>
+    <span><input type="text" name="id" placeholder="（可选）" /></span>
+</li>
+
+<li obt-src="obts/prop1.json" tpl-name="prop:name">
+    <b title="name">名称</b>
+    <span><input name="name" type="text" /></span>
+</li>
+
+<li obt-src="obts/prop1.json" tpl-name="prop:value">
+    <b title="value">值</b>
+    <span><input name="value" type="text" /></span>
+</li>
+
+
 <!-- 纯文本录入 -->
 <textarea name="content" placeholder="空行分项（多选对应）" tpl-name="prop:content"></textarea>
 
@@ -1088,6 +1107,10 @@
     </li>
 </ul>
 
+
+
+<!--专项模板
+----------------------------------------------------------------------------->
 
 <!-- 内容源码导出 -->
 <div class="_export" tpl-name="misc:export"

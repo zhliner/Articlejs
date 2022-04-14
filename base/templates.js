@@ -99,6 +99,7 @@ const InputOptions = {
     [ T.SUMMARY ]:      'option:summary',
     [ T.FIGCAPTION ]:   'option:figcaption',
     [ T.CAPTION ]:      'option:caption',
+    [ T.CAPTION ]:      'option:legend',
     [ T.LI ]:           'option:li',
     [ T.DT ]:           'option:dt',
     [ T.DD ]:           'option:dd',

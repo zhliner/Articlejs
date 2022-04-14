@@ -4134,9 +4134,10 @@ function convertTo( name, els ) {
 
 
 //
-// 顶层单元选择器配置。
-// self: 自身选择器
-// prev: 前端元素序列（靠前优先）
+// 顶层单元配置。
+// 在内容区顶层，与<article>平级的单元。
+// self: 自身选择器（相对于内容根）
+// prev: 前端元素序列，靠前优先
 //
 const topItemslr = {
     // 单纯页标题
@@ -4183,8 +4184,8 @@ const topItemslr = {
 
 
 //
-// 区块内单元配置。
-// self: 单元自身选择器
+// 区块内固定单元配置。
+// self: 单元自身选择器（相对于容器元素）
 // prev: 前部参考元素序列
 //
 const fixItemslr = {
@@ -4219,6 +4220,11 @@ const fixItemslr = {
 
     [ T.FIGCAPTION ]: {
         self: '>figcaption',
+        prev: null
+    },
+
+    [ T.LEGEND ]: {
+        self: '>legend',
         prev: null
     },
 

@@ -1,6 +1,6 @@
 {
     "//": "创建链接单元。复用为内联和子单元",
-    "on": "create|$('/[name=text]') val dup pass $('form/') valo('href target title', null)",
+    "on": "create|$('/[name=text]') val dup pass $('form/') valobj('href target title', null)",
     "by": "New.a(_1)",
     "to": "|trigger('node')"
 }

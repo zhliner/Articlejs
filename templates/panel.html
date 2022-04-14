@@ -13,10 +13,10 @@
 <form class="Input" tpl-name="slave:input"
     on="submit|avoid;
         update|sels;
-        insert|ev('detail') checked('before') value('level');
-        instop|ev('detail') value('level');
-        insfix|ev('detail') value('level');
-        instbd|ev('detail') checked('merge') value('level')"
+        insert|ev('detail') evo(3) checked('before') $('/[name=level]') val;
+        instop|ev('detail') $('/[name=level]') val;
+        insfix|ev('detail') $('/[name=level]') val;
+        instbd|ev('detail') evo(3) checked('merge') $('/[name=level]') val"
     by="-;-;
         Kit.inserts(_2);
         Kit.topinsert(_1);
@@ -469,7 +469,7 @@
     nodeok focus 友好：存储代码框光标便于历史代码插入。
     shcode 历史记录模态框回送数据传入。 -->
 <form class="Script" tpl-name="slave:script"
-    on="submit|avoid $('/pre._code') text value('runbox itext ihtml');
+    on="submit|avoid $('/pre._code') text evo(3) values('runbox itext ihtml');
         nodeok(~)|evo(3);
         shcode|ev('detail')"
     by="Ed.runScript(_) dup pass node('script:result');
@@ -677,7 +677,7 @@
     edok    管理编辑完成后，置顶区重构。
     click   删除目标条目。 -->
 <form class="_page _script" tpl-name="script:history"
-    on="submit|avoid value('words') $('/#nav-misc');
+    on="submit|avoid $('/[name=words]') val $('/#nav-misc');
         ^nodeok(~) edok|$('/#nav-tops');
         ^obted|$('/#sh-redo') $('/#sh-tops') $('/#sh-list') $$('/nav') spread;
         click(li>b[role=del])|stop evo(2) parent dup attr('-sid')"
@@ -877,7 +877,7 @@
     submit  微编辑状态下插入纯文本结果。
 -->
 <form class="_page _script" tpl-name="script:result"
-    on="submit|avoid $('/pre') text value('type where');
+    on="submit|avoid $('/pre') text evo(3) values('type where');
         shsave|ev('detail') dup pass;
         reset;
         result|ev('detail') its('code data type') spread;

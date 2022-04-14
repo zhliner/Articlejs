@@ -406,7 +406,7 @@
 
 <!-- 代码表 -->
 <div class="_body _Codelist" obt-src="obts/codes.json" tpl-name="input:codelist"
-    on="node|ev('detail') codels $('form/') valo('lang start') (true)"
+    on="node|ev('detail') codels $('form/') valobj('lang start') (true)"
     by="New.codelist(_2)"
     to="form/|trigger('insert')">
     <div class="_main">
@@ -612,7 +612,7 @@
 
 <!-- 插图 -->
 <div class="_body _Figure" tpl-name="input:figure"
-    on="create|$('/._code') text $('/select') val image3(_1) $('form/') valo('figcaption explain')"
+    on="create|$('/._code') text $('/select') val image3(_1) $('form/') valobj('figcaption explain')"
     by="New.figure(_1)"
     to="form/|trigger('insert')">
     <div class="_main"
@@ -654,7 +654,7 @@
 
 <!-- 引用块 -->
 <div class="_body _Blockquote" obt-src="obts/list2ps.json" tpl-name="input:blockquote"
-    on="nodes|ev('detail') wrap('<p>') $('form/') valo('h4 cite') (true)"
+    on="nodes|ev('detail') wrap('<p>') $('form/') valobj('h4 cite') (true)"
     by="New.blockquote(_2)"
     to="form/|trigger('insert')">
     <div class="_main">
@@ -735,30 +735,47 @@
     </aside>
 </div>
 
-<!-- 控件分组 -->
+<!--控件分组
+    空白文本值表示无值，不创建目标单元或特性。 -->
 <div class="_body _Fieldset" tpl-name="input:fieldset"
-    on="create|$('/input[name=legend]') val obj('legend')"
-    by="New.legend(_1)"
+    on="create|$('/input[name=legend]') val trim or(null) $('form/') valobj('id name') clean('', null)"
+    by="New.fieldset(_1)"
     to="form/|trigger('insert')">
     <div class="_main">
         <fieldset>
             <legend title="<legend>">
-                <input type="text" name="legend" placeholder="标题（可选）" />
+                <input type="text" name="legend" placeholder="标题" />
             </legend>
         </fieldset>
+        <ul class="_prop">
+            <li tpl-node="prop:id2, prop:name"></li>
+        </ul>
     </div>
     <aside>
-        <pre tpl-node="input:option1, input:insert2">
-            [选项1]
-            [插入2]
-        </pre>
+        <div tpl-node="input:insert2"> [插入2] </div>
+    </aside>
+</div>
+
+<!--控件分组标题
+    注记：单独插入时允许空白插入空值单元。 -->
+<div class="_body _Legend" tpl-name="input:legend"
+    on="create|$('/[name=legend]') val"
+    by="New.legend(_1)"
+    to="form/|trigger('insfix')">
+    <div class="_main">
+        <label>
+            <input type="text" name="legend" placeholder="控件分组标题" />
+        </label>
+    </div>
+    <aside>
+        <div tpl-node="input:update"> [更新] </div>
     </aside>
 </div>
 
 
 <!-- 分割 -->
 <div class="_body _Hr" tpl-name="input:hr"
-    on="create|$('form/') valo('role thick length space')"
+    on="create|$('form/') valobj('role thick length space')"
     by="New.hr(_1)"
     to="form/|trigger('insert')">
     <div class="_main _list">
@@ -1219,7 +1236,7 @@
 </div>
 
 <div class="_body _Xolah5li" tpl-name="input:xolah5li"
-    on="create|$('/[name=text]') val dup pass $('form/') valo('href title target') clean('', null);
+    on="create|$('/[name=text]') val dup pass $('form/') valobj('href title target') clean('', null);
         xlist|$('/textarea') val splitx(true) mdline wrap('<li>') wrapAll('<ol>') ev('detail') wrap('<h5>') obj('h5a')"
     by="New.a(_1);
         New.xolah5li(_1)"
@@ -1450,7 +1467,7 @@
 
 
 <div class="_body _Track" tpl-name="input:track"
-    on="create|$('form/') valo('kind src srclang label default')"
+    on="create|$('form/') valobj('kind src srclang label default')"
     by="New.track"
     to="form/|trigger('insert')">
     <div class="_main _list">
@@ -1462,7 +1479,7 @@
 </div>
 
 <div class="_body _Source" tpl-name="input:source1"
-    on="create|$('form/') valo('src type') clean('', null)"
+    on="create|$('form/') valobj('src type') clean('', null)"
     by="New.source1(_1)"
     to="form/|trigger('insert')">
     <div class="_main _list">
@@ -1474,7 +1491,7 @@
 </div>
 
 <div class="_body _Source" tpl-name="input:source2"
-    on="create|$('form/') valo('srcset media') clean('', null)"
+    on="create|$('form/') valobj('srcset media') clean('', null)"
     by="New.source2(_1)"
     to="form/|trigger('insert')">
     <div class="_main _list">
@@ -1486,7 +1503,7 @@
 </div>
 
 <div class="_body _Source" tpl-name="input:pimg"
-    on="create|$('form/') valo('src alt width height') clean('', null)"
+    on="create|$('form/') valobj('src alt width height') clean('', null)"
     by="New.pimg(_1)"
     to="form/|trigger('insfix')">
     <div class="_main _list">
