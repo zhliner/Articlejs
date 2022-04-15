@@ -1,10 +1,9 @@
-/*! example.css 2019.11.16 Cooljed.Style $
- +++++++++++++++++++++++++++++++++++++++++++++
+/*! wildwide.css 2022.04.15 Cooljed.Style $
+ ++++++++++++++++++++++++++++++++++++++++++++++
  *
- *  基本样式的格式示例，
- *  其它样式可据此结构修改创建。
+ *  暗色调风格。
  *
- *  @name   经典中灰
+ *  @name   旷野无垠
  *  @author 风林 zhliner@gmail.com
  *
  *****************************************************************************/
@@ -595,6 +594,20 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 /* 表脚区隔 */
 .content tfoot > tr:first-child {
     border-top: 3px #08c double;
+}
+
+
+/* 控件分组
+ *----------------------------------------------------------------------------
+ */
+.content fieldset {
+    padding: 1em;
+    border-radius: 0 0 8pt 8pt;
+    border: 1px gray solid;
+}
+.content legend {
+    padding: 0 2pt;
+    font-style: italic;
 }
 
 

@@ -1,10 +1,9 @@
-/*! example.css 2019.11.16 Cooljed.Style $
- +++++++++++++++++++++++++++++++++++++++++++++
+/*! hometown.css 2022.04.15 Cooljed.Style $
+ ++++++++++++++++++++++++++++++++++++++++++++++
  *
- *  基本样式的格式示例，
- *  其它样式可据此结构修改创建。
+ *  亮色调风格，点缀土黄和绿野。
  *
- *  @name   经典中灰
+ *  @name   乡愁
  *  @author 风林 zhliner@gmail.com
  *
  *****************************************************************************/
@@ -602,6 +601,20 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 }
 .content tbody th {
     color: #4d4d4d;
+}
+
+
+/* 控件分组
+ *----------------------------------------------------------------------------
+ */
+.content fieldset {
+    padding: 1em;
+    border-radius: 10pt 10pt 4pt 4pt;
+    border: 1px green solid;
+}
+.content legend {
+    padding: 0 2pt;
+    font-style: italic;
 }
 
 
