@@ -589,7 +589,6 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 /* 表格
  *----------------------------------------------------------------------------
  */
-
 .content tbody tr>:first-child,
 .content tfoot tr>:first-child {
     text-align: start;
@@ -622,6 +621,20 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 /* 表脚区隔 */
 .content tfoot > tr:first-child {
     border-top: 3px #08c double;
+}
+
+
+/* 控件分组
+ *----------------------------------------------------------------------------
+ */
+.content fieldset {
+    padding: 1em;
+    border-radius: 6pt;
+    border: 1px gray solid;
+}
+.content legend {
+    padding: 0 2pt;
+    font-style: italic;
 }
 
 

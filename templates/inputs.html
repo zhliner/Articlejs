@@ -738,7 +738,7 @@
 <!--控件分组
     空白文本值表示无值，不创建目标单元或特性。 -->
 <div class="_body _Fieldset" tpl-name="input:fieldset"
-    on="create|$('/input[name=legend]') val trim or(null) $('form/') valobj('id name') clean('', null)"
+    on="create|$('form/') valobj('legend id name') clean('', null)"
     by="New.fieldset(_1)"
     to="form/|trigger('insert')">
     <div class="_main">

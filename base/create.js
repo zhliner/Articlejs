@@ -678,6 +678,25 @@ const Children = {
 
 
     /**
+     * 控件分组。
+     * @param {Element} ref 参考子元素
+     * @param {Element} box 容器元素
+     * @param {Element|String} legend 分组标题，可选
+     * @param {Element} data 合法子元素
+     */
+    [ T.FIELDSET ]: function( ref, box, {legend}, data ) {
+        let [_el, _end] = appendChild(
+            ref,
+            box,
+            data,
+            // 非法内容转为一个段落
+            () => elem( T.P )
+        );
+        return result( legend && insertHeading(box, T.LEGEND, legend), _el, _end );
+    },
+
+
+    /**
      * 允许创建一个标题项。
      * @param {Element|null} ref 参考子元素
      * @param {Element} dl 描述列表根容器
@@ -725,7 +744,7 @@ const Children = {
         if ( body && body.tagName === 'TBODY' ) {
             _tbd = _tbo.bodies( 0, body );
         }
-        // head/foot留待.TBODY处理。
+        // .head/.foot 留待TBODY处理。
         cleanOptions( opts, 'caption' );
 
         // 合法插入表体时结束递进。
@@ -802,6 +821,7 @@ const Children = {
 
 //
 // 子单元简单验证插入。
+// 如果子单元不存在，则简单忽略。
 //-----------------------------------------------
 [
     T.AUDIO,
@@ -811,8 +831,8 @@ const Children = {
     /**
      * 如果数据非法，简单忽略。
      * @param {Element|null} ref 插入参考（占位）
-     * @param {Element} el 媒体容器元素
-     * @param {Element|''} sub 资源/字幕元素
+     * @param {Element} el 容器元素
+     * @param {Element|''} sub 子单元（如：资源/字幕元素）
      */
     Children[ it ] = function( ref, el, _, sub ) {
         if ( sub ) {
@@ -1498,6 +1518,7 @@ function insertHeading( box, tval, data ) {
     if ( _hx === data ) {
         return _hx;
     }
+    // 插入前端。
     if ( !_hx || getType(_hx) !== tval ) {
         _hx = $.prepend( box, elem(tval) );
     }
@@ -2193,7 +2214,8 @@ function build( el, opts, data, more ) {
  *      head:       {[String]}  添加表头元素
  *      foot:       {[String]}  添加表脚元素
  *      figcaption: {Value}     插图标题
- *      summary     {Value}     详细简介
+ *      summary:    {Value}     详细简介
+ *      legend:     {String}    控件分组标题
  *      h1:         {Value}     页面主标题
  *      h4:         {Value}     行块小标题
  *      h5:         {Value}     级联表小标题

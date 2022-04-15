@@ -571,7 +571,7 @@ export const ChildTypes = {
     [ SUMMARY ]:        [ $TEXT, A, ..._NOMEDIA, I ],
     [ FIGCAPTION ]:     [ $TEXT, A, ..._NOMEDIA, I ],
     [ CAPTION ]:        [ $TEXT, A, ..._NOMEDIA, I ],
-    [ LEGEND ]:         [ $TEXT ],
+    [ LEGEND ]:         [ $TEXT, A ],
     [ DT ]:             [ $TEXT, A, ..._NOMEDIA, SVG, IMG, I ],
     [ LI ]:             [ $TEXT, A, ..._INLALL ],
     [ DD ]:             [ $TEXT, A, ..._INLALL ],
