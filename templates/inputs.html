@@ -758,14 +758,12 @@
 
 <!--控件分组标题
     注记：单独插入时允许空白插入空值单元。 -->
-<div class="_body _Legend" tpl-name="input:legend"
-    on="create|$('/[name=legend]') val"
-    by="New.legend(_1)"
+<div class="_body _Legend" obt-src="obts/itexts.json" tpl-name="input:legend"
+    on="node|ev('detail')"
+    by="New2.legend"
     to="form/|trigger('insfix')">
     <div class="_main">
-        <label>
-            <input type="text" name="legend" placeholder="控件分组标题" />
-        </label>
+        <textarea name="legend" placeholder="控件分组标题，空行分项（多选对应）"></textarea>
     </div>
     <aside>
         <div tpl-node="input:update"> [更新] </div>

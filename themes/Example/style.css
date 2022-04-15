@@ -309,7 +309,8 @@ aside.Outline {
 /* [ 共享 ]
  ****************************************************************************/
 
-.___Panel ._list {
+.___Panel ._list,
+.___Panel ._box {
     border: 1px #93c8e2 solid;
     border-radius: 5px 1px 1px 5px;
     background-color: #fff;

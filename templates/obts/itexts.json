@@ -1,5 +1,5 @@
 {
-    "//": "强制空行分项和空白清理，用于内联文本单元创建。",
+    "//": "强制空行分项和空白清理，主要用于内联文本单元创建且多选分别对应。",
     "on": "create|$('/textarea') val dup pass splitx(true) pretreat1(true)",
     "to": "|trigger('node')"
 }
