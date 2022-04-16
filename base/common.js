@@ -14,7 +14,7 @@
 
 import $ from "./tpb/config.js";
 import * as T from "./types.js";
-import { beforeFixed, afterFixed, isEmpty, isInlines, getType } from "./base.js";
+import { beforeFixed, afterFixed, isEmpty, isInlines, getType, isChildType } from "./base.js";
 import { Scripter } from "../config.js";
 import { Render } from "./tpb/tools/render.js";
 import { Spliter, UmpCaller, UmpString } from "./tpb/tools/spliter.js";
@@ -1248,7 +1248,17 @@ function inlineBox( el ) {
  */
 function isConitem( el ) {
     let _tv = getType( el );
-    return T.isInlines( _tv ) || ( el.parentElement.tagName === 'CODE' && T.isSpecial(_tv) );
+
+    if ( _tv === null ) {
+        return false;
+    }
+    if ( T.isInlines(_tv) ) {
+        return true;
+    }
+    if ( T.isSpecial(_tv) ) {
+        return !!el.parentElement && isChildType( el.parentElement, _tv );
+    }
+    return false;
 }
 
 
@@ -1501,22 +1511,25 @@ export function markdownLine( code ) {
 
 /**
  * 清理非合法内联元素。
- * 仅合法的内联元素被保留，非此则仅取其文本。
- * 注释节点被简单保留。
+ * - 文本节点和合法的内联元素被保留，非此则取其文本。
+ * - 注释节点被忽略（简化处理）。
+ * 会修改内容元素自身。
+ * 注记：
+ * 不应当简单的清除空白，因为有时一个纯空格是有意义的。
  * @param  {Element} el 内容元素
  * @return {Element|String}
  */
-export function cleanInline( el ) {
+export function cleanInlines( el ) {
     let _buf = [];
 
     for ( const nd of el.childNodes ) {
         let _t = nd.nodeType;
 
-        if ( _t === 3 || _t === 8 || nd.tagName === 'svg' ) {
+        if ( _t === 3 || nd.tagName === 'svg' ) {
             _buf.push( nd );
         }
         else if ( _t === 1 ) {
-            _buf.push( cleanInline(nd) );
+            _buf.push( cleanInlines(nd) );
         }
     }
     if ( _buf.length ) {

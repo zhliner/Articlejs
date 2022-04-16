@@ -1355,14 +1355,12 @@
 
 <!--纯文本
     空行分隔多个条目，多选分别填充。
-    注：不可mdline -->
+    注记：不可 mdline -->
 <div class="_body _Inline" obt-src="obts/list2.json" tpl-name="input:text"
     on="node|ev('detail') Text"
     to="form/|trigger('insert')">
     <div class="_main _list">
-        <div class="_prop">
-            <textarea name="content"></textarea>
-        </div>
+        <hr tpl-node="inlines:text" />
     </div>
     <aside>
         <pre tpl-node="input:option1, input:insert2">
@@ -1616,15 +1614,6 @@
     </aside>
 </div>
 
-<div class="_body _Inline" tpl-name="input:bdi">
-    <div class="_main _list">
-        <ul tpl-node="!inlines:bdi"></ul>
-    </div>
-    <aside>
-        <hr tpl-node="input:insert2" title="[插入2]">
-    </aside>
-</div>
-
 <div class="_body _Inline" tpl-name="input:times">
     <div class="_main _list">
         <ul tpl-node="!inlines:times"></ul>
@@ -1804,6 +1793,15 @@
     on="node|ev('detail')"
     by="New2.var"
     to="form/|trigger('insert')">
+    <div class="_main _list">
+        <hr tpl-node="inlines:text" />
+    </div>
+    <aside>
+        <hr tpl-node="input:insert2" title="[插入2]">
+    </aside>
+</div>
+
+<div class="_body _Inline" tpl-name="input:bdi">
     <div class="_main _list">
         <hr tpl-node="inlines:text" />
     </div>

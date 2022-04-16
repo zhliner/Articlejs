@@ -22,7 +22,7 @@ import { ROOT, Sys, Limit, Help, Tips, Cmdx, Local, On, By, Fx } from "../config
 import { customGetter, processExtend } from "./tpb/tpb.esm.js";
 import * as T from "./types.js";
 import { isContent, isCovert, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, childTypes, isChildType, compatibleNoit, checkStruct } from "./base.js";
-import { ESet, EHot, ESetHot, ECursor, History, CStorage, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, parseJSON, scriptRun, niceHtml, markdownLine, cleanInline } from './common.js';
+import { ESet, EHot, ESetHot, ECursor, History, CStorage, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, parseJSON, scriptRun, niceHtml, markdownLine, cleanInlines } from './common.js';
 import { tabSpaces, rangeTextLine, indentedPart, shortIndent, highLight } from "./coding.js";
 import { children, create, tocList, convType, convData, convToType } from "./create.js";
 import { optionsTpl, propertyTpl } from "./templates.js";
@@ -887,41 +887,18 @@ class MiniEdit {
      * @return {[Node]} 合法子节点集
      */
     _clean( el, tval ) {
-        $.fill(
-            el,
-            this._inlines( el.childNodes )
-        );
+        // 先规范整理，
+        // 避免纯空文本片段被简单忽略。
+        cleanInlines( $.normalize(el) );
+
         if ( tval === T.PRE ) {
             $( 'br', el ).replace( '\n' );
         }
         else if ( tval === T.CODE ) {
             this._codeparse( el );
         }
-        // 游离元素规范化无害
+        // 可能<br>替换再次离解。
         return [ ...$.normalize(el).childNodes ];
-    }
-
-
-    /**
-     * 清理非合法内联子元素。
-     * 如果有非法元素，返回集内就会有离散文本。
-     * @param  {NodeList} nodes 子节点集
-     * @return {[Node|String]} 合法子节点集
-     */
-    _inlines( nodes ) {
-        let _buf = [];
-
-        for ( const nd of nodes ) {
-            let _t = nd.nodeType;
-
-            if ( _t === 3 || _t === 8 ) {
-                _buf.push( nd );
-            }
-            else if ( _t === 1 ) {
-                _buf.push( cleanInline(nd) )
-            }
-        }
-        return _buf;
     }
 
 
@@ -7254,6 +7231,40 @@ export const Kit = {
 
 
     /**
+     * 检查提取内联源码。
+     * - 合法节点保留。
+     * - 非法节点取其文本内容。
+     * - 注释节点被简单忽略。
+     * 用于微编辑过滤粘贴内容。
+     * 友好：
+     * 最后返回的源码会对连续空白进行清理。
+     * @data: String 原始源码
+     * @return {String}
+     */
+    inlineHTML( evo ) {
+        let _frg = $.fragment( evo.data ),
+            _box = $.elem( 'div' );
+
+        cleanInlines( _frg );
+        $.append(
+            _box,
+            // 移除内联样式
+            // 它们通常由浏览器自动计算而来（非常冗长）。
+            // 注记：
+            // 如果不移除，粘贴时浏览器会自动将之转为<span>元素。
+            // 保持源码简单以避免浏览器智能行为。
+            [..._frg.childNodes].map( nd => nd.nodeType === 1 ? $.removeAttr(nd, 'style') : nd.textContent )
+        );
+        // 两端空白：
+        // 可能由剪贴板冗余数据而来，故清除。
+        // 实体空格可能会被浏览器改写为 &nbsp;，恢复原空格。
+        return _box.innerHTML.trim().replaceAll( '&nbsp;', ' ' ).replace( /(\s)\s+/g, '$1' );
+    },
+
+    __inlineHTML: 1,
+
+
+    /**
      * 创建单行MD节点片段。
      * 根据系统设置，解析单行MarkDown源码构造节点集（文档片段）。
      * 注记：
@@ -8130,6 +8141,7 @@ customGetter( On, null, Kit, [
     'styName',
     'styKey',
     'cleanHTML',
+    'inlineHTML',
     'mdline',
 
     // 简单操作类（非取值）。

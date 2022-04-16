@@ -80,9 +80,19 @@ const InputOptions = {
     [ T.U ]:            'option:u',
     [ T.VAR ]:          'option:var',
     [ T.CRUMB ]:        'option:crumb',
+
+    [ T.LABEL ]:        'option:label',
+    [ T.BUTTON ]:       'option:button',
+    [ T.INPUT ]:        'option:input',
+    [ T.TEXTAREA ]:     'option:textarea',
+    [ T.SELECT ]:       'option:select',
+    [ T.OUTPUT ]:       'option:output',
+    [ T.PROGRESS ]:     'option:progress',
+
     // 不支持单独创建
     // [ T.B ]:         null,
     // [ T.I ]:         null,
+
 
     [ T.P ]:            'option:p',
     [ T.NOTE ]:         'option:note',

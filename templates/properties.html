@@ -309,14 +309,14 @@
 
 
 <!--内联单元定义：
-    - 微编辑下待插入单元引用。
-    - 普通模式下内联单元插入的嵌入引用（部分）。
+    1. 微编辑下待插入单元引用。
+    2. 普通模式下内联单元插入的嵌入引用（部分）。
 ----------------------------------------------------------------------------->
 
 <!--分项文本：
-    内联普通插入引用。 -->
+    注：仅用于内联普通插入引用。 -->
 <div class="_prop" tpl-name="inlines:text">
-    <hr tpl-node="prop:content" />
+    <textarea name="content" placeholder="空行分项（多选对应）"></textarea>
 </div>
 
 
@@ -497,7 +497,9 @@
 </ul>
 
 
-<!--纯文本单元：不含属性，不采用 New.xxx 创建。-->
+<!--纯文本单元：
+    不含属性，不采用 New.xxx 创建。
+----------------------------------------------------------------------------->
 
 <!-- 重点 -->
 <div class="_prop" obt-src="obts/etext.json" tpl-name="inlines:strong">
@@ -585,6 +587,39 @@
     to="form/|trigger('insert')">
     <textarea name="crumb"></textarea>
 </div>
+
+
+<!-- 内联控件单元
+----------------------------------------------------------------------------->
+
+<div class="_prop" tpl-name="inlines:label">
+    <!--  -->
+</div>
+
+<div class="_prop" tpl-name="inlines:button">
+    <!--  -->
+</div>
+
+<div class="_prop" tpl-name="inlines:input">
+    <!--  -->
+</div>
+
+<div class="_prop" tpl-name="inlines:textarea">
+    <!--  -->
+</div>
+
+<div class="_prop" tpl-name="inlines:select">
+    <!--  -->
+</div>
+
+<div class="_prop" tpl-name="inlines:output">
+    <!--  -->
+</div>
+
+<div class="_prop" tpl-name="inlines:progress">
+    <!--  -->
+</div>
+
 
 
 
@@ -1027,9 +1062,6 @@
     <span><input name="value" type="text" /></span>
 </li>
 
-
-<!-- 纯文本录入 -->
-<textarea name="content" placeholder="空行分项（多选对应）" tpl-name="prop:content"></textarea>
 
 <!--源码录入：
     初始为空时粘贴自动清除多余缩进，加按Shift取消此功能。
