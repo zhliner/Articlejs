@@ -1,6 +1,0 @@
-{
-    "//": "创建插图子单元（<img>）。注：从New创建，自动设置类型值。",
-    "on": "img|$('form/') valobj('src alt width height', null)",
-    "by": "New.img(_1) $('/[name=explain]') val obj('explain') New.image(_1)",
-    "to": "form/|trigger('insert')"
-}

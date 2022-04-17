@@ -270,9 +270,10 @@ const Children = {
      * @param {Element|null} ref 参考子元素
      * @param {Element} box 图片容器（<span:image>）
      * @param {String|Node|[Node]} explain 图片讲解，可选
+     * @param {String} fix 讲解固定方式，可选
      * @param {Element} data 主体内容（<img>|<svg>）
      */
-    [ T.IMAGE ]: function( ref, box, {explain}, data ) {
+    [ T.IMAGE ]: function( ref, box, {explain, fix}, data ) {
         let [_img, _end] = appendChild(
             ref,
             box,
@@ -280,7 +281,7 @@ const Children = {
             () => elem( T.IMG )
         );
         if ( typeof explain === 'string' ) {
-            explain = appendNode( box, create(T.EXPLAIN, null, explain) );
+            explain = appendNode( box, create(T.EXPLAIN, {fix}, explain) );
         }
         return result( explain, _img, _end );
     },

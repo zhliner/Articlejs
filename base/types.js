@@ -394,7 +394,7 @@ const Properties = {
 //
 const _INLMEDIA =
 [
-    AUDIO, VIDEO, PICTURE, SVG, METER, IMG
+    AUDIO, VIDEO, PICTURE, SVG, METER, IMG, IMAGE
 ];
 
 //

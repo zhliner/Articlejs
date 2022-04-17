@@ -952,7 +952,7 @@
     by="New2.figcaption"
     to="form/|trigger('insfix')">
     <div class="_main">
-        <textarea name="figcaption" placeholder="插图标题：多选时空行分项，各别更新"></textarea>
+        <textarea name="figcaption" placeholder="多选时空行分项，各别更新"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:update">
@@ -1248,7 +1248,7 @@
     </aside>
 </div>
 
-<div class="_body _Image" obt-src="obts/figimg.json, obts/figsvg.json" tpl-name="input:image"
+<div class="_body _Image" obt-src="obts/image.json" tpl-name="input:image"
     on="create|$('/[name=type]') val"
     to="|trigger(_1)">
     <div class="_main _list">
@@ -1259,13 +1259,13 @@
             <label title="SVG源码"
                 on="click|$('/input') prop('checked') $if('svg', 'img')"
                 to="._body/._prop|trigger(_1)">
-                <input type="checkbox" />矢量图
+                <input name="svg" type="checkbox" />矢量图
             </label>
             <input type="hidden" name="type" value="img">
+            <!-- 默认右上位置 -->
+            <input type="hidden" name="fix" value="fix-rt">
         </div>
-        <pre tpl-node="input:insert2">
-            [插入2]
-        </pre>
+        <hr tpl-node="input:insert2" />
     </aside>
 </div>
 

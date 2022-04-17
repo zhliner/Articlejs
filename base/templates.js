@@ -292,7 +292,7 @@ export function optionsTpl( els ) {
     let _tvs = options( els );
 
     if ( !_tvs.length ) {
-        return null;
+        return [];
     }
     if ( T.isText(_tvs[0]) || T.isInlines(_tvs[0]) ) {
         return inlinesTpls( _tvs );

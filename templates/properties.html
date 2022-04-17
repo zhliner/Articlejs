@@ -1118,8 +1118,7 @@
     svg 显示SVG源码录入框。
     img 显示普通图片录入条目清单。
     to:
-    见 input:image 模板定义。
--->
+    见 input:image 模板定义。 -->
 <ul class="_prop" tpl-name="prop:image"
     on="svg|evo(3) children not(':last-child') lose(true) $('/li') lose(false) ('svg');
         img|evo(3) children not(':last-child') lose(false) $('/li') lose(true) ('img')"
@@ -1135,7 +1134,7 @@
     <li tpl-node="prop:src, prop:alt"></li>
     <li tpl-node="!prop:upload, prop:preview, prop:wh"></li>
     <li><b>讲解</b>
-        <span><textarea name="explain" rows="4" placeholder="（可选）"></textarea></span>
+        <span><textarea name="explain" rows="4" placeholder="图片简介"></textarea></span>
     </li>
 </ul>
 
