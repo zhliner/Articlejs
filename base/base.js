@@ -964,11 +964,14 @@ export function tableNode( el ) {
 /**
  * 获取元素内的内容根容器。
  * 始终会返回一个数组（可能为空）。
+ * 注记：
+ * 容错文本节点主要用于内容提取，
+ * 这在获取内联单元时有用（不会丢掉数据）。
  * @param  {Element} el 目标元素
- * @return {[Element]}
+ * @return {[Element|Text]}
  */
 export function contentBoxes( el ) {
-    let _els = _contentBoxes(el);
+    let _els = _contentBoxes( el );
 
     if ( !_els ) {
         return [];

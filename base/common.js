@@ -1516,6 +1516,7 @@ export function markdownLine( code ) {
  * 会修改内容元素自身。
  * 注记：
  * 不应当简单的清除空白，因为有时一个纯空格是有意义的。
+ * el容错文本节点，会返回其.textContent。
  * @param  {Element} el 内容元素
  * @return {Element|String}
  */

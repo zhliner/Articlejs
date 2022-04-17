@@ -21,7 +21,7 @@ import $, { TplrName, TplsPool } from "./tpb/config.js";
 import { ROOT, Sys, Limit, Help, Tips, Cmdx, Local, On, By, Fx } from "../config.js";
 import { customGetter, processExtend } from "./tpb/tpb.esm.js";
 import * as T from "./types.js";
-import { isContent, isCovert, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, childTypes, isChildType, compatibleNoit, checkStruct } from "./base.js";
+import { isContent, isCovert, virtualBox, contentBoxes, tableObj, tableNode, cloneElement, getType, sectionChange, isFixed, afterFixed, beforeFixed, isOnly, isChapter, isCompatibled, childTypes, isChildType, compatibleNoit, checkStruct, contents } from "./base.js";
 import { ESet, EHot, ESetHot, ECursor, History, CStorage, prevNodeN, nextNodeN, elem2Swap, prevMoveEnd, nextMoveEnd, parseJSON, scriptRun, niceHtml, markdownLine, cleanInlines } from './common.js';
 import { tabSpaces, rangeTextLine, indentedPart, shortIndent, highLight } from "./coding.js";
 import { children, create, tocList, convType, convData, convToType } from "./create.js";
@@ -7242,23 +7242,22 @@ export const Kit = {
      * @return {String}
      */
     inlineHTML( evo ) {
-        let _frg = $.fragment( evo.data ),
-            _box = $.elem( 'div' );
+        let _frg = $.fragment( evo.data );
 
-        cleanInlines( _frg );
-        $.append(
-            _box,
-            // 移除内联样式
-            // 它们通常由浏览器自动计算而来（非常冗长）。
-            // 注记：
-            // 如果不移除，粘贴时浏览器会自动将之转为<span>元素。
-            // 保持源码简单以避免浏览器智能行为。
-            [..._frg.childNodes].map( nd => nd.nodeType === 1 ? $.removeAttr(nd, 'style') : nd.textContent )
-        );
-        // 两端空白：
-        // 可能由剪贴板冗余数据而来，故清除。
-        // 实体空格可能会被浏览器改写为 &nbsp;，恢复原空格。
-        return _box.innerHTML.trim().replaceAll( '&nbsp;', ' ' ).replace( /(\s)\s+/g, '$1' );
+        // 移除内联样式：
+        // 它们通常由浏览器自动计算而来（冗长）。保持源码简单以避免浏览器智能行为。
+        // 注记：
+        // 如果不移除，粘贴时浏览器会可能将之转为<span>。
+        $( '*', _frg ).removeAttr( 'style' );
+
+        return contents( _frg, true )
+            .map( cleanInlines )
+            .map( nd => nd.nodeType ? nd.outerHTML : nd )
+            .join( '' )
+            .trim()
+            // 源空格可能被浏览器改写为&nbsp;
+            .replaceAll( '&nbsp;', ' ' )
+            .replace( /(\s)\s+/g, '$1' );
     },
 
     __inlineHTML: 1,
