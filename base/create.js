@@ -72,6 +72,7 @@ const Tags = {
     [ T.RP ]:           'rp',
     [ T.FCONA ]:        'a',
     [ T.EXPLAIN ]:      'i\\explain',
+    [ T.OPTION ]:       'option',
     //
     // 内联内容元素
     /////////////////////////////////////////////
@@ -99,6 +100,16 @@ const Tags = {
     [ T.BDO ]:          'bdo',
     [ T.BDI ]:          'bdi',
     [ T.CRUMB ]:        'span\\crumb',
+    //
+    // 内联控件单元
+    /////////////////////////////////////////////
+    [ T.LABEL ]:        'label',
+    [ T.BUTTON ]:       'button',
+    [ T.INPUT ]:        'input',
+    [ T.TEXTAREA ]:     'textarea',
+    [ T.SELECT ]:       'select',
+    [ T.OUTPUT ]:       'output',
+    [ T.PROGRESS ]:     'progress',
 
     //
     // 行块内容元素

@@ -99,6 +99,10 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
     font-size: 1.0em;
 }
 
+.content section {
+    clear: both;
+}
+
 /* 地址 */
 .content address {
     padding: 2px;

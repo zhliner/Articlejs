@@ -146,10 +146,10 @@ export const
     /////////////////////////////////////////////
     H1              = 500,  // 主标题
     H2              = 501,  // 片区标题
-    H3              = 502,  // 小区块标题
-    H4              = 503,  // 列表项标题条目
-    H5              = 504,  // <h5>标题
-    H6              = 505,  // <h6>标题
+    H3              = 502,  // 副标题
+    H4              = 503,  // 小区块标题
+    H5              = 504,  // 子表标题
+    H6              = 505,  // 微标题
     SUMMARY         = 506,  // 内容摘要
     FIGCAPTION      = 507,  // 插图标题
     CAPTION         = 508,  // 表格标题
@@ -543,11 +543,11 @@ export const ChildTypes = {
     // 内联控件
     /////////////////////////////////////////////
     [ LABEL ]:          [ $TEXT, ..._INLCTRL, B, I ],
-    [ BUTTON ]:         [ $TEXT, ..._SIMPLE ],
+    [ BUTTON ]:         [ $TEXT, STRONG, EM, ..._SIMPLE ],
     [ INPUT ]:          null,
     [ TEXTAREA ]:       [ $TEXT ],
     [ SELECT ]:         [ $TEXT, OPTION ],
-    [ OUTPUT ]:         [ $TEXT, ..._SIMPLE ],
+    [ OUTPUT ]:         [ $TEXT, STRONG, EM, ..._SIMPLE ],
     [ PROGRESS ]:       [ $TEXT ],
 
 
@@ -573,7 +573,7 @@ export const ChildTypes = {
     [ CAPTION ]:        [ $TEXT, A, ..._NOMEDIA, I ],
     [ LEGEND ]:         [ $TEXT, A ],
     [ DT ]:             [ $TEXT, A, ..._NOMEDIA, SVG, IMG, I ],
-    [ LI ]:             [ $TEXT, A, ..._INLALL ],
+    [ LI ]:             [ $TEXT, H6, A, ..._INLALL ],
     [ DD ]:             [ $TEXT, A, ..._INLALL ],
     [ TH ]:             [ $TEXT, A, ..._INLALL ],
     [ TD ]:             [ $TEXT, A, ..._INLALL ],
@@ -596,7 +596,7 @@ export const ChildTypes = {
     /////////////////////////////////////////////
     [ HGROUP ]:         [ H1, H3 ],
     [ ABSTRACT ]:       [ H4, P, ..._BLOLIMIT ],
-    [ TOC ]:            [ AH4, HR, TOCCASCADE ],
+    [ TOC ]:            [ AH4, H4, HR, TOCCASCADE ],
     [ REFERENCE ]:      [ H4, OL ],
     [ SEEALSO ]:        [ H4, UL ],
     [ HEADER ]:         [ H4, P, TIPS, NOTE, ..._BLOLIMIT, ULX, OLX ],

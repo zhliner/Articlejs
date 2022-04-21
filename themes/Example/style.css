@@ -1227,9 +1227,6 @@ menu._cells code {
     border-color: #60acd2;
     background-color: #ffe;
 }
-.Input ._Fieldset ._prop input {
-    width: 40%;
-}
 
 /* 分割（覆盖） */
 .Input ._Hr ._border {

@@ -7250,7 +7250,7 @@ export const Kit = {
         // 如果不移除，粘贴时浏览器会可能将之转为<span>。
         $( '*', _frg ).removeAttr( 'style' );
 
-        return contents( _frg, true )
+        return contents( _frg )
             .map( cleanInlines )
             .map( nd => nd.nodeType ? nd.outerHTML : nd )
             .join( '' )

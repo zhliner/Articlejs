@@ -581,6 +581,7 @@
     <textarea name="bdi"></textarea>
 </div>
 
+<!-- 文本碎片 -->
 <div class="_prop" tpl-name="inlines:crumb"
     on="create|$('/textarea') val dup pass"
     by="New.crumb"
@@ -592,31 +593,89 @@
 <!-- 内联控件单元
 ----------------------------------------------------------------------------->
 
-<div class="_prop" tpl-name="inlines:label">
+<div class="_prop" obt-src="obts/etext.json" tpl-name="inlines:label">
+    <textarea name="label"></textarea>
+</div>
+
+<div class="_prop" tpl-name="inlines:button"
+    on="create|"
+    by="New.button"
+    to="form/trigger('insert')">
+    <li>
+        <b title="type">类型</b>
+        <span>
+            <select name="type">
+                <option value="button">普通</option>
+                <option value="submit">提交</option>
+                <option value="reset">重置</option>
+                <!-- <option>menu</option> -->
+            </select>
+        </span>
+    </li>
+    <li tpl-node="item:name, prop:text"></li>
+</div>
+
+<div class="_prop" tpl-name="inlines:input"
+    on="create|"
+    by="New.input"
+    to="form/trigger('insert')">
+    <li>
+        <b title="type">类型</b>
+        <span>
+            <select name="type">
+                <option data-li="item:name item:value" value="text">文本</option>
+                <option data-li="item:name item:value" value="button">普通</option>
+                <option data-li="item:name" value="checkbox">复选框</option>
+                <option data-li="item:name" value="radio">单选按钮</option>
+                <option data-li="item:name" value="color">颜色</option>
+                <option data-li="item:name" value="date">年/月/日</option>
+                <option data-li="item:name" value="month">年/月</option>
+                <option data-li="item:name" value="time">时间</option>
+                <option data-li="item:name" value="datetime-local">日期/时间</option>
+                <option data-li="item:name" value="week">年/周数</option>
+                <option data-li="item:name" value="email">邮箱</option>
+                <option data-li="item:name" value="file">文件</option>
+                <option data-li="item:name prop:src prop:alt prop:width prop:height" value="image">图像</option>
+                <option data-li="item:name" value="number">数字</option>
+                <option data-li="item:name" value="password">密码</option>
+                <option data-li="item:name" value="range">数值范围</option>
+                <option data-li="item:name" value="search">搜索</option>
+                <option data-li="item:name" value="tel">电话号码</option>
+                <option data-li="item:name" value="url">网址</option>
+                <option data-li="item:name" value="button">普通</option>
+                <option data-li="item:name" value="submit">提交</option>
+                <option data-li="item:name" value="reset">重置</option>
+            </select>
+        </span>
+    </li>
+    <li tpl-node="item:name, item:value"></li>
+</div>
+
+<div class="_prop" tpl-name="inlines:textarea"
+    on="create|"
+    by="New.textarea"
+    to="form/trigger('insert')">
     <!--  -->
 </div>
 
-<div class="_prop" tpl-name="inlines:button">
+<div class="_prop" tpl-name="inlines:select"
+    on="create|"
+    by="New.select"
+    to="form/trigger('insert')">
     <!--  -->
 </div>
 
-<div class="_prop" tpl-name="inlines:input">
+<div class="_prop" tpl-name="inlines:output"
+    on="create|"
+    by="New.output"
+    to="form/trigger('insert')">
     <!--  -->
 </div>
 
-<div class="_prop" tpl-name="inlines:textarea">
-    <!--  -->
-</div>
-
-<div class="_prop" tpl-name="inlines:select">
-    <!--  -->
-</div>
-
-<div class="_prop" tpl-name="inlines:output">
-    <!--  -->
-</div>
-
-<div class="_prop" tpl-name="inlines:progress">
+<div class="_prop" tpl-name="inlines:progress"
+    on="create|"
+    by="New.progress"
+    to="form/trigger('insert')">
     <!--  -->
 </div>
 
@@ -1045,22 +1104,95 @@
 </li>
 
 
-<!-- 控件属性 -->
+<!-- 控件特性条目 -->
 
-<li obt-src="obts/prop1.json" tpl-name="prop:id2">
-    <b title="id">ID</b>
-    <span><input type="text" name="id" placeholder="（可选）" /></span>
-</li>
-
-<li obt-src="obts/prop1.json" tpl-name="prop:name">
+<li tpl-name="item:name">
     <b title="name">名称</b>
-    <span><input name="name" type="text" /></span>
+    <span><input name="name" type="text" class="_words" /></span>
 </li>
 
-<li obt-src="obts/prop1.json" tpl-name="prop:value">
+<li tpl-name="item:id">
+    <b title="id">ID</b>
+    <span><input name="id" type="text" class="_phrase" placeholder="（可选）" /></span>
+</li>
+
+<li tpl-name="item:value">
     <b title="value">值</b>
     <span><input name="value" type="text" /></span>
 </li>
+
+<li tpl-name="item:checkbox">
+    <b>状态</b>
+    <span><input name="checked" type="checkbox" /></span>
+</li>
+
+<li tpl-name="item:radio"
+    on="click(input)|evo(1) prop('checked') vnot"
+    to="=|$checked">
+    <b>状态</b>
+    <span><input name="checked" type="radio" /></span>
+</li>
+
+<li tpl-name="item:color">
+    <b>取值</b>
+    <span><input name="value" type="color" /></span>
+</li>
+
+<li tpl-name="item:date">
+    <b>取值</b>
+    <span><input name="value" type="date" /></span>
+</li>
+
+<li tpl-name="item:month">
+    <b>取值</b>
+    <span><input name="value" type="month" /></span>
+</li>
+
+<li tpl-name="item:time">
+    <b>取值</b>
+    <span><input name="value" type="time" /></span>
+</li>
+
+<li tpl-name="item:datetime">
+    <b>取值</b>
+    <span><input name="value" type="datetime-local" /></span>
+</li>
+
+<li tpl-name="item:week">
+    <b>取值</b>
+    <span><input name="value" type="week" /></span>
+</li>
+
+<li tpl-name="item:email">
+    <b>设置</b>
+    <span><input name="value" type="email" /></span>
+</li>
+
+<li tpl-name="item:number">
+    <b>设置</b>
+    <span><input name="value" type="number" /></span>
+</li>
+
+<li tpl-name="item:tel">
+    <b>设置</b>
+    <span><input name="value" type="tel" /></span>
+</li>
+
+<li tpl-name="item:range">
+    <b>设置</b>
+    <span><input name="value" type="range" /></span>
+</li>
+
+<li tpl-name="item:search">
+    <b>搜索词</b>
+    <span><input name="value" type="search" /></span>
+</li>
+
+<li tpl-name="item:url">
+    <b>设置</b>
+    <span><input name="value" type="url" /></span>
+</li>
+
 
 
 <!--源码录入：
