@@ -88,6 +88,7 @@ const InputOptions = {
     [ T.SELECT ]:       'option:select',
     [ T.OUTPUT ]:       'option:output',
     [ T.PROGRESS ]:     'option:progress',
+    [ T.OPTION ]:       'option:option',
 
     // 不支持单独创建
     // [ T.B ]:         null,

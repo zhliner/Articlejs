@@ -597,7 +597,7 @@
     <textarea name="label"></textarea>
 </div>
 
-<div class="_prop" tpl-name="inlines:button"
+<ul class="_prop" tpl-name="inlines:button"
     on="create|"
     by="New.button"
     to="form/trigger('insert')">
@@ -613,71 +613,108 @@
         </span>
     </li>
     <li tpl-node="item:name, prop:text"></li>
-</div>
+</ul>
 
-<div class="_prop" tpl-name="inlines:input"
+<ul class="_prop" tpl-name="inlines:input"
     on="create|"
     by="New.input"
     to="form/trigger('insert')">
     <li>
         <b title="type">类型</b>
         <span>
+            <!-- data-li: 关联特性设置模板名配置 -->
             <select name="type">
                 <option data-li="item:name item:value" value="text">文本</option>
                 <option data-li="item:name item:value" value="button">普通</option>
-                <option data-li="item:name" value="checkbox">复选框</option>
-                <option data-li="item:name" value="radio">单选按钮</option>
-                <option data-li="item:name" value="color">颜色</option>
-                <option data-li="item:name" value="date">年/月/日</option>
-                <option data-li="item:name" value="month">年/月</option>
-                <option data-li="item:name" value="time">时间</option>
-                <option data-li="item:name" value="datetime-local">日期/时间</option>
-                <option data-li="item:name" value="week">年/周数</option>
-                <option data-li="item:name" value="email">邮箱</option>
+                <option data-li="item:name item:checkbox" value="checkbox">复选框</option>
+                <option data-li="item:name item:radio" value="radio">单选按钮</option>
+                <option data-li="item:name item:color" value="color">颜色</option>
+                <option data-li="item:name item:date" value="date">年/月/日</option>
+                <option data-li="item:name item:month" value="month">年/月</option>
+                <option data-li="item:name item:time" value="time">时间</option>
+                <option data-li="item:name item:datetime" value="datetime-local">日期/时间</option>
+                <option data-li="item:name item:week" value="week">年/周数</option>
+                <option data-li="item:name item:email" value="email">邮箱</option>
                 <option data-li="item:name" value="file">文件</option>
                 <option data-li="item:name prop:src prop:alt prop:width prop:height" value="image">图像</option>
-                <option data-li="item:name" value="number">数字</option>
-                <option data-li="item:name" value="password">密码</option>
-                <option data-li="item:name" value="range">数值范围</option>
-                <option data-li="item:name" value="search">搜索</option>
-                <option data-li="item:name" value="tel">电话号码</option>
-                <option data-li="item:name" value="url">网址</option>
+                <option data-li="item:name item:number" value="number">数字</option>
+                <option data-li="item:name item:value" value="password">密码</option>
+                <option data-li="item:name item:max item:min item:range" value="range">数值范围</option>
+                <option data-li="item:name item:search" value="search">搜索</option>
+                <option data-li="item:name item:tel" value="tel">电话号码</option>
+                <option data-li="item:name item:url" value="url">网址</option>
                 <option data-li="item:name" value="button">普通</option>
                 <option data-li="item:name" value="submit">提交</option>
                 <option data-li="item:name" value="reset">重置</option>
             </select>
         </span>
     </li>
+    <!-- 默认文本类型 -->
     <li tpl-node="item:name, item:value"></li>
-</div>
+</ul>
 
-<div class="_prop" tpl-name="inlines:textarea"
+<ul class="_prop" tpl-name="inlines:textarea"
     on="create|"
     by="New.textarea"
     to="form/trigger('insert')">
-    <!--  -->
-</div>
+    <li tpl-node="item:name"></li>
+    <li>
+        <b>行数</b>
+        <span><input name="rows" type="number" class="_nums" /></span>
+    </li>
+    <li>
+        <b>列数</b>
+        <span><input name="cols" type="number" class="_nums" /></span>
+    </li>
+    <li>
+        <b>控件</b>
+        <span><textarea name="value" placeholder="初始显示值"></textarea></span>
+    </li>
+</ul>
 
-<div class="_prop" tpl-name="inlines:select"
-    on="create|"
-    by="New.select"
-    to="form/trigger('insert')">
-    <!--  -->
-</div>
-
-<div class="_prop" tpl-name="inlines:output"
+<ul class="_prop" tpl-name="inlines:output"
     on="create|"
     by="New.output"
     to="form/trigger('insert')">
-    <!--  -->
-</div>
+    <li tpl-node="item:name, item:id"></li>
+</ul>
 
-<div class="_prop" tpl-name="inlines:progress"
+<ul class="_prop" tpl-name="inlines:progress"
     on="create|"
     by="New.progress"
     to="form/trigger('insert')">
-    <!--  -->
-</div>
+    <li tpl-node="!item:name, item:max"></li>
+    <li
+        on="input(input)|evo(2) val"
+        to="1/progress|val">
+        <b title="value">当前进度</b>
+        <span><input name="value" type="number" class="_nums" /></span>
+    </li>
+    <li>
+        <b>控件</b>
+        <span><progress name="progress" value=""></progress></span>
+    </li>
+</ul>
+
+<ul class="_prop" tpl-name="inlines:select"
+    on="create|"
+    by="New.select"
+    to="form/trigger('insert')">
+    <li tpl-node="item:name"></li>
+    <li>
+        <b>可见行</b>
+        <span><input name="size" type="number" class="_nums" placeholder="2" /></span>
+    </li>
+    <li>
+        <b>控件</b>
+        <span><select name="select"></select></span>
+    </li>
+</ul>
+
+<!-- 附：选单条目结构子 -->
+<ul class="_prop" tpl-name="struct:option">
+    <li tpl-node="item:value, prop:text"></li>
+</ul>
 
 
 
@@ -1178,11 +1215,6 @@
     <span><input name="value" type="tel" /></span>
 </li>
 
-<li tpl-name="item:range">
-    <b>设置</b>
-    <span><input name="value" type="range" /></span>
-</li>
-
 <li tpl-name="item:search">
     <b>搜索词</b>
     <span><input name="value" type="search" /></span>
@@ -1191,6 +1223,27 @@
 <li tpl-name="item:url">
     <b>设置</b>
     <span><input name="value" type="url" /></span>
+</li>
+
+<li tpl-name="item:range">
+    <b>设置</b>
+    <span><input name="value" type="range" /></span>
+</li>
+
+<!--即时反馈：
+    设置兄弟元素中 name=value 的<input>的目标特性值。 -->
+<li tpl-name="item:max"
+    on="input(input)|evo(2) val or(null)"
+    to="1/[name=value]|@max">
+    <b>最大值</b>
+    <span><input name="max" type="number" class="_nums" /></span>
+</li>
+
+<li tpl-name="item:min"
+    on="input(input)|evo(2) val or(null)"
+    to="1/[name=value]|@min">
+    <b>最小值</b>
+    <span><input name="min" type="number" class="_nums" /></span>
 </li>
 
 

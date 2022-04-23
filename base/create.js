@@ -1246,6 +1246,9 @@ const Builder = {
     [ T.DFN,            ['title'] ],
     [ T.BDO,            ['dir'] ],
 
+    // 内联控件
+    [ T.PROGRESS,       ['name', 'max', 'value'] ],
+
     // 含定制取值名
     // '配置名:取值特性名'
     [ T.CODELIST,       ['lang:-lang', 'start'] ],
@@ -1497,9 +1500,10 @@ function _element( tag, role ) {
 /**
  * 提取配置成员。
  * 仅当配置中有值时才会被提取。
- * 配置串格式：取值名:特性名?
- * @param {Object} obj 源对象
- * @param {[String]} names 键名序列
+ * 键名格式：取值名:特性名?
+ * @param  {Object} obj 源对象
+ * @param  {[String]} names 键名集
+ * @return {Object}
  */
 function attrPicks( obj, names ) {
     let _o = {};
