@@ -65,6 +65,8 @@
 
 <!--普通插入：行块单元
     录入版右侧主栏版块（replace）。
+    注记：
+    创建事件需定义在._body容器元素上（由表单转发）。
 ----------------------------------------------------------------------------->
 
 <!-- 段落 -->
@@ -1467,7 +1469,7 @@
     by="New.track"
     to="form/|trigger('insert')">
     <div class="_main _list">
-        <hr tpl-node="inlines:track" />
+        <hr tpl-node="struct:track" />
     </div>
     <aside>
         <hr tpl-node="input:insert1" title="[插入1]" />
@@ -1479,7 +1481,7 @@
     by="New.source1(_1)"
     to="form/|trigger('insert')">
     <div class="_main _list">
-        <hr tpl-node="inlines:source1" />
+        <hr tpl-node="struct:source1" />
     </div>
     <aside>
         <hr tpl-node="input:insert2x" title="[插入2x]" />
@@ -1491,7 +1493,7 @@
     by="New.source2(_1)"
     to="form/|trigger('insert')">
     <div class="_main _list">
-        <hr tpl-node="inlines:source2" />
+        <hr tpl-node="struct:source2" />
     </div>
     <aside>
         <hr tpl-node="input:insert2x" title="[插入2x]" />
@@ -1804,6 +1806,15 @@
 <div class="_body _Inline" tpl-name="input:bdi">
     <div class="_main _list">
         <hr tpl-node="inlines:text" />
+    </div>
+    <aside>
+        <hr tpl-node="input:insert2" title="[插入2]">
+    </aside>
+</div>
+
+<div class="_body _Inline" tpl-name="input:crumb">
+    <div class="_main _list">
+        <hr tpl-node="inlines:crumb" />
     </div>
     <aside>
         <hr tpl-node="input:insert2" title="[插入2]">

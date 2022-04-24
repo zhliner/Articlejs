@@ -257,7 +257,7 @@ const Properties = {
     [ RP ]:             STRUCT | FIXED1 | FIXED2 | SEALED | COVERT | KEEPLINE,
     [ EXPLAIN ]:        STRUCT | STRUCTX | CONTENT,
     [ SVGITEM ]:        STRUCT | STRUCTX,
-    [ OPTION ]:         STRUCT | STRUCTX | SEALED | FORMCTRL,
+    [ OPTION ]:         STRUCT | STRUCTX | CONTENT | FORMCTRL,
     //
     // 内联内容元素
     /////////////////////////////////////////////
@@ -289,11 +289,11 @@ const Properties = {
     // 内联控件
     /////////////////////////////////////////////
     [ LABEL ]:          INLINES | FORMCTRL | CONTENT,
-    [ BUTTON ]:         INLINES | FORMCTRL | SEALED,
+    [ BUTTON ]:         INLINES | FORMCTRL | CONTENT,
     [ INPUT ]:          INLINES | FORMCTRL | SEALED | EMPTY,
     [ TEXTAREA ]:       INLINES | FORMCTRL | SEALED,
     [ SELECT ]:         INLINES | FORMCTRL | STRUCT | SEALED,
-    [ OUTPUT ]:         INLINES | FORMCTRL | SEALED,
+    [ OUTPUT ]:         INLINES | FORMCTRL | CONTENT,
     [ PROGRESS ]:       INLINES | FORMCTRL | SEALED,
 
 

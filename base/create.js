@@ -1035,6 +1035,11 @@ const Children = {
     T.VAR,
     T.CRUMB,
 
+    T.LABEL,
+    T.BUTTON,
+    T.OUTPUT,
+    T.OPTION,
+
     // 特用
     T.B,
     T.I,
@@ -1247,7 +1252,16 @@ const Builder = {
     [ T.BDO,            ['dir'] ],
 
     // 内联控件
+    // [ T.LABEL,          [] ],
+    [ T.BUTTON,         ['name', 'type'] ],
+    // 混合全部。
+    // 由源控制可提取项（有才取）。
+    [ T.INPUT,          ['name', 'type', 'value', 'max', 'min', 'checked'] ],
+    [ T.TEXTAREA,       ['name', 'value', 'rows', 'cols'] ],
+    [ T.SELECT,         ['name', 'size'] ],
+    [ T.OUTPUT,         ['name', 'id'] ],
     [ T.PROGRESS,       ['name', 'max', 'value'] ],
+    [ T.OPTION,         ['value'] ],
 
     // 含定制取值名
     // '配置名:取值特性名'

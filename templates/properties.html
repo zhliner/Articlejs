@@ -311,6 +311,8 @@
 <!--内联单元定义：
     1. 微编辑下待插入单元引用。
     2. 普通模式下内联单元插入的嵌入引用（部分）。
+    注记：
+    创建事件（如果需要）需定义在._prop容器元素上。
 ----------------------------------------------------------------------------->
 
 <!--分项文本：
@@ -352,18 +354,18 @@
 </ul>
 
 <!-- 轨道 -->
-<ul class="_prop" tpl-name="inlines:track">
+<ul class="_prop" tpl-name="struct:track">
     <li tpl-node="prop:kind, prop:src, prop:srclang, prop:label"></li>
     <li tpl-node="prop:default"></li>
 </ul>
 
 <!-- 媒体资源 -->
-<ul class="_prop" tpl-name="inlines:source1">
+<ul class="_prop" tpl-name="struct:source1">
     <li tpl-node="prop:src, prop:srctype"></li>
 </ul>
 
 <!-- 图片资源 -->
-<ul class="_prop" tpl-name="inlines:source2">
+<ul class="_prop" tpl-name="struct:source2">
     <li tpl-node="prop:srcset, prop:media"></li>
 </ul>
 
@@ -598,8 +600,8 @@
 </div>
 
 <ul class="_prop" tpl-name="inlines:button"
-    on="create|"
-    by="New.button"
+    on="create|$('/[name=text]') val $('form/') valobj('name type')"
+    by="New.button(_1)"
     to="form/trigger('insert')">
     <li>
         <b title="type">类型</b>
@@ -616,14 +618,21 @@
 </ul>
 
 <ul class="_prop" tpl-name="inlines:input"
-    on="create|"
-    by="New.input"
+    on="create|$('form/') valobj('name type value max min checked')"
+    by="New.input(_1)"
     to="form/trigger('insert')">
     <li>
         <b title="type">类型</b>
         <span>
-            <!-- data-li: 关联特性设置模板名配置 -->
-            <select name="type">
+            <!--类型配置：
+                change 切换目标类型对应的配置条目集。先移除旧条目……
+                _xlist 获取对应<li>条目清单添加到本条目之后。-->
+            <select name="type"
+                on="change|$('li/') siblings pop;
+                    _xlist|prop('selected') attr('-li') node(_1)"
+                to="-|remove|goto('_xlist');
+                    li/|after">
+                <!-- data-li: 关联特性设置模板名配置 -->
                 <option data-li="item:name item:value" value="text">文本</option>
                 <option data-li="item:name item:value" value="button">普通</option>
                 <option data-li="item:name item:checkbox" value="checkbox">复选框</option>
