@@ -1037,6 +1037,7 @@ const Children = {
 
     T.LABEL,
     T.BUTTON,
+    T.TEXTAREA,
     T.OUTPUT,
     T.OPTION,
 
@@ -1257,7 +1258,7 @@ const Builder = {
     // 混合全部。
     // 由源控制可提取项（有才取）。
     [ T.INPUT,          ['name', 'type', 'value', 'max', 'min', 'checked'] ],
-    [ T.TEXTAREA,       ['name', 'value', 'rows', 'cols'] ],
+    [ T.TEXTAREA,       ['name', 'rows', 'cols'] ],
     [ T.SELECT,         ['name', 'size'] ],
     [ T.OUTPUT,         ['name', 'id'] ],
     [ T.PROGRESS,       ['name', 'max', 'value'] ],

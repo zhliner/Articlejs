@@ -256,11 +256,11 @@
             on="follow|evo(3) children ev('detail');
                 change|evo(3) val $case('on by to', null) $switch('obts', 'empty', 'value') str('attr:') node(_1);
                 attrto|evo(3) val dup pass sel0 pop attrs(_1);
-                addnew|ev('detail') dups(2) $$('/option') prop('value') inside(_) end pop elem('option');
+                addnew|ev('detail') dups(2) $$('/option') prop('value') inside(_) end elem('option');
                 select|ev('detail');
                 blank|tpl('attr:empty');
                 keydown|iskey('Delete') pass evo(3) val dup pass evo(3) prop('selected') remove"
-            by="Kit.attrlist(_1) pop elem('option')"
+            by="Kit.attrlist(_1) elem('option')"
             to="|append|fire(10, 'change');
                 form/._main>*|replace|goto('attrto');
                 form/._main>*|trigger('vinit');
@@ -338,7 +338,7 @@
                     removed 脱离DOM后，替换为目标OBT分组<label>。激活主控列表。
                     pastes.json 智能粘贴：内容以换行切分，分别粘贴到连续的兄弟单元内。 -->
                 <ol data-i="0" data-x="true" data-n="on" spellcheck="false" class="_code" obt-src="obts/pastes.json" tpl-name="obts:master"
-                    on="active|evo(3) attrs('-i -x -n') spread $('1/') pop data(_1) dup len evo(3) prop('childElementCount') pack(2) max elem('li', _1);
+                    on="active|evo(3) attrs('-i -x -n') spread $('1/') pop data(_1) dup len evo(3) prop('childElementCount') pack(2) max nil pop elem('li', _1);
                         focus(li)|evo(2) siblingNth sub(1) dup;
                         focus(li)|evo(2) hasClass('_hot') end $$('/li');
                         blur(li)|evo(1) text trim evo(3) attr('-i') evo(3) attr('-n') $('1/') pop data(_1) pop;
