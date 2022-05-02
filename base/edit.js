@@ -2389,7 +2389,7 @@ function dataNodes2( $data, cnt ) {
     let _el = $data[0];
 
     // 单成员时克隆到目标长度
-    for (let i = 0; i < cnt-1; i++) {
+    for ( let i = 1; i < cnt; i++ ) {
         $data.push( $.clone(_el) );
     }
     return $data;

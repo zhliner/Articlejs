@@ -592,17 +592,18 @@
 </div>
 
 
-<!-- 内联控件单元
+<!--内联控件单元
+    keydown 阻止回车自动提交。
 ----------------------------------------------------------------------------->
 
 <div class="_prop" obt-src="obts/etext.json" tpl-name="inlines:label">
     <textarea name="label"></textarea>
 </div>
 
-<ul class="_prop" tpl-name="inlines:button"
+<ul class="_prop" obt-src="obts/xsubmit.json" tpl-name="inlines:button"
     on="create|$('/[name=text]') val $('form/') valobj('name type')"
     by="New.button(_1)"
-    to="form/trigger('insert')">
+    to="form/|trigger('insert')">
     <li>
         <b title="type">类型</b>
         <span>
@@ -617,10 +618,10 @@
     <li tpl-node="item:name, prop:text"></li>
 </ul>
 
-<ul class="_prop" tpl-name="inlines:input"
+<ul class="_prop" obt-src="obts/xsubmit.json" tpl-name="inlines:input"
     on="create|$('form/') valobj('name type value max min checked')"
     by="New.input(_1)"
-    to="form/trigger('insert')">
+    to="form/|trigger('insert')">
     <li>
         <b title="type">类型</b>
         <span>
@@ -629,7 +630,7 @@
                 _xlist 获取对应<li>条目清单添加到本条目之后。-->
             <select name="type"
                 on="change|$('li/') siblings pop;
-                    _xlist|prop('selected') attr('-li') node(_1)"
+                    _xlist|evo(3) prop('selected') attr('-li') node(_1)"
                 to="-|remove|goto('_xlist');
                     li/|after">
                 <!-- data-li: 关联特性设置模板名配置 -->
@@ -644,7 +645,7 @@
                 <option data-li="item:name item:datetime" value="datetime-local">日期/时间</option>
                 <option data-li="item:name item:week" value="week">年/周数</option>
                 <option data-li="item:name item:email" value="email">邮箱</option>
-                <option data-li="item:name" value="file">文件</option>
+                <option data-li="item:name item:file" value="file">文件</option>
                 <option data-li="item:name prop:src prop:alt prop:width prop:height" value="image">图像</option>
                 <option data-li="item:name item:number" value="number">数字</option>
                 <option data-li="item:name item:value" value="password">密码</option>
@@ -652,9 +653,8 @@
                 <option data-li="item:name item:search" value="search">搜索</option>
                 <option data-li="item:name item:tel" value="tel">电话号码</option>
                 <option data-li="item:name item:url" value="url">网址</option>
-                <option data-li="item:name" value="button">普通</option>
-                <option data-li="item:name" value="submit">提交</option>
-                <option data-li="item:name" value="reset">重置</option>
+                <option data-li="item:name item:value item:submit" value="submit">提交</option>
+                <option data-li="item:name item:value item:reset" value="reset">重置</option>
             </select>
         </span>
     </li>
@@ -662,10 +662,10 @@
     <li tpl-node="item:name, item:value"></li>
 </ul>
 
-<ul class="_prop" tpl-name="inlines:textarea"
+<ul class="_prop" obt-src="obts/xsubmit.json" tpl-name="inlines:textarea"
     on="create|$('/textarea') val $('form/') valobj('name rows cols')"
     by="New.textarea(_1)"
-    to="form/trigger('insert')">
+    to="form/|trigger('insert')">
     <li tpl-node="item:name"></li>
     <li>
         <b>行数</b>
@@ -681,17 +681,17 @@
     </li>
 </ul>
 
-<ul class="_prop" tpl-name="inlines:output"
+<ul class="_prop" obt-src="obts/xsubmit.json" tpl-name="inlines:output"
     on="create|$('/[name=text]') val $('form/') valobj('name id') clean('', null)"
     by="New.output(_1)"
-    to="form/trigger('insert')">
+    to="form/|trigger('insert')">
     <li tpl-node="item:name, item:id, prop:text"></li>
 </ul>
 
-<ul class="_prop" tpl-name="inlines:progress"
+<ul class="_prop" obt-src="obts/xsubmit.json" tpl-name="inlines:progress"
     on="create|$('form/') valobj('name max value')"
     by="New.progress(_1)"
-    to="form/trigger('insert')">
+    to="form/|trigger('insert')">
     <li tpl-node="!item:name, item:max, item:valn"></li>
     <li>
         <b>样例</b>
@@ -699,10 +699,10 @@
     </li>
 </ul>
 
-<ul class="_prop" tpl-name="inlines:select"
+<ul class="_prop" obt-src="obts/xsubmit.json" tpl-name="inlines:select"
     on="create|$('form/') valobj('name size') clean('', null)"
     by="New.select(_1)"
-    to="form/trigger('insert')">
+    to="form/|trigger('insert')">
     <li tpl-node="item:name"></li>
     <li
         on="input(input)|evo(2) val"
@@ -716,8 +716,11 @@
     </li>
 </ul>
 
-<!-- 附：选单条目结构子 -->
-<ul class="_prop" tpl-name="inlines:option">
+<!-- 选单条目 -->
+<ul class="_prop" obt-src="obts/xsubmit.json" tpl-name="inlines:option"
+    on="create|$('/[name=text]') val or('------') $('/[name=value]') val or(null) obj('value')"
+    by="New.option(_1)"
+    to="form/|trigger('insert')">
     <li tpl-node="item:value, prop:text"></li>
 </ul>
 
@@ -1158,8 +1161,12 @@
     <span><input name="id" type="text" class="_phrase" placeholder="（可选）" /></span>
 </li>
 
-<li tpl-name="item:value">
-    <b title="value">值</b>
+<!--事件处理：
+    适用提交/重置按钮即时更新文本。 -->
+<li tpl-name="item:value"
+    on="input(input)|evo(2) val"
+    to="1/[name=sample]|pass val">
+    <b title="value">默认值</b>
     <span><input name="value" type="text" /></span>
 </li>
 
@@ -1169,7 +1176,8 @@
 </li>
 
 <li tpl-name="item:radio"
-    on="click(input)|evo(1) prop('checked') vnot"
+    on="mousedown(input)|evo(2) prop('checked') vnot;
+        click(input)|avoid"
     to="=|$checked">
     <b>状态</b>
     <span><input name="checked" type="radio" /></span>
@@ -1206,17 +1214,17 @@
 </li>
 
 <li tpl-name="item:email">
-    <b>设置</b>
+    <b>初始值</b>
     <span><input name="value" type="email" /></span>
 </li>
 
 <li tpl-name="item:number">
-    <b>设置</b>
+    <b>初始值</b>
     <span><input name="value" type="number" /></span>
 </li>
 
 <li tpl-name="item:tel">
-    <b>设置</b>
+    <b>初始值</b>
     <span><input name="value" type="tel" /></span>
 </li>
 
@@ -1226,11 +1234,13 @@
 </li>
 
 <li tpl-name="item:url">
-    <b>设置</b>
+    <b>初始值</b>
     <span><input name="value" type="url" /></span>
 </li>
 
-<li tpl-name="item:range">
+<li tpl-name="item:range"
+    on="change(input)|evo(2) val"
+    to="1/[name=value]|val">
     <b>样例</b>
     <span><input name="sample" type="range" /></span>
 </li>
@@ -1257,6 +1267,21 @@
     to="1/[name=sample]|val">
     <b title="value">当前值</b>
     <span><input name="value" type="number" class="_nums" value="50" /></span>
+</li>
+
+<li tpl-name="item:file">
+    <b>样例</b>
+    <span><input name="sample" type="file" /></span>
+</li>
+
+<li tpl-name="item:submit">
+    <b>样例</b>
+    <span><input name="sample" type="submit" value="提交" onclick="return false" /></span>
+</li>
+
+<li tpl-name="item:reset">
+    <b>样例</b>
+    <span><input name="sample" type="reset" value="重置" onclick="return false" /></span>
 </li>
 
 

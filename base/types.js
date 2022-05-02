@@ -542,7 +542,7 @@ export const ChildTypes = {
     //
     // 内联控件
     /////////////////////////////////////////////
-    [ LABEL ]:          [ $TEXT, ..._INLCTRL, B, I ],
+    [ LABEL ]:          [ $TEXT, STRONG, EM, ..._INLCTRL, B, I ],
     [ BUTTON ]:         [ $TEXT, STRONG, EM, ..._SIMPLE ],
     [ INPUT ]:          null,
     [ TEXTAREA ]:       [ $TEXT ],

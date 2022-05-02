@@ -330,6 +330,7 @@
         "item:tel",
         "item:time",
         "item:url",
+        "item:valn",
         "item:value",
         "item:week",
         "misc:export",

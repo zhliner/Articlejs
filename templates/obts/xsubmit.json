@@ -1,0 +1,4 @@
+{
+    "//": "插入控件单元时阻止回车提交。",
+    "on": "keydown(input)|iskey('Enter') pass avoid stop"
+}
