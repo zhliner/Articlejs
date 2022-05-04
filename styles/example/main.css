@@ -777,6 +777,11 @@ div[role=blank] > * {
 .content select {
     min-width: 5em;
 }
+.content button,
+.content input[type=submit],
+.content input[type=reset] {
+    padding: 1pt 1em;
+}
 
 
 /* 代码

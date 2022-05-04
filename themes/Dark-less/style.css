@@ -137,7 +137,11 @@ aside.Outline {
 .___Content main meter:empty::after,
 .___Content main span[role=space]:empty::after,
 .___Content main div[role=blank]:empty::after,
-.___Content main li>code:empty::after {
+.___Content main li>code:empty::after,
+.___Content main input:empty::after,
+.___Content main textarea:empty::after,
+.___Content main progress:empty::after,
+.___Content main select:empty::after {
     content: none;
 }
 /* 扩展方便点选 */

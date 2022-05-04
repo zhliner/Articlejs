@@ -695,7 +695,7 @@
     <li tpl-node="!item:name, item:max, item:valn"></li>
     <li>
         <b>样例</b>
-        <span><progress name="sample" value=""></progress></span>
+        <span><progress name="sample" value="50" max="100"></progress></span>
     </li>
 </ul>
 
@@ -1248,14 +1248,14 @@
 <!--即时反馈：
     设置兄弟元素中样例控件的目标特性值。 -->
 <li tpl-name="item:max"
-    on="input(input) nodeok|evo(2) val or(null)"
+    on="input(input)|evo(2) val or(null)"
     to="1/[name=sample]|$max">
     <b>最大值</b>
     <span><input name="max" type="number" class="_nums" value="100" /></span>
 </li>
 
 <li tpl-name="item:min"
-    on="input(input) nodeok|evo(2) val or(null)"
+    on="input(input)|evo(2) val or(null)"
     to="1/[name=sample]|$min">
     <b>最小值</b>
     <span><input name="min" type="number" class="_nums" value="0" /></span>
@@ -1263,7 +1263,7 @@
 
 <!-- 数值值 -->
 <li tpl-name="item:valn"
-    on="input(input) nodeok|evo(2) val"
+    on="input(input)|evo(2) val"
     to="1/[name=sample]|val">
     <b title="value">当前值</b>
     <span><input name="value" type="number" class="_nums" value="50" /></span>
