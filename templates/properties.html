@@ -596,12 +596,12 @@
     keydown 阻止回车自动提交。
 ----------------------------------------------------------------------------->
 
-<div class="_prop" obt-src="obts/etext.json" tpl-name="inlines:label">
+<div class="_prop _ctrl" obt-src="obts/etext.json" tpl-name="inlines:label">
     <textarea name="label"></textarea>
 </div>
 
-<ul class="_prop" obt-src="obts/xsubmit.json" tpl-name="inlines:button"
-    on="create|$('/[name=text]') val $('form/') valobj('name type')"
+<ul class="_prop _ctrl" obt-src="obts/xsubmit.json" tpl-name="inlines:button"
+    on="create|$('/[name=button]') val $('form/') valobj('name type')"
     by="New.button(_1)"
     to="form/|trigger('insert')">
     <li>
@@ -615,10 +615,20 @@
             </select>
         </span>
     </li>
-    <li tpl-node="item:name, prop:text"></li>
+    <li tpl-node="item:name"></li>
+    <li
+        on="input(input)|evo(2) val"
+        to="1/button|text">
+        <b>内容</b>
+        <span><input type="text" name="button" class="_phrase" /></span>
+    </li>
+    <li>
+        <b>控件</b>
+        <span><button name="sample" type="button">按钮</button></span>
+    </li>
 </ul>
 
-<ul class="_prop" obt-src="obts/xsubmit.json" tpl-name="inlines:input"
+<ul class="_prop _ctrl" obt-src="obts/xsubmit.json" tpl-name="inlines:input"
     on="create|$('form/') valobj('name type value max min checked')"
     by="New.input(_1)"
     to="form/|trigger('insert')">
@@ -662,33 +672,37 @@
     <li tpl-node="item:name, item:value"></li>
 </ul>
 
-<ul class="_prop" obt-src="obts/xsubmit.json" tpl-name="inlines:textarea"
+<ul class="_prop _ctrl" obt-src="obts/xsubmit.json" tpl-name="inlines:textarea"
     on="create|$('/textarea') val $('form/') valobj('name rows cols')"
     by="New.textarea(_1)"
     to="form/|trigger('insert')">
     <li tpl-node="item:name"></li>
-    <li>
+    <li
+        on="input(input)|evo(2) val int dup gt(0) pass"
+        to="1/textarea|$rows">
         <b>行数</b>
-        <span><input name="rows" type="number" class="_nums" /></span>
+        <span><input name="rows" type="number" class="_nums" value="2" /></span>
     </li>
-    <li>
+    <li
+        on="input(input)|evo(2) val int dup gt(0) pass"
+        to="1/textarea|$cols">
         <b>列数</b>
         <span><input name="cols" type="number" class="_nums" /></span>
     </li>
     <li>
         <b>控件</b>
-        <span><textarea name="value" placeholder="初始显示值"></textarea></span>
+        <span><textarea name="sample" rows="2" placeholder="初始显示值"></textarea></span>
     </li>
 </ul>
 
-<ul class="_prop" obt-src="obts/xsubmit.json" tpl-name="inlines:output"
+<ul class="_prop _ctrl" obt-src="obts/xsubmit.json" tpl-name="inlines:output"
     on="create|$('/[name=text]') val $('form/') valobj('name id') clean('', null)"
     by="New.output(_1)"
     to="form/|trigger('insert')">
     <li tpl-node="item:name, item:id, prop:text"></li>
 </ul>
 
-<ul class="_prop" obt-src="obts/xsubmit.json" tpl-name="inlines:progress"
+<ul class="_prop _ctrl" obt-src="obts/xsubmit.json" tpl-name="inlines:progress"
     on="create|$('form/') valobj('name max value')"
     by="New.progress(_1)"
     to="form/|trigger('insert')">
@@ -699,7 +713,7 @@
     </li>
 </ul>
 
-<ul class="_prop" obt-src="obts/xsubmit.json" tpl-name="inlines:select"
+<ul class="_prop _ctrl" obt-src="obts/xsubmit.json" tpl-name="inlines:select"
     on="create|$('form/') valobj('name size') clean('', null)"
     by="New.select(_1)"
     to="form/|trigger('insert')">
@@ -712,12 +726,12 @@
     </li>
     <li>
         <b>控件</b>
-        <span><select name="select"></select></span>
+        <span><select name="sample"></select></span>
     </li>
 </ul>
 
 <!-- 选单条目 -->
-<ul class="_prop" obt-src="obts/xsubmit.json" tpl-name="inlines:option"
+<ul class="_prop _ctrl" obt-src="obts/xsubmit.json" tpl-name="inlines:option"
     on="create|$('/[name=text]') val or('------') $('/[name=value]') val or(null) obj('value')"
     by="New.option(_1)"
     to="form/|trigger('insert')">

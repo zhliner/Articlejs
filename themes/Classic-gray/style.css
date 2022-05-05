@@ -1274,6 +1274,22 @@ menu._cells code {
     overflow-y: auto;
 }
 
+/* 内联控件示例 */
+.Input ul._ctrl textarea[name=sample] {
+    background: none;
+    color: currentColor;
+    background-color: #f7f7f7;
+    width: 18em;
+    font-size: 1em;
+}
+.Input ul._ctrl select[name=sample] {
+    min-width: 11em;
+}
+.Input ul._ctrl input[type=submit],
+.Input ul._ctrl  input[type=reset] {
+    padding: 1pt 1em;
+}
+
 
 /* [ 样式 ]
  ****************************************************************************/

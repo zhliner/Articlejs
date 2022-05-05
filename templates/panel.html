@@ -674,18 +674,21 @@
 
 <!--脚本历史：
     submit  搜索过滤，空串搜索显示全部。
-    nodeok  初始载入/展示置顶代码清单，一次即可。
+    nodeok  初次载入时罗列置顶和搜索区代码清单，避免未初始化时管理出错（一次即可）。
     edok    管理编辑完成后，置顶区重构。
     click   删除目标条目。 -->
 <form class="_page _script" tpl-name="script:history"
-    on="submit|avoid $('/[name=words]') val $('/#nav-misc');
-        ^nodeok(~) edok|$('/#nav-tops');
-        ^obted|$('/#sh-redo') $('/#sh-tops') $('/#sh-list') $$('/nav') spread;
-        click(li>b[role=del])|stop evo(2) parent dup attr('-sid')"
-    by="Kit.shsearch(_1);
+    on="^nodeok(~)|$('/#nav-tops');
+        submit|avoid $('/[name=words]') val $('/#nav-misc');
+        click(li>b[role=del])|stop evo(2) parent dup attr('-sid');
+        edok|$('/#nav-tops');
+        ^obted|$('/#sh-redo') $('/#sh-tops') $('/#sh-list') $$('/nav') spread"
+    by="Kit.shtops;
+        Kit.shsearch(_1);
+        Kit.delsh(_1);
         Kit.shtops;
-        Kit.shinit(_4);
-        Kit.delsh(_1)">
+        Kit.shinit(_4)"
+    to="|trigger('submit')">
     <header>
         <h4>脚本历史</h4>
         <b class="_close" title="关闭">✕</b>

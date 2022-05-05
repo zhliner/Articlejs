@@ -775,11 +775,13 @@ div[role=blank] > * {
  * ------------------------------------
  */
 .content select {
-    min-width: 5em;
+    min-width: 7em;
+    vertical-align: middle;
 }
 .content button,
 .content input[type=submit],
 .content input[type=reset] {
+    margin: 0 2pt;
     padding: 1pt 1em;
 }
 
