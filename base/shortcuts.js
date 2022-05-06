@@ -635,12 +635,24 @@ Content: [
         "key":      ["alt:k", "alt:ArrowUp"],
         "command":  "movePrevious"
     },
+    // 友好：
+    // 直接移动到前端。
+    {
+        "key":      ["alt+shift:k", "alt+shift:ArrowUp"],
+        "command":  "moveToStart"
+    },
 
     // 向后移动（↓）。
     // 支持数字指定移动距离，说明同上。
     {
         "key":      ["alt:j", "alt:ArrowDown"],
         "command":  "moveNext"
+    },
+    // 友好：
+    // 直接移动到末尾。
+    {
+        "key":      ["alt+shift:j", "alt+shift:ArrowDown"],
+        "command":  "moveToEnd"
     },
 
     // 减少缩进（←）。

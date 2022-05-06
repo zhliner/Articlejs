@@ -5784,6 +5784,23 @@ export const Edit = {
 
 
     /**
+     * 移动到平级头部。
+     * 注：直接抵达端部的友好方法。
+     */
+    moveToStart() {
+        this.movePrevious( 0 );
+    },
+
+
+    /**
+     * 移动到平级末尾。
+     */
+    moveToEnd() {
+        this.moveNext( 0 );
+    },
+
+
+    /**
      * 减少缩进。
      * 仅适用章节（section）单元。
      * 当前章节提升一级插入到原所属章节之前。
