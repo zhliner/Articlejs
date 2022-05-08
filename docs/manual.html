@@ -374,13 +374,15 @@
                     <section role="s3">
                         <h2>移动与缩进</h2>
                         <p>移动与缩进是编辑中常见的操作，这里的移动是元素自身的移动，但受限于内容单元固有的<em><code>HTML</code>结构</em>，这里的移动仅限于兄弟元素之间的<strong>平级</strong>移动。</p>
-                        <p>注意下面的箭头键是真实的箭头键（而不是 <code>hjkl</code>）。</p>
                         <p><strong>缩进</strong>的操作只适用于章节，针对<em>章节</em>（<code>s1-s5</code>）或<em>片区</em>（<code>section</code>）单元。包含<strong>升级</strong>和<strong>降级</strong>两种操作。</p>
+                        <p>注意下面的箭头键是真实的箭头键（也可以是 <code>hjkl</code>）。</p>
                         <ul>
-                            <li><strong>向前移动：</strong><kbd>Alt + ↑</kbd>。选取集成员在各自父元素内平级移动，支持数字指定距离，超出范围会导致部分或全部逆序插入。<code>0</code> 值表示端部，有汇聚插入的效果。</li>
-                            <li><strong>向后移动：</strong><kbd>Alt + ↓</kbd>。数字支持同上，移动行为类似（方向不同）。</li>
-                            <li><strong>章节升级</strong>：<kbd>Alt + ←</kbd>。章节或片区左缩进，升级之后会排列到当前父片区之后（<code>after</code>）。<strong>注</strong>：这种层级递升不一定必然表现出视觉差异。</li>
-                            <li><strong>章节降级</strong>：<kbd>Alt + →</kbd>。章节或片区右缩进，会在原地创建一个空的片区容器来包含被降级的片区。</li>
+                            <li><strong>向前移动</strong>： <kbd>Alt + ↑</kbd>。选取集成员在各自父元素内平级移动，支持数字指定距离，超出范围会导致部分或全部逆序插入。<code>0</code> 值表示端部，有汇聚插入的效果。</li>
+                            <li><strong>向后移动</strong>： <kbd>Alt + ↓</kbd>。数字支持同上，移动行为类似（方向不同）。</li>
+                            <li><strong>前移到头部</strong>：<kbd>Alt + Shift + ↑</kbd>。选取集成员在各自父元素内平级移动到头部，与 <code>0</code> 值效果相同。</li>
+                            <li><strong>后移到尾部</strong>：<kbd>Alt + Shift + ↓</kbd>。同上类似但移动方向不同。</li>
+                            <li><strong>章节升级</strong>： <kbd>Alt + ←</kbd>。章节或片区左缩进，升级之后会排列到当前父片区之后（<code>after</code>）。<strong>注</strong>：这种层级递升不一定必然表现出视觉差异。</li>
+                            <li><strong>章节降级</strong>： <kbd>Alt + →</kbd>。章节或片区右缩进，会在原地创建一个空的片区容器来包含被降级的片区。</li>
                         </ul>
                         <aside>
                             <h4>注：</h4>

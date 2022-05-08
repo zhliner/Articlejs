@@ -3,9 +3,9 @@ import { terser } from 'rollup-plugin-terser'
 export default {
     input: 'main.js',
     output: {
-        file: '../../coolj.cc/base/main.js',
+        file: '../../cooljed/base/main.js',
         format: 'esm',
-        banner: '/*! Coolj/Tpb@tQuery v0.2.0 | (c) zhliner@gmail.com 2022.01.19. */',
+        banner: '/*! CooljED/Tpb@tQuery v0.2.0 | (c) zhliner@gmail.com 2022.01.19. */',
         sourcemapExcludeSources: true,
     },
     plugins: [
