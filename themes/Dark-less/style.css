@@ -739,6 +739,7 @@ menu._cells code {
 .Outline nav[role=toc] > ol[role=cascade] {
     height: calc(100% - 70px);
     overflow-y: auto;
+    scrollbar-gutter: stable;
 }
 .Outline nav[role=toc] h4 {
     font-size: 1.1em;
@@ -750,6 +751,10 @@ menu._cells code {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
     color: #d4960c;
+}
+.Outline nav[role=toc] h4 > a {
+    color: currentColor;
+    cursor: pointer;
 }
 .Outline nav[role=toc] h4 > b {
     float: right;
@@ -777,16 +782,16 @@ menu._cells code {
 }
 .Outline nav[role=toc] li,
 .Outline nav[role=toc] h5,
-.Outline nav[role=toc] a {
+.Outline nav[role=toc] ol a {
     line-height: 150%;
 }
 
-.Outline nav[role=toc] a {
+.Outline nav[role=toc] ol a {
     color: #8cabba;
     text-decoration: none;
 }
 
-.Outline nav[role=toc] a:hover {
+.Outline nav[role=toc] ol a:hover {
     text-decoration: underline;
 }
 

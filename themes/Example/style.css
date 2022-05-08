@@ -773,7 +773,7 @@ menu._cells code {
 }
 .Outline nav[role=toc] li,
 .Outline nav[role=toc] h5,
-.Outline nav[role=toc] a {
+.Outline nav[role=toc] ol a {
     line-height: 150%;
 }
 
