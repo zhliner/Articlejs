@@ -2989,8 +2989,7 @@ function canTotext( el ) {
  * @return {Boolean}
  */
 function canUnwrap( el ) {
-    let _tv = getType( el );
-    return isContent( el.parentElement ) && T.isContent( _tv ) || _tv === T.FCONA;
+    return isContent( el.parentElement ) && isContent( el ) || getType(el) === T.FCONA;
 }
 
 
