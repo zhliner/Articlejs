@@ -141,18 +141,20 @@ function localStyle( prefix, type, name ) {
 
 
 /**
- * 目录折叠（整个）。
+ * 目录折叠（整体）。
+ * 包含两个行为：
  * - 单击目录标签名（<a>）定位到文章主标题。
  * - 单击标签本身（<h4>）折叠整个目录。
  * @param {Element} nav 目录根元素
  */
-function tocFold( nav ) {
+function tocFold_toTop( nav ) {
     Tpb.build( nav, {
         on: `click(~h4)|evo(3) fold(2) ('auto');
-            click(h4>a)|$('1/h1') intoView`,
+            click(h4>a)|$('1/h1') intoView (-100)`,
 
         // 覆盖外部固定高度样式。
-        to: `|toggleStyle('height')`
+        to: `|toggleStyle('height');
+            html|scrollTop(true)`
     });
 }
 
@@ -164,20 +166,21 @@ function tocFold( nav ) {
  * @param  {Element} casc 目录列表根
  * @return {void}
  */
-function tocFoldSub( casc ) {
+function tocFoldSub_toTop( casc ) {
     Tpb.build( casc, {
-        on: `click(a)|evo(2) pathx('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView;
-            click(~h5)|evo(2) parent fold(2)`
+        on: `click(a)|evo(2) pathx('nav[role=toc]', 'li') str('>section:nth-of-type(', ')') join str('/', '>h2') $('article') pop $(_1) intoView (-30);
+            click(~h5)|evo(2) parent fold(2)`,
+        to: 'html|scrollTop(true, true)'
     });
 }
 
 
 /**
- * 目录滚动条自动隐藏动作。
+ * 目录滚动条隐藏切换。
  * @param  {Element} casc 目录列表根
  * @return {void}
  */
-function tocScroll( casc ) {
+function tocHover( casc ) {
     Tpb.build( casc, {
         on: "mouseenter|('auto'); mouseleave|('hidden')",
         to: "|css('overflow-y'); |css('overflow-y')"
@@ -210,6 +213,27 @@ function tocWidth( hr, root ) {
     Tpb.build( hr, {
         on: `mousedown|$('nav/') css('position') eq('fixed') pass avoid`,
         to: `${root}|bind('mousemove:h') once('mouseup:x')`
+    });
+}
+
+
+/**
+ * 内容风格切换。
+ * 避免从零渲染时内容大幅跳动，<link>导入顺序如下：
+ * - 先导入新的样式（在旧样式之前）。
+ * - 然后删除旧样式<link>元素。
+ * dark实参为目标风格<option>内的特性名，标记当前风格是否为暗色调。
+ * @param {Element} selx 选单元素（change者）
+ * @param {String} dark 暗风格标记特性名
+ */
+function styleSwitch( selx, dark ) {
+    Tpb.build( selx, {
+        on: `change|$('#s-code') dup ('s-code') evo(3) val str('../styles/', '/codes.css') pack(2) obj('id href') pop;
+            change|$('#s-main') dup ('s-main') evo(3) val str('../styles/', '/main.css') pack(2) obj('id href') pop`,
+        by: `style(_1) vain remove;
+            style(_1) vain remove ('_dark') evo(3) prop('selected') attr('${dark}') bool`,
+        to: `-;
+            body|toggleClass(_1)`
     });
 }
 
@@ -314,7 +338,7 @@ processExtend( By, 'Kit', Kit, [
 
 export {
     saveEditor, recover, firstLearn, tickdoing,
-    tocFoldSub, tocFold, tocScroll, tocWidth
+    tocFoldSub_toTop, tocFold_toTop, tocHover, tocWidth, styleSwitch
 };
 
 

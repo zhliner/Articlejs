@@ -4,35 +4,36 @@
 <meta charset="utf-8" />
 <title>编辑器操作手册（详解）</title>
 <link rel="shortcut icon" href="../favicon.ico">
-<link rel="stylesheet" href="../styles/example/main.css" />
-<link rel="stylesheet" href="../styles/example/codes.css" />
+<link id="s-main" rel="stylesheet" href="../styles/example/main.css" />
+<link id="s-code" rel="stylesheet" href="../styles/example/codes.css" />
 <link rel="stylesheet" href="../base/tpb/default.css" />
 <script src="../base/tquery/tquery.min.js"></script>
-<style>
-    body {
-        margin: 0;
-    }
-    main {
-        width: 780px;
-        margin-left: 21em;
-    }
-    main > nav > hr {
-        cursor: ew-resize;
-    }
-</style>
+<link rel="stylesheet" href="./base.css" />
+
 <script type="module" async>
-    import { tocFold, tocFoldSub, tocWidth, tocScroll } from "../index.js";
+    import { tocFold_toTop, tocFoldSub_toTop, tocWidth, tocHover, styleSwitch } from "../index.js";
 
-    let _casc = $.get( 'nav>ol' );
+    let _casc = $.get( 'nav[role=toc]>ol' );
 
-    tocFold( $.get('nav') );
-    tocFoldSub( _casc );
-    tocScroll( _casc );
-    tocWidth( $.get('nav>hr'), 'body' );
+    tocFold_toTop( $.get('nav[role=toc]') );
+    tocFoldSub_toTop( _casc );
+    tocHover( _casc );
+    tocWidth( $.get('nav[role=toc]>hr'), 'body' );
 
+    styleSwitch( $.get('nav._bar select'), '-dark' );
 </script>
 </head>
 <body>
+    <nav class="_bar">
+        <span>
+            <label>内容样式</label>
+            <select name="styles">
+                <option value="example"> ------ </option>
+                <option value="hometown">乡愁</option>
+                <option data-dark="yes" value="wildwide">旷野无垠</option>
+            </select>
+        </span>
+    </nav>
     <main class="content">
         <h1>编辑器操作详解</h1>
         <nav role="toc">

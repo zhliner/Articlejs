@@ -8,48 +8,8 @@
 <link id="s-code" rel="stylesheet" href="../styles/example/codes.css" />
 <link rel="stylesheet" href="../base/tpb/default.css" />
 <script src="../base/tquery/tquery.min.js"></script>
-<style>
-    body {
-        margin: 0;
-    }
-    body._dark {
-        background-color: #1f1f1f;
-    }
-    main {
-        width: 780px;
-        margin-left: 21em;
-    }
-    main > nav > hr {
-        cursor: ew-resize;
-    }
-    nav._bar {
-        position: fixed;
-        width: 100%;
-        bottom: 0;
-        left: 0;
-        font-size: 10pt;
-        background-color: #1b465b;
-        padding: 4px 1.2em;
-        color: #6cc67a;
-        box-sizing: border-box;
-    }
-    nav._bar > span {
-        float: right;
-    }
-    nav select {
-        color: #ccc;
-        background-color: #574e37;
-        padding: 1px 0.5em;
-        border-radius: 0.7em;
-        outline: none;
-    }
-    .content {
-        margin-bottom: 4em;
-    }
-    .content nav[role=toc] {
-        height: 97vh;
-    }
-</style>
+<link rel="stylesheet" href="./base.css" />
+
 <script type="module" async>
     import { Tpb, BaseOn, BaseBy } from "../base/tpb/tpb.esm.js";
     Tpb
@@ -76,7 +36,10 @@
     <nav class="_bar">
         <span>
             <label>内容样式</label>
-            <!-- 采用元素替换方式，避免从头渲染时内容大幅跳动。 -->
+            <!--样式链接：
+                - 先导入新样式在旧样式之前（before）。
+                - 然后删除旧样式链接元素。
+                避免从头渲染时内容大幅跳动。 -->
             <select name="styles"
                 on="change|$('#s-code') dup ('s-code') evo(3) val str('../styles/', '/codes.css') pack(2) obj('id href') pop;
                     change|$('#s-main') dup ('s-main') evo(3) val str('../styles/', '/main.css') pack(2) obj('id href') pop"
