@@ -787,14 +787,14 @@ export function isBlocks( el ) {
 
 /**
  * 是否为内容元素。
- * 容错包含纯文本的非内容元素（如<ruby>解构后）。
+ * 容错包含非空纯文本的非内容元素（如<ruby>文本化后）。
  * @param  {Element} el 目标元素
  * @return {Boolean}
  */
 export function isContent( el ) {
     return T.isContent( getType(el) ) ||
         // SVG系元素不含.innerText成员
-        el.childElementCount === 0 && el.innerText && el.innerText.trim();
+        el.childElementCount === 0 && !!( el.innerText && el.innerText.trim() );
 }
 
 
