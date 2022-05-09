@@ -42,7 +42,7 @@ const InputOptions = {
     [ T.METER ]:        'option:meter',
     [ T.SPACE ]:        'option:space',
     [ T.IMG ]:          'option:img',
-    [ T.IMAGE ]:        'option:image',
+    [ T.GRAPH ]:        'option:graph',
     [ T.BR ]:           'option:br',
     [ T.WBR ]:          'option:wbr',
 

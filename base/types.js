@@ -79,7 +79,7 @@ export const
     METER           = 105,  // 量度 {value, max, min, high, low, optimum}
     SPACE           = 106,  // 空白
     IMG             = 107,  // 图片 {src, alt, width, height}
-    IMAGE           = 108,  // 讲解图（span/img, i:explain）
+    GRAPH           = 108,  // 讲解图（span/img|svg, i:explain）
     BR              = 109,  // 换行
     WBR             = 110,  // 软换行
     //
@@ -243,7 +243,7 @@ const Properties = {
     [ METER ]:          INLINES | SEALED | RANGEX,
     [ SPACE ]:          INLINES | SEALED,
     [ IMG ]:            INLINES | EMPTY | RANGEX,
-    [ IMAGE ]:          INLINES | STRUCT | SEALED | RANGEX,
+    [ GRAPH ]:          INLINES | STRUCT | SEALED | RANGEX,
     [ BR ]:             INLINES | EMPTY | COVERT,
     [ WBR ]:            INLINES | EMPTY | COVERT,
     //
@@ -394,7 +394,7 @@ const Properties = {
 //
 const _INLMEDIA =
 [
-    AUDIO, VIDEO, PICTURE, SVG, METER, IMG, IMAGE
+    AUDIO, VIDEO, PICTURE, SVG, METER, IMG, GRAPH
 ];
 
 //
@@ -497,7 +497,7 @@ export const ChildTypes = {
     [ METER ]:          [ $TEXT ],
     [ SPACE ]:          null,
     [ IMG ]:            null,
-    [ IMAGE ]:          [ IMG, SVG, EXPLAIN ],
+    [ GRAPH ]:          [ IMG, SVG, EXPLAIN ],
     [ BR ]:             null,
     [ WBR ]:            null,
     //
@@ -582,7 +582,7 @@ export const ChildTypes = {
     [ TBODY ]:          [ TR ],
     [ TFOOT ]:          [ TR ],
 
-    [ FCONA ]:          [ IMG, SVG, IMAGE ],
+    [ FCONA ]:          [ IMG, SVG, GRAPH ],
     [ CODELI ]:         [ CODE ],
     [ ALI ]:            [ A ],
     [ AH4 ]:            [ A ],
@@ -613,7 +613,7 @@ export const ChildTypes = {
     [ CASCADE ]:        [ LI, ALI, XOLH5LI, XOLAH5LI ],
     [ DL ]:             [ DT, DD ],
     [ TABLE ]:          [ CAPTION, THEAD, TBODY, TFOOT ],
-    [ FIGURE ]:         [ FIGCAPTION, IMAGE, IMG, SVG, FCONA, P, OL, UL ],
+    [ FIGURE ]:         [ FIGCAPTION, GRAPH, IMG, SVG, FCONA, P, OL, UL ],
     [ BLOCKQUOTE ]:     [ H4, P, ..._BLOLIMIT, TABLE ],
     [ ASIDE ]:          [ H4, P, ..._BLOLIMIT, TABLE ],
     [ DETAILS ]:        [ SUMMARY, P, ..._BLOLIMIT, TABLE ],

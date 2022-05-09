@@ -55,7 +55,7 @@ const LogicRoles = new Set([
     'orz',
     'space',
     'explain',
-    'image',
+    'graph',
     'crumb',
 ]);
 
@@ -240,7 +240,7 @@ const StructVerify = {
      * 三种可能：
      * 类型本身受目标父容器约束，简单验证也可。
      * - SPACE: 内联空白。
-     * - IMAGE: 讲解图（span/img, i:explain）。
+     * - GRAPH: 讲解图（span/img, i:explain）。
      * - CRUMB: 内联碎片。
      * @param  {Element} el 当前元素
      * @return {Boolean} 是否合法
@@ -252,7 +252,7 @@ const StructVerify = {
         },
 
         {
-            type:  T.IMAGE,
+            type:  T.GRAPH,
             check: () => true
         },
 

@@ -448,7 +448,7 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 .content figure > figcaption:last-child {
     text-align: center;
 }
-.content figure > span {
+.content figure span {
     position: relative;
     display: inline-block;
 }

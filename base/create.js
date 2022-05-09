@@ -57,7 +57,7 @@ const Tags = {
     [ T.METER ]:        'meter',
     [ T.SPACE ]:        'span\\space',
     [ T.IMG ]:          'img',
-    [ T.IMAGE ]:        'span\\image',
+    [ T.GRAPH ]:        'span\\graph',
     [ T.BR ]:           'br',
     [ T.WBR ]:          'wbr',
     //
@@ -279,12 +279,12 @@ const Children = {
     /**
      * 仅返回图片元素供递进构建。
      * @param {Element|null} ref 参考子元素
-     * @param {Element} box 图片容器（<span:image>）
+     * @param {Element} box 图片容器（<span:graph>）
      * @param {String|Node|[Node]} explain 图片讲解，可选
      * @param {String} fix 讲解固定方式，可选
      * @param {Element} data 主体内容（<img>|<svg>）
      */
-    [ T.IMAGE ]: function( ref, box, {explain, fix}, data ) {
+    [ T.GRAPH ]: function( ref, box, {explain, fix}, data ) {
         let [_img, _end] = appendChild(
             ref,
             box,
@@ -780,7 +780,7 @@ const Children = {
             ref,
             fig,
             data,
-            () => elem( T.IMAGE )
+            () => elem( T.GRAPH )
         );
         cleanOptions( opts, 'figcaption' );
 
@@ -1286,7 +1286,7 @@ const Builder = {
 // 注记：默认处理无需定义，罗列供参考。
 //-----------------------------------------------
 // [
-    // T.IMAGE,
+    // T.GRAPH,
     // T.SVGITEM
 
     // 内联内容元素

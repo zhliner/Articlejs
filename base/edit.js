@@ -4412,11 +4412,18 @@ function canDeletes( els ) {
 
 /**
  * 可否作为范围选取。
+ * 判断上下文菜单中“选取”条目是否可用。
+ * 注记：
+ * 首个参数需为选取集，因为也用于上下文菜单可用性判断。
  * @param  {[Element]} els 目标元素集
+ * @param  {Element} box 目标元素的父元素，可选
  * @return {Boolean}
  */
-function canElemRange( els ) {
-    return els.length === 1 && T.isRangeX( getType(els[0]) );
+function canElemRange( els, box ) {
+    let _el = els[0];
+    box = box || _el.parentElement;
+
+    return els.length === 1 && T.isRangeX( getType(_el) ) && !T.isSealed( getType(box) );
 }
 
 
@@ -6674,18 +6681,24 @@ export const Kit = {
      * 检查范围是否合法。
      * 目标：暂存区/栈顶1项。
      * 目标为划选范围对象，范围需在文本节点或内容元素内。
-     * 特别允许插图内可创建图片链接（<figure>/<a/img|svg|span:image>）。
+     * 特别允许插图内可创建图片链接（<figure>/<a/img|svg|span:graph>）。
      * 注记：
-     * 因为创建单元受限于合法父子关系，所以代码内也支持弹出创建（仅<b>,<i>）。
+     * 因为创建单元受限于合法父子关系，所以代码内也支持弹出创建（如<b>,<i>）。
      * @data: Range
      * @return {Boolean}
      */
     rngok( evo ) {
-        let _el = rangeCommonElement( evo.data ),
-            _tv = getType( _el );
+        let _el = rangeCommonElement( evo.data );
 
         evo.data.detach();
-        return T.isContent( _tv ) || _tv === T.FIGURE && !evo.data.collapsed && !evo.data.toString();
+
+        if ( T.isContent( getType(_el) ) ) {
+            return true;
+        }
+        // 特别允许支持。
+        let _cons = evo.data.cloneContents().childNodes;
+
+        return !evo.data.collapsed && canElemRange( _cons, _el );
     },
 
     __rngok: 1,
