@@ -999,7 +999,7 @@
     by="New2.dt"
     to="form/|trigger('insert')">
     <div class="_main">
-        <textarea name="dt" placeholder="术语"></textarea>
+        <textarea name="dt" placeholder="术语（空行分项）"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:insert2">
@@ -1014,7 +1014,7 @@
     by="New2.dd"
     to="form/|trigger('insert')">
     <div class="_main">
-        <textarea name="dd" placeholder="描述"></textarea>
+        <textarea name="dd" placeholder="描述（空行分项）"></textarea>
     </div>
     <aside>
         <pre tpl-node="input:option1, input:insert2">
@@ -1264,7 +1264,9 @@
                 <input name="svg" type="checkbox" />矢量图
             </label>
             <input type="hidden" name="type" value="img">
-            <!-- 默认右上位置 -->
+            <!--强制绝对定位，默认右上。
+                注记：
+                如果用户需要在图片旁边进行说明，应当使用图片和其它行块单元。 -->
             <input type="hidden" name="fix" value="fix-rt">
         </div>
         <hr tpl-node="input:insert2" />

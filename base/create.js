@@ -292,7 +292,8 @@ const Children = {
             () => elem( T.IMG )
         );
         if ( typeof explain === 'string' ) {
-            explain = appendNode( box, create(T.EXPLAIN, {fix}, explain) );
+            // 简单合法，直接前插。
+            explain = $.prepend( box, create(T.EXPLAIN, {fix}, explain) );
         }
         return result( explain, _img, _end );
     },
@@ -1758,27 +1759,6 @@ function appendCells( tr, tsec ) {
     let _tbo = tableObj( tsec.parentElement );
 
     return $.append( tr, _tbo.newTR(tsec.tagName === 'THEAD').children );
-}
-
-
-/**
- * 简单插入子节点。
- * 检查并插入，有任一非法时忽略并返回null，
- * 否则返回插入的子单元。
- * @param  {Element} box 容器元素
- * @param  {Node} node 节点数据
- * @return {Element} node
- */
-function appendNode( box, node ) {
-    let _nodes = node;
-
-    if ( !$.isArray(node) ) {
-        _nodes = [ node ];
-    }
-    if ( _nodes.some( el => !isChildType(box, getType(el))) ) {
-        return null;
-    }
-    return $.append( box, node );
 }
 
 

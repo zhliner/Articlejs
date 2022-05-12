@@ -1132,13 +1132,24 @@ function stringAttr( attrs, ind, prefix ) {
 /**
  * 新行缩进（开始标签）。
  * 用于块级元素自身换行&缩进。
+ * 特例：
+ * <figure>内的顶层子元素视为行块单元缩进，即便它们是图片。
  * @param  {Element} el 目标元素
- * @param  {String} indent 缩进字符串（前阶）
+ * @param  {String} indent 前阶缩进字符串
  * @return {String}
  */
 function newLineStart( el, indent ) {
+    if ( el.nodeType === 3 ) {
+        return '';
+    }
+    let _box = el.parentElement;
+    // for <figure/img, ...>
+    if ( _box && getType(_box) === T.FIGURE ) {
+        return '\n' + indent;
+    }
     let _tv = getType( el );
-	return el.nodeType === 3 || el.nodeType === 1 && ( T.isInlines(_tv) || T.isKeepline(_tv) ) ? '' : '\n' + indent;
+
+	return el.nodeType === 1 && ( T.isInlines(_tv) || T.isKeepline(_tv) ) ? '' : '\n' + indent;
 }
 
 
@@ -1224,25 +1235,23 @@ function obtNice( fmt, ind, prefix ) {
 /**
  * 其它内联容器。
  * 适用定制<li>单元是否仅包含内联内容（结束不换行）。
+ * 注意：
+ * 插图内顶层支持内联图片类型，因此需特别排除。
  * @param  {Element} el 目标元素
  * @return {Boolean}
  */
 function inlineBox( el ) {
     let _last = $.contents( el, -1, false, true );
-    return !_last || _last.nodeType === 3 || isInlines( _last );
+    return !_last || _last.nodeType === 3 || ( isInlines(_last) && el.tagName !== 'FIGURE' );
 }
 
 
 /**
  * 是否为合法内容子单元。
  * 指可以被包含在内容元素里的单元，包括：
- * - 文本节点
- * - 内联元素
- * - 代码内特用单元（<b><i>）
- * 注记：
- * 仅允许<code>内的<b>和<i>，因为普通内容元素内微编辑时，<strong>可能会被浏览器转换为<b>，
- * 此情况应当消除以保证元素的语义逻辑。
- * 但副作用是，划选创建的特用单元，微编辑后也会被清除。
+ * - 文本节点。
+ * - 内联元素。
+ * - 内联单元内的合法结构子。
  * @param  {Element} el 目标元素
  * @return {Boolean}
  */
@@ -1255,10 +1264,9 @@ function isConitem( el ) {
     if ( T.isInlines(_tv) ) {
         return true;
     }
-    if ( T.isSpecial(_tv) ) {
-        return !!el.parentElement && isChildType( el.parentElement, _tv );
-    }
-    return false;
+    let _box = el.parentElement;
+
+    return !!_box && isInlines( _box ) && isChildType( _box, _tv );
 }
 
 
@@ -1512,7 +1520,7 @@ export function markdownLine( code ) {
 /**
  * 清理非合法内联元素。
  * - 文本节点和合法的内联元素被保留，非此则取其文本。
- * - 注释节点被忽略（简化处理）。
+ * - 注释节点被简单忽略（简化处理）。
  * 会修改内容元素自身。
  * 注记：
  * 不应当简单的清除空白，因为有时一个纯空格是有意义的。

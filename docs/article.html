@@ -325,7 +325,7 @@
                             <li><code>&lt;<b role="tag">ol</b> <b role="atn">role</b>=<s>"cascade"</s>&gt;&lt;/<b role="tag">ol</b>&gt;            <i>&lt;!-- 级联编号表：CASCADE /li/h5, ol/... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">dl</b>&gt;&lt;/<b role="tag">dl</b>&gt;                           <i>&lt;!-- 描述列表：DL /dt, dd... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">table</b>&gt;&lt;/<b role="tag">table</b>&gt;                     <i>&lt;!-- 表格：TABLE /caption, thead, tbody, tfoot/tr/td... --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">figure</b>&gt;&lt;/<b role="tag">figure</b>&gt;                   <i>&lt;!-- 插图：FIGURE /figcaption, p, ol, ul... --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">figure</b>&gt;&lt;/<b role="tag">figure</b>&gt;                   <i>&lt;!-- 插图：FIGURE /figcaption, p, ol, ul, img... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">blockquote</b>&gt;&lt;/<b role="tag">blockquote</b>&gt;           <i>&lt;!-- 引用块：BLOCKQUOTE /h4, p... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">aside</b>&gt;&lt;/<b role="tag">aside</b>&gt;                     <i>&lt;!-- 批注块：ASIDE /h4, p... --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">details</b>&gt;&lt;/<b role="tag">details</b>&gt;                 <i>&lt;!-- 详细内容：DETAILS /sumary, p... --&gt;</i></code></li>
@@ -615,7 +615,7 @@
                                 <tr>
                                     <th>讲解图</th>
                                     <td><code>&lt;<b role="tag">span</b> <b role="atn">role</b>=<s>"graph"</s>&gt;&lt;/<b role="tag">span</b>&gt;</code></td>
-                                    <td><code><i>GRAPH /img|svg, i:explain</i></code></td>
+                                    <td><code><i>GRAPH /i:explain, img|svg</i></code></td>
                                     <td>36</td>
                                 </tr>
                                 <tr>
@@ -632,6 +632,7 @@
                                 </tr>
                             </tbody>
                         </table>
+                        <p role="note"><strong>注记：</strong><br />讲解图中将讲解元素置于前端，可避免微编辑模式下粘贴时的结构破坏（chrome下 <code>&lt;i:explain&gt;</code> 会脱离到上层来）。</p>
                     </section>
                     <section role="s3">
                         <h2>内联控件</h2>
@@ -987,17 +988,18 @@
                     </section>
                     <section role="s3">
                         <h2 id="插图">插图</h2>
+                        <p>作为独立于内容主体流的一块数据，它可以包含的内容类型较多，仅次于片区单元且可直接包含图片类型。但通常，它主要用于插入一块图表及其说明（如文章中的一副插画）。</p>
                         <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">figure</b>&gt;
     &lt;<b role="tag">figcaption</b>&gt;&lt;/<b role="tag">figcaption</b>&gt;
-    &lt;<b role="tag">span</b>&gt;
+    &lt;<b role="tag">span</b> <b role="atn">role</b>=<s>"graph"</s>&gt;
+        &lt;<b role="tag">i</b> <b role="atn">role</b>=<s>"explain"</s>&gt;[图片讲解，可选]&lt;/<b role="tag">i</b>&gt;
         &lt;<b role="tag">img</b> /&gt;
-        &lt;<b role="tag">i</b> role=<s>"explain"</s>&gt;[图片讲解，可选]&lt;/<b role="tag">i</b>&gt;
     &lt;/<b role="tag">span</b>&gt;
-    ...
+    ... <i>&lt;!-- p, ol, ul, img, svg, blockquote, table, pre, codeblock, codelist --&gt;</i>
 &lt;/<b role="tag">figure</b>&gt;
 </code></pre>
-                    </section>
+</section>
                     <section role="s3">
                         <h2 id="引用块">引用块</h2>
                         <pre role="codeblock">
@@ -1209,7 +1211,7 @@
                         <ul>
                             <li>用 <code>&lt;b&gt;</code> 封装着色文本可减少书写，在没有样式渲染时，默认的粗体显示也较为友好。</li>
                             <li>用 <code>&lt;i&gt;</code> 封装注释也有类似的效果，斜体的“附加说明”感受较为明确。</li>
-                            <li>用 <code>&lt;s&gt;</code> 封装字符串，除了<code>string</code>首字符相同外，默认的贯穿线醒目，或也表达了非执行的意思。</li>
+                            <li>用 <code>&lt;s&gt;</code> 封装字符串，除了与<code>string</code>首字符相同外，默认的贯穿线醒目，或也表达了非执行的意思。</li>
                         </ul>
                     </aside>
                 </section>
@@ -1289,16 +1291,16 @@
                 <section role="s2">
                     <h2>插图</h2>
                     <header>
-                        <p>结构：<code>figure/figcaption,p/img, span:explain</code>，包含标题、作为正文的图片，以及可选的对图片的讲解。</p>
-                        <p>在大部分的内容样式中，讲解段应当包含了绝对定位（<code>position:absolute</code>）样式。这样，你就可以通过负边距（<code>margin-*</code>）值和绝对位置样式（<code>top|left</code>）来准确设置，使得讲解可重叠于图片之上。</p>
+                        <p>主要结构：<code>figure/figcaption, span:graph/i:explain, img</code>，包含标题、作为正文的讲解图或者其它行块文本单元（如：<code>&lt;p</code>&gt;, <code>&lt;ul&gt;</code>, <code>&lt;blockquote&gt;</code> 等）。</p>
+                        <p>讲解图中的文字讲解默认绝对定位（<code>position:absolute</code>），这使得讲解覆盖在图片之上。当然你可以在特性编辑中删除这种效果，但如果你是想在图片旁边进行配文，可以简单地使用图片和段落（或其它行块）来实现。</p>
                     </header>
                     <section role="s3">
                         <h2>实例</h2>
                         <figure>
                             <figcaption>贵州江口梵净山断肠崖</figcaption>
                             <span role="graph">
-                                <img src="../upload/data/images/pic01.jpg" alt="寻爱巅峰" />
                                 <i role="explain" data-pba="fix-rt">这是贵州梵净山顶的一段突峰，位于金顶对面之大坡侧翼，著名景点蘑菇石旁边。突兀支立，雄奇险峻，悬屹于万丈深渊，经风沐雨……</i>
+                                <img src="../upload/data/images/pic01.jpg" alt="寻爱巅峰" />
                             </span>
                         </figure>
                     </section>
@@ -1306,20 +1308,24 @@
                 <section role="s2">
                     <h2>描述列表</h2>
                     <header>
-                        <p>结构：<code>dl/dt,dd</code>。主要用于描述专业的术语，由术语标题项（<code>&lt;dt&gt;</code>）和描述内容的数据项（<code>&lt;dd&gt;</code>）构成。</p>
+                        <p>结构：<code>dl/dt, dd</code>。主要用于描述专业的术语，由术语标题项（<code>&lt;dt&gt;</code>）和描述内容的数据项（<code>&lt;dd&gt;</code>）构成。</p>
                         <p>标题项和数据项并列为兄弟元素的关系。一条标题项可以跟随多条数据项，或者多条标题项由一条数据项进行说明。</p>
                     </header>
                     <section role="s3">
                         <h2>实例</h2>
                         <dl>
                             <dt>Firefox</dt>
-                            <dd>A free, open source, cross-platform, graphical web browser developed by the Mozilla Corporation and hundreds of volunteers.</dd>
+                            <dd><strong>Mozilla Firefox</strong>, or simply <strong>Firefox</strong>, is a free and open-source web browser developed by the Mozilla Foundation and its subsidiary, the Mozilla Corporation.</dd>
                             <dt>Chrome</dt>
-                            <dt>Firefox</dt>
-                            <dd>A free, open source, cross-platform, graphical web browser developed by the Mozilla Corporation and hundreds of volunteers.</dd>
-                            <dt>Firefox</dt>
-                            <dd>A free, open source, cross-platform, graphical web browser developed by the Mozilla Corporation and hundreds of volunteers.</dd>
-                            <dd>The Red Panda also known as the Lesser Panda, Wah, Bear Cat or Firefox, is a mostly herbivorous mammal, slightly larger than a domestic cat (60 cm long).</dd>
+                            <dd><strong>Google Chrome</strong> is a cross-platform web browser developed by Google. It was first released in 2008 for Microsoft Windows, built with free software components from Apple WebKit and Mozilla Firefox.</dd>
+                            <dt>IE</dt>
+                            <dd><strong>Internet Explorer</strong> is a discontinued series of graphical web browsers developed by Microsoft and included in the Microsoft Windows line of operating systems, starting in 1995.</dd>
+                            <dt>Opera</dt>
+                            <dd><strong>Opera</strong> is a multi-platform web browser developed by its namesake company Opera. Opera is a Chromium-based browser. It distinguishes itself from other browsers through its user interface and other features.</dd>
+                            <dt>Edge</dt>
+                            <dd><strong>Microsoft Edge</strong> is a cross-platform web browser created and developed by Microsoft. It was first released for Windows 10 and Xbox One in 2015.</dd>
+                            <dt>Safari</dt>
+                            <dd><strong>Safari</strong> is a graphical web browser developed by Apple. It is primarily based on open-source software, and mainly WebKit.</dd>
                         </dl>
                     </section>
                 </section>

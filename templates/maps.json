@@ -287,6 +287,7 @@
         "inlines:del",
         "inlines:dfn",
         "inlines:em",
+        "inlines:graph",
         "inlines:img",
         "inlines:input",
         "inlines:ins",

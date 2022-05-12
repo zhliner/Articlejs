@@ -448,10 +448,6 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 .content figure > figcaption:last-child {
     text-align: center;
 }
-.content figure span {
-    position: relative;
-    display: inline-block;
-}
 .content figure img {
     border: 1px #ccc solid;
     padding: 1px;
@@ -459,20 +455,6 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 }
 .content figure a {
     display: inline-block;
-}
-.content figure i[role=explain] {
-    display: inline-block;
-}
-
-.content figure i[data-pba|=fix] {
-    max-width: 240px;
-    padding: 10px;
-    border-radius: 5px;
-    z-index: 1;
-    background-color: rgba(102, 102, 102, 0.3);
-    color: #333;
-    /* 配合图片边框 */
-    margin: 2px;
 }
 
 
@@ -692,6 +674,24 @@ div[role=blank] > * {
 }
 .content img:hover {
     box-shadow: 1px 1px 4px #bbb;
+}
+
+/* 讲解图 */
+.content span[role=graph] i[role=explain] {
+    display: inline-block;
+}
+.content span[role=graph] {
+    position: relative;
+    display: inline-block;
+}
+.content span[role=graph] i[data-pba|=fix] {
+    width: 40%;
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 1;
+    background-color: #bbbbbb80;
+    /* 配合图片边框 */
+    margin: 2px;
 }
 
 /* 音频/视频/图画 */

@@ -79,7 +79,7 @@ export const
     METER           = 105,  // 量度 {value, max, min, high, low, optimum}
     SPACE           = 106,  // 空白
     IMG             = 107,  // 图片 {src, alt, width, height}
-    GRAPH           = 108,  // 讲解图（span/img|svg, i:explain）
+    GRAPH           = 108,  // 讲解图（span/i:explain, img|svg）
     BR              = 109,  // 换行
     WBR             = 110,  // 软换行
     //
@@ -202,7 +202,7 @@ export const
     CASCADE         = 619,  // 级联编号表 （ol:cascade/li/h5, ol/li/...）
     DL              = 620,  // 描述列表 （dl/dt, dd+）
     TABLE           = 621,  // 表格 （table/thead, tbody, tfoot/tr/th, td）
-    FIGURE          = 622,  // 插图 （figure/figcaption, span/img, i:explain）
+    FIGURE          = 622,  // 插图 （figure/figcaption, p, ol, ul, blockquote, img...）
     BLOCKQUOTE      = 623,  // 块引用 （blockquote/h4, p...） {cite}
     ASIDE           = 624,  // 批注 （aside/h4, p...）
     DETAILS         = 625,  // 详细内容 （details/summary, p...） {open}
@@ -255,7 +255,7 @@ const Properties = {
     [ PIMG ]:           STRUCT | EMPTY,
     [ RT ]:             STRUCT | FIXED1 | FIXED2 | CONTENT | KEEPLINE,
     [ RP ]:             STRUCT | FIXED1 | FIXED2 | SEALED | COVERT | KEEPLINE,
-    [ EXPLAIN ]:        STRUCT | STRUCTX | CONTENT,
+    [ EXPLAIN ]:        STRUCT | STRUCTX | CONTENT | KEEPLINE,
     [ SVGITEM ]:        STRUCT | STRUCTX,
     [ OPTION ]:         STRUCT | STRUCTX | CONTENT | FORMCTRL,
     //
@@ -613,7 +613,7 @@ export const ChildTypes = {
     [ CASCADE ]:        [ LI, ALI, XOLH5LI, XOLAH5LI ],
     [ DL ]:             [ DT, DD ],
     [ TABLE ]:          [ CAPTION, THEAD, TBODY, TFOOT ],
-    [ FIGURE ]:         [ FIGCAPTION, GRAPH, IMG, SVG, FCONA, P, OL, UL ],
+    [ FIGURE ]:         [ FIGCAPTION, GRAPH, IMG, SVG, FCONA, P, OL, UL, BLOCKQUOTE, TABLE, PRE, CODEBLOCK, CODELIST ],
     [ BLOCKQUOTE ]:     [ H4, P, ..._BLOLIMIT, TABLE ],
     [ ASIDE ]:          [ H4, P, ..._BLOLIMIT, TABLE ],
     [ DETAILS ]:        [ SUMMARY, P, ..._BLOLIMIT, TABLE ],

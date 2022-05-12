@@ -378,6 +378,19 @@
     <li tpl-node="!prop:upload, prop:preview, prop:wh"></li>
 </ul>
 
+<!--讲解图：
+    微编辑模式下仅支持图片&讲解。 -->
+<ul class="_prop" obt-src="obts/graph.json" tpl-name="inlines:graph"
+    on="create"
+    to="|trigger('img')">
+    <li tpl-node="prop:src, prop:alt"></li>
+    <li tpl-node="!prop:upload, prop:preview, prop:wh"></li>
+    <li><b>讲解</b>
+        <span><textarea name="explain" rows="4" placeholder="图片简介"></textarea></span>
+        <input type="hidden" name="fix" value="fix-rt">
+    </li>
+</ul>
+
 <!--图形：微编辑
     不可用<pre._code>，插入点易转移到<pre>内。 -->
 <div class="_prop" tpl-name="inlines:svg"
