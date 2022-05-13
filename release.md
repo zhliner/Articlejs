@@ -47,7 +47,6 @@
 ### 原样拷贝文件清单
 
 - config.js
-- coolj.webmanifest
 - editor.js
 - favicon.ico
 - index.html
@@ -81,4 +80,5 @@
 
 - `register.js` 注册 serviceWorker 的定制化脚本（注册文件不同）。
 - `base/tpb/user.js` 用户安装根目录配置（根目录不同）。
+- `coolj.webmanifest` 安装根目录可能不同。
 - `*-sw.js` serviceWorker 实现专用文件，缓存文件清单和版本等信息不同。
