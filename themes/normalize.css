@@ -168,6 +168,12 @@ textarea {
   margin: 0; /* 2 */
 }
 
+/* Firefox: 边框&底色优化 */
+select {
+    border: 1px gray solid;
+    background-color: transparent;
+}
+
 /**
  * Show the overflow in IE.
  * 1. Show the overflow in Edge.

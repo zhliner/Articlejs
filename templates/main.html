@@ -129,7 +129,7 @@
             #g-count|trigger('reset')">
         <!--上下文菜单
             cmenudo 菜单条目处理，发送_focus不影响微编辑焦点（minied进入时）。
-                    即时失焦（blur）以取消菜单，保证ESC栈顺序正常。
+                    即时失焦（blur）以取消菜单，保证ESC栈顺序正常。end用于选取时焦点无变化（for Firefox）。
             keydown 快捷处理直达，ESC按下或子菜单隐藏时忽略（自然由普通模式处理）。
             click(li[data-op])  主菜单条目操作（禁用时忽略）。
             click(li[data-val]) 子菜单条目操作。
@@ -152,7 +152,7 @@
                 esced|evo(3) (ESC) pop;
                 status|$$('/>li') dup disable cmable disable(false);
                 cancel|evo(3) blur"
-            by="Kit.cmenudo;
+            by="Kit.cmenudo end;
                 Kit.convert"
             to="#g-scroll|trigger('_focus');
                 #g-scroll|trigger('focus');
@@ -161,7 +161,7 @@
                 |trigger('cmenudo');
                 |trigger('convert');
                 |trigger('convert');
-                -|apply('delete')|fire('#g-scroll', '_focus');
+                -|apply('delete');
                 -|add('cmenu')|fire(3, 'focus')">
             <li data-op="minied"><b id="l-minied">修改</b><kbd>[m/M]</kbd></li>
             <hr>

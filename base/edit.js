@@ -5811,6 +5811,7 @@ export const Edit = {
      * 仅适用章节（section）单元。
      * 当前章节提升一级插入到原所属章节之前。
      * 本身就是顶层章节的被简单忽略。
+     * @return {void}
      */
     indentReduce() {
         let $els = $( __ESet );
@@ -5827,6 +5828,7 @@ export const Edit = {
      * 增加缩进。
      * 仅适用章节（section）单元。
      * 当前章节降一级，插入原地构造的一个平级空章节。
+     * @return {void}
      */
     indentIncrease() {
         let $els = $( __ESet );
@@ -7614,15 +7616,17 @@ export const Kit = {
      * 上下文菜单条目处理。
      * 目标：暂存区/栈顶1项。
      * 目标为菜单条目处理项名称（data-op）。
-     * 注记：
-     * - 不包含转换子菜单。
-     * - 无返回值以不影响模板中后续的PB行为。
+     * 注：不含转换子菜单部分。
      * @data: String 处理名称
-     * @return {void}
+     * @return {Boolean} 是否存在操作
      */
     cmenudo( evo ) {
         let _fn = __cmenuOpers[evo.data];
-        if ( _fn ) Edit[ _fn ]();
+        //:Fix
+        // 点击“选取”操作时返回true，
+        // 因为Firefox下选取后如果焦点改变，选取范围会失效（从而无法进阶弹出创建菜单）。
+        // 返回true可用于模板中终止后续聚焦流程。
+        return !!_fn && ( Edit[_fn](), evo.data === 'range' );
     },
 
     __cmenudo: 1,
