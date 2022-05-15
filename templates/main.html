@@ -4,7 +4,7 @@
     <div class="_start _icons">
         <!--click|stop 保持现有焦点不转移。
             toggle 切换事件，也接收外部通知。-->
-        <b id="x-outline" title="大纲〔F2〕" class="_press"
+        <b id="x-outline" title="大纲〔F4〕" class="_press"
             on="click|stop;
                 toggle|$$('#outline,#lineLeft') lose(2) ('_press')"
             to="|trigger('toggle')|fire('body', 'pcheck');
@@ -498,7 +498,7 @@
         open  单纯打开帮助面板。如果面板已打开则无行为。
         help  提取帮助ID，发送帮助索引请求。注：仅在帮助栏开启时有效。
         toggle 帮助按钮切换。-->
-    <div id="x-help" class="_help" title="帮助〔F4〕"
+    <div id="x-help" class="_help" title="帮助〔F1〕"
         on="click;
             open|$('#help') lost pass;
             help|$('#help') lost end ev('detail');

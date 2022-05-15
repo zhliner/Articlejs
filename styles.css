@@ -80,7 +80,7 @@ header > h1::before {
 header > h1 > small {
     font-size: 10pt;
     margin-left: 0.5em;
-    vertical-align: bottom;;
+    vertical-align: sub;
 }
 
 main nav {

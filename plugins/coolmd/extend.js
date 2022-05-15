@@ -153,6 +153,12 @@ const __blockFunc =
     // val: function(el, lev): String
     codeblock:  convCodeblock,
     codelist:   convCodelist,
+
+    // 特例：
+    // 插图<figure>内当作行块处理。
+    graph:      el => convLine( el ),
+    svg:        el => svgHTML( el ),
+    IMG:        el => __inlineFunc.IMG( el ),
 }
 
 
@@ -205,6 +211,9 @@ const __inlineFunc =
     SAMP:   convCode,
     // KBD:    el => `<kbd>${ htmlEscape(el.textContent) }</kbd>`,
     KBD:    convCode,
+
+    graph:  convLine,
+    svg:    el => svgHTML( el ),
 };
 
 
@@ -212,6 +221,8 @@ const __inlineFunc =
 //
 // 块单元转换。
 // 定义两个共用的接口：conv, done。
+// 注：
+// 自身并不负责具体的转换。
 //
 class Block {
     /**
@@ -274,12 +285,7 @@ class SmallBlock extends Block {
      * @return {[String|Block]} 子单元集
      */
     conv() {
-        let _buf = super.conv();
-
-        _buf.forEach( (v, i) =>
-            typeof v === 'string' && ( _buf[i] = `${this._bch} ${v}` )
-        );
-        return _buf;
+        return super.conv();
     }
 
 
@@ -291,7 +297,7 @@ class SmallBlock extends Block {
      */
     done( list ) {
         return list
-            .map( it => typeof it === 'string' ? it : it.done(it.conv()) )
+            .map( it => typeof it === 'string' ? `${this._bch} ${it}` : it.done(it.conv()) )
             .map( ss => ss.trimEnd() )
             .join( `\n${this._bch}\n` );
     }
@@ -405,8 +411,8 @@ class DlBlock extends Block {
 
 //
 // 插图区块。
-// 插图标题（<figcaption>）与图片行之间相隔一个空行。
-// 插图标题转换到头部（可能原在底部）。
+// 插图标题<figcaption>转换到头部（源中可能在底部）。
+// 插图标题与图片行之间相隔一个空行。
 //
 class FigureBlock extends Block {
     /**
@@ -416,8 +422,8 @@ class FigureBlock extends Block {
     constructor( el, lev = 0 ) {
         super( el );
 
-        lev = lev + 1;
-        this._bch = ''.padStart( lev, '>' );
+        this._lev = lev + 1;
+        this._bch = ''.padStart( this._lev, '>' );
     }
 
 
@@ -432,11 +438,10 @@ class FigureBlock extends Block {
             _buf = [];
 
         if ( _cap ) {
-            _buf.push( `${this._bch} ${__blockFunc.FIGCAPTION(_cap)}` );
-            _buf.push( this._bch );
+            _buf.push( __blockFunc.FIGCAPTION(_cap) );
         }
         for ( const el of _els ) {
-            _buf.push( `${this._bch} ${convLine(el)}` );
+            _buf.push( convert(el, __blockFunc, this._lev) );
         }
         return _buf;
     }
@@ -448,7 +453,10 @@ class FigureBlock extends Block {
      * @return {String}
      */
     done( list ) {
-        return list.map( ss => ss.trim() ).join( `\n` );
+        return list
+            .map( it => typeof it === 'string' ? `${this._bch} ${it}` : it.done(it.conv()) )
+            .map( ss => ss.trimEnd() )
+            .join( `\n${this._bch}\n` );
     }
 }
 
@@ -777,6 +785,7 @@ class Table extends Block {
 
 
 // 转换集
+// 对内容（子节点集）进行转换。
 //////////////////////////////////////////////////////////////////////////////
 
 
@@ -1062,6 +1071,23 @@ function codeWarp( chx, txt, beg, end ) {
         _ch2 = isHans(_n) || nearChars.has(_n) ? ' ' : '';
 
     return _ch1 + chx + txt + chx + _ch2;
+}
+
+
+/**
+ * SVG源码提取。
+ * 转换为单行源码（移除纯空文本节点）。
+ * @param  {Element} svg SVG根元素
+ * @return {String}
+ */
+function svgHTML( el ) {
+    let _el = el.cloneNode(true);
+
+    $.textNodes( _el )
+        .forEach(
+            node => node.textContent.trim() || node.remove()
+        );
+    return _el.outerHTML;
 }
 
 

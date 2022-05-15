@@ -1291,8 +1291,10 @@ menu._cells code {
     background: none;
     color: currentColor;
     background-color: #f7f7f7;
-    width: 18em;
     font-size: 1em;
+
+    /* 覆盖全局值100% */
+    width: auto;
 }
 .Input ul._ctrl select[name=sample] {
     min-width: 11em;

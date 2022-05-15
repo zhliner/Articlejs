@@ -691,20 +691,20 @@
     to="form/|trigger('insert')">
     <li tpl-node="item:name"></li>
     <li
-        on="input(input)|evo(2) val int dup gt(0) pass"
-        to="1/textarea|$rows">
+        on="input(input)|evo(2) val int or(0) dup gte(0) pass or(null)"
+        to="1/textarea|@rows">
         <b>行数</b>
-        <span><input name="rows" type="number" class="_nums" value="2" /></span>
+        <span><input name="rows" type="number" class="_nums" /></span>
     </li>
     <li
-        on="input(input)|evo(2) val int dup gt(0) pass"
-        to="1/textarea|$cols">
+        on="input(input)|evo(2) val int or(0) dup gte(0) pass or(null)"
+        to="1/textarea|@cols">
         <b>列数</b>
         <span><input name="cols" type="number" class="_nums" /></span>
     </li>
     <li>
         <b>控件</b>
-        <span><textarea name="sample" rows="2" placeholder="初始显示值"></textarea></span>
+        <span><textarea name="sample" placeholder="初始显示值"></textarea></span>
     </li>
 </ul>
 

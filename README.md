@@ -33,7 +33,7 @@
 
 编辑器的项目源码在 [这里](https://github.com/zhliner/articlejs)，如果您在使用中遇到了任何问题，可以在项目的 [Issues](https://github.com/zhliner/articlejs/issues) 页面提交问题。
 
-目前这只是一个个人项目，我会尽可能尽快地回答您的问题！
+目前这只是一个个人项目，我会尽可能快地回答您的问题！
 
 
 ## 扩展开发
