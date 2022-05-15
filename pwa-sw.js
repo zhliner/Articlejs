@@ -1,5 +1,5 @@
 const
-    __cName = 'cooljed-v1',
+    __cName = 'cooljed-v02',
 
     __appFiles = [
         '/articlejs/',

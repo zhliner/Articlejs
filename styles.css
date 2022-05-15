@@ -76,6 +76,12 @@ header > h1::before {
     margin-bottom: -8px;
     filter: grayscale(1);
 }
+/* 版本信息 */
+header > h1 > small {
+    font-size: 10pt;
+    margin-left: 0.5em;
+    vertical-align: bottom;;
+}
 
 main nav {
     display: flex;
