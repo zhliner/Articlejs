@@ -15,7 +15,7 @@
 
 同时，这也是一个 PWA（Progressive Web App） 应用，所以如果你想将编辑器安装在本地（以便于离线时也可用），用 Chrome 浏览器打开后，在浏览器地址栏右侧会出现一个浮动安装钮（PWA 程序通用，如下图），单击即可安装。
 
-[浏览器安装PWA](upload/data/images/install-pwa.png)
+![浏览器安装PWA](upload/data/images/install-pwa.png)
 
 
 ## 更新
@@ -24,7 +24,7 @@
 
 单击你之前安装在桌面的编辑器图标打开程序，在窗口顶部右侧的**三点**图标上单击展开弹出窗，点击**卸载Coolj Editor WebApp...**条目。如下图：
 
-[浏览器卸载PWA](upload/data/images/uninstall-pwa.png)
+![浏览器卸载PWA](upload/data/images/uninstall-pwa.png)
 
 在 Chrome 浏览器中再次打开 <https://cooljed.github.io/> 网址（可能需要刷新一下），然后重新安装即可。**注意**：如果你没有卸载本地的App，浏览器地址栏上将不会出现安装钮。
 
