@@ -1250,6 +1250,21 @@
     </aside>
 </div>
 
+<div class="_body _Blockli" obt-src="obts/list2ps.json" tpl-name="input:blockli"
+    on="node|ev('detail') Element('p')"
+    by="New.blockli"
+    to="form/|trigger('insert')">
+    <div class="_main">
+        <textarea name="p" placeholder="段落内容"></textarea>
+    </div>
+    <aside>
+        <pre tpl-node="input:option2, input:insert2">
+            [选项2]
+            [插入2]
+        </pre>
+    </aside>
+</div>
+
 <div class="_body _Image" obt-src="obts/graph.json" tpl-name="input:graph"
     on="create|$('/[name=type]') val"
     to="|trigger(_1)">

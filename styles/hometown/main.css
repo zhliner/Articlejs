@@ -512,27 +512,17 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
 
 
 /* 注解
+ * 可直接包含文本。
  *----------------------------------------------------------------------------
  */
-.content p[role=note] {
-    border: 1px green dotted;
+.content aside[role=note] {
+    border: 1px #004e80 dotted;
     background-color: #eafafb;
-    border-bottom-left-radius: 1.3em;
-    padding: 2px 1em;
+    border-radius: 0 0 0 1.4em;
+    padding: 4pt 1em;
     margin-bottom: 1.6em;
 }
-
-
-/* 提示
- *----------------------------------------------------------------------------
- */
-.content p[role=tips] {
-    background-color: #e8fde9;
-    padding: 2px 0.6em;
-    border-radius: 4px;
-    margin-bottom: 1.6em;
-}
-.content p[role=tips] > strong:first-child {
+.content aside[role=note] > strong:first-child {
     color: green;
 }
 
@@ -658,9 +648,10 @@ main, header, section, footer, article, figure, figcaption, hgroup, aside, detai
  * -------------------------------------------------------------------------
  */
 div[role=blank] {
+    display: flex;
+    position: relative;
     height: 12em;
     padding: 5px 1em;
-    display: flex;
     border: 1px #d9d9d9 solid;
     border-radius: 12px;
     background-color: #f9f9f9;

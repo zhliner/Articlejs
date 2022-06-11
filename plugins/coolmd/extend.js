@@ -412,7 +412,8 @@ class DlBlock extends Block {
 //
 // 插图区块。
 // 插图标题<figcaption>转换到头部（源中可能在底部）。
-// 插图标题与图片行之间相隔一个空行。
+// 注记：
+// 插图内支持基本行块单元（<p>、<ul>等）
 //
 class FigureBlock extends Block {
     /**

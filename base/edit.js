@@ -7299,6 +7299,7 @@ export const Kit = {
      * 根据系统设置，解析单行MarkDown源码构造节点集（文档片段）。
      * 注记：
      * 新建内容元素支持文档片段数据。
+     * 未支持 Fx.mdline 时，纯文本支持换行元素（create.js）。
      * @data: String|[String] 文本行（集）
      * @return {String|[String]|DocumentFragment|[DocumentFragment]}
      */

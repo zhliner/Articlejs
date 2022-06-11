@@ -115,10 +115,9 @@ const Tags = {
     // 行块内容元素
     /////////////////////////////////////////////
     [ T.P ]:            'p',
-    [ T.NOTE ]:         'p\\note',
-    [ T.TIPS ]:         'p\\tips',
     [ T.ADDRESS ]:      'address',
     [ T.PRE ]:          'pre',
+    [ T.NOTE ]:         'aside\\note',
     //
     // 块内结构子
     /////////////////////////////////////////////
@@ -149,6 +148,7 @@ const Tags = {
     [ T.XH5LI ]:        'li',
     [ T.XOLH5LI ]:      'li',
     [ T.XOLAH5LI ]:     'li',
+    [ T.BLOCKLI ]:      'li',
     [ T.TOCCASCADE ]:   'ol\\cascade',
 
     //
@@ -505,6 +505,24 @@ const Children = {
             () => elem( T.OL )
         );
         return result( h5a && insertHeading(li, T.AH5, h5a), _ol, _end );
+    },
+
+
+    /**
+     * 大列表条目。
+     * 如果子单元非法，默认插入一个段落。
+     * @param {Element|null} ref 参考子元素
+     * @param {Element} li 列表项容器
+     * @param {Element} data 有限行块单元（<p>...），可选
+     */
+    [ T.BLOCKLI ]: function( ref, li, _, data ) {
+        let [_blo, _end] = appendChild(
+            ref,
+            li,
+            data,
+            () => elem( T.P )
+        );
+        return result( null, _blo, _end );
     },
 
 
@@ -1048,10 +1066,9 @@ const Children = {
 
     // 内容行单元。
     T.P,
-    T.NOTE,
-    T.TIPS,
     T.PRE,
     T.ADDRESS,
+    T.NOTE,
 
     // 内容元素
     T.H1,
@@ -1243,6 +1260,7 @@ const Builder = {
     [ T.XH5LI,          ['value'] ],
     [ T.XOLH5LI,        ['value'] ],
     [ T.XOLAH5LI,       ['value'] ],
+    [ T.BLOCKLI,        ['value'] ],
     [ T.BLOCKQUOTE,     ['cite'] ],
     [ T.DETAILS,        ['open'] ],
     [ T.FIELDSET,       ['id', 'name'] ],
@@ -1310,10 +1328,9 @@ const Builder = {
 
     // 内容行单元。
     // T.P,
-    // T.NOTE,
-    // T.TIPS,
     // T.PRE,
     // T.ADDRESS,
+    // T.NOTE,
 
     // 内容元素
     // T.H1,
@@ -1485,10 +1502,9 @@ const ConvLines = {};
 
 [
     T.P,
-    T.NOTE,
-    T.TIPS,
     T.PRE,
     T.ADDRESS,
+    T.NOTE,
 ]
 // @return [Object, Element]
 .forEach(function( tv ) {
@@ -2208,7 +2224,7 @@ function build( el, opts, data, more ) {
     if ( Children[_tv] ) {
         childrenCalls( el, opts, data, more );
     }
-    return el;  // 关联到children
+    return el;  // 返回值关联到children
 }
 
 

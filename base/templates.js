@@ -96,10 +96,9 @@ const InputOptions = {
 
 
     [ T.P ]:            'option:p',
-    [ T.NOTE ]:         'option:note',
-    [ T.TIPS ]:         'option:tips',
     [ T.PRE ]:          'option:pre',
     [ T.ADDRESS ]:      'option:address',
+    [ T.NOTE ]:         'option:note',
 
     [ T.H1 ]:           'option:h1',
     [ T.H2 ]:           'option:h2',
@@ -127,6 +126,7 @@ const InputOptions = {
     [ T.XH5LI ]:        'option:xh5li',
     [ T.XOLH5LI ]:      'option:xolh5li',
     [ T.XOLAH5LI ]:     'option:xolah5li',
+    [ T.BLOCKLI ]:      'option:blockli',
 
     [ T.HGROUP ]:       'option:hgroup',
     [ T.ARTICLE ]:      'option:article',
@@ -204,6 +204,7 @@ const Properties = {
     [ T.XH5LI ]:        'property:li',          // value, type
     [ T.XOLH5LI ]:      'property:li',          // value, type
     [ T.XOLAH5LI ]:     'property:li',          // value, type
+    [ T.BLOCKLI ]:      'property:li',          // value, type
     [ T.TABLE ]:        'property:table',       // cols, rows, border, th0
     [ T.HR ]:           'property:hr',          // thick, length, space, border
     [ T.BLANK ]:        'property:blank',       // width, height

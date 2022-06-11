@@ -50,7 +50,6 @@ const LogicRoles = new Set([
     'cascade',
     'codeblock',
     'note',
-    'tips',
     'blank',
     'orz',
     'space',
@@ -95,6 +94,7 @@ const CustomStruct = {
      * - XH5LI: 级联表项标题（li/h5, ul）
      * - XOLH5LI: 级联表有序标题项（li/h5, ol）
      * - XOLAH5LI: 级联表有序链接标题项（li/[h5/a], ol）
+     * - BLOCKLI: 大列表项（li/p, codeblock）
      * @param  {Element} el 当前元素
      * @param  {Element} box 适配父容器
      * @return {Number} 单元值
@@ -103,10 +103,10 @@ const CustomStruct = {
         let _sub = el.firstElementChild;
 
         if ( el.childElementCount <= 1 ) {
-            return box && _liChild( _sub, box ) || T.LI;
+            return box && _liChild( _sub, box ) || _usualLi(el);
         }
         // 已无需借助于父容器。
-        return el.childElementCount === 2 && _sub.tagName === 'H5' ? _liXList(_sub) : T.LI;
+        return el.childElementCount === 2 && _sub.tagName === 'H5' ? _liXList(_sub) : _usualLi(el);
     },
 
 
@@ -189,6 +189,7 @@ const StructVerify = {
      * - XOLAH5LI: 级联表有序链接标题项（li/[h5/a], ol）
      * - XOLH5LI: 级联表有序标题项（li/h5, ol）
      * - XH5LI: 无序级联表项标题（li/h5, ul）
+     * - BLOCKLI: 大列表项（li/p, codeblock）
      * - LI: 普通列表项（li/*）
      * @param  {Element} el 当前元素
      * @param  {Element} box 父容器元素，可选
@@ -229,10 +230,9 @@ const StructVerify = {
             }
         },
 
-        {
-            type:  T.LI,
-            check: () => true
-        }
+        // check: () => true
+        // 注：简单罗列即可。
+        T.BLOCKLI, T.LI,
     ],
 
 
@@ -251,15 +251,8 @@ const StructVerify = {
             check: el => el.childNodes.length === 0
         },
 
-        {
-            type:  T.GRAPH,
-            check: () => true
-        },
-
-        {
-            type:  T.CRUMB,
-            check: () => true
-        },
+        // check: () => true
+        T.GRAPH, T.CRUMB,
     ],
 
 
@@ -273,10 +266,8 @@ const StructVerify = {
             check: el => _onlyChild( el, 'IMG' ) || _onlyChild( el, 'svg' )
         },
 
-        {
-            type:  T.A,
-            check: () => true
-        }
+        // check: () => true
+        T.A,
     ],
 
 
@@ -497,7 +488,7 @@ function _typeNoit( ref, els ) {
  * 需严格约束，避免与普通列表项内的混合文本相混淆。
  * @param  {Element} el 列表项子元素
  * @param  {Element} box 列表项容器元素
- * @return {Number}
+ * @return {Number|false|void}
  */
 function _liChild( el, box ) {
     if ( !el || $.siblingNodes(el, false, true).length ) {
@@ -507,6 +498,20 @@ function _liChild( el, box ) {
         return T.ALI;
     }
     return el.tagName === 'CODE' && box.tagName === 'OL' && getType(box) === T.CODELIST && T.CODELI;
+}
+
+
+/**
+ * 判断两种普通列表项：
+ * - 内容行列表项（内联文本）。
+ * - 大列表列表项（行块内容）。
+ * 无法判断时，默认为内容列表项。
+ * @param  {Element} el 目标元素（<li>）
+ * @return {Number}
+ */
+function _usualLi( el ) {
+    let _sub = $.children( el, 0 );
+    return _sub && isBlocks( _sub ) ? T.BLOCKLI : T.LI;
 }
 
 
@@ -794,6 +799,7 @@ export function isBlocks( el ) {
 export function isContent( el ) {
     return T.isContent( getType(el) ) ||
         // SVG系元素不含.innerText成员
+        // 因此可安全排除。
         el.childElementCount === 0 && !!( el.innerText && el.innerText.trim() );
 }
 

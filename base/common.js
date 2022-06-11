@@ -1507,8 +1507,6 @@ export function niceHtml( node, clean, tabs, prefix = '' ) {
 /**
  * MarkDown单行解析。
  * 用于自动处理录入框中粘贴的MD标记源码。
- * 注记：
- * MdLine只支持顶层标记，因此解析结果是平的（无嵌套子语法块）。
  * @param  {String} code MD源码
  * @return {String} 解析并构造的HTML源码
  */

@@ -141,7 +141,6 @@
                                 <li><a href="#代码表">代码表</a></li>
                                 <li><a href="#代码块">代码块</a></li>
                                 <li><a href="#注解">注解</a></li>
-                                <li><a href="#提示">提示</a></li>
                                 <li><a href="#白板">白板</a></li>
                             </ol>
                         </li>
@@ -337,22 +336,21 @@
                         <h2 id="文本类">文本类</h2>
                         <p>可直接包含文本内容和内联单元，没有固定的DOM结构可单独占据一行的块级元素。</p>
                         <ol role="codelist" start="29" data-lang="html">
-                            <li><code>&lt;<b role="tag">p</b>&gt;&lt;/<b role="tag">p</b>&gt;                 <i>&lt;!-- 段落：P 通用内容容器 --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">p</b> <b role="atn">role</b>=<s>"note"</s>&gt;&lt;/<b role="tag">p</b>&gt;     <i>&lt;!-- 注解：NOTE --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">p</b> <b role="atn">role</b>=<s>"tips"</s>&gt;&lt;/<b role="tag">p</b>&gt;     <i>&lt;!-- 提示：TIPS --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">address</b>&gt;&lt;/<b role="tag">address</b>&gt;     <i>&lt;!-- 地址信息：ADDRESS --&gt;</i></code></li>
-                            <li><code>&lt;<b role="tag">pre</b>&gt;&lt;/<b role="tag">pre</b>&gt;             <i>&lt;!-- 预排版：PRE 非代码块 --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">p</b>&gt;&lt;/<b role="tag">p</b>&gt;                         <i>&lt;!-- 段落：P 通用内容容器 --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">address</b>&gt;&lt;/<b role="tag">address</b>&gt;             <i>&lt;!-- 地址信息：ADDRESS --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">pre</b>&gt;&lt;/<b role="tag">pre</b>&gt;                     <i>&lt;!-- 预排版：PRE 非代码块 --&gt;</i></code></li>
+                            <li><code>&lt;<b role="tag">aside</b> <b role="atn">role</b>=<s>"note"</s>&gt;&lt;/<b role="tag">aside</b>&gt;     <i>&lt;!-- 注解：NOTE --&gt;</i></code></li>
                         </ol>
                     </section>
                     <section role="s3">
                         <h2 id="单体类">单体类</h2>
                         <p>不包含任何内容，是一个独立存在的单元。</p>
-                        <ol role="codelist" data-lang="html" start="34">
+                        <ol role="codelist" data-lang="html" start="33">
                             <li><code>&lt;<b role="tag">hr</b> /&gt;                      <i>&lt;!-- 分隔：HR --&gt;</i></code></li>
                             <li><code>&lt;<b role="tag">div</b> <b role="atn">role</b>=<s>"blank"</s>&gt;&lt;/<b role="tag">div</b>&gt;    <i>&lt;!-- 白板：BLANK 用于交互展示 --&gt;</i></code></li>
                         </ol>
-                    <aside>
-                        <p><strong>注：</strong>白板可插入内容，但仅适用在运行时下且应当是临时的。</p>
+                    <aside role="note">
+                        <strong>注：</strong>白板可插入内容，但仅适用在运行时下且应当是临时的。
                     </aside>
                     </section>
                 </section>
@@ -518,7 +516,7 @@
                                     <td>22</td>
                                 </tr>
                                 <tr>
-                                    <th>注记</th>
+                                    <th>标注</th>
                                     <td><code>&lt;<b role="tag">u</b>&gt;&lt;/<b role="tag">u</b>&gt;</code></td>
                                     <td><code><i>U</i></code></td>
                                     <td>23</td>
@@ -842,25 +840,16 @@
                     </section>
                     <section role="s3">
                         <h2 id="注解">注解</h2>
-                        <p>用于解释正文中具体的名词或词组，在UI上可能是一种弹出展示。</p>
+			<p>用于对正文中的某段文本进行<strong>额外的</strong>注解，或在某段落之后进行简单的<strong>附加</strong>说明（比<em>批注块</em>简洁）。在UI上可能构造为一种弹出展示。</p>
                         <pre role="codeblock">
-<code data-lang="html">&lt;<b role="tag">p</b> <b role="atn">role</b>=<s>"note"</s>&gt;
+<code data-lang="html">&lt;<b role="tag">aside</b> <b role="atn">role</b>=<s>"note"</s>&gt;
     <i>&lt;!-- 文本或内联单元 --&gt;</i>
-&lt;/<b role="tag">p</b>&gt;
-</code></pre>
-                    </section>
-                    <section role="s3">
-                        <h2 id="提示">提示</h2>
-                        <p>一段小型的文本，通常用于小条目下的简单说明。外观可能像无序列表的 <code>&lt;li&gt;</code> 项。</p>
-                        <pre role="codeblock">
-<code data-lang="html">&lt;<b role="tag">p</b> <b role="atn">role</b>=<s>"tips"</s>&gt;
-    <i>&lt;!-- 文本或内联单元 --&gt;</i>
-&lt;/<b role="tag">p</b>&gt;
+&lt;/<b role="tag">aside</b>&gt;
 </code></pre>
                     </section>
                     <section role="s3">
                         <h2 id="白板">白板</h2>
-                        <p>这是一种特别的内容单元，用于交互展示。</p>
+                        <p>这是一种特别的内容单元，主要用于交互展示。</p>
                         <pre role="codeblock">
 <code data-lang="html">&lt;<b role="tag">div</b> <b role="atn">role</b>=<s>"blank"</s>&gt;
     <i>&lt;!-- 动态表达区 --&gt;</i>
@@ -928,8 +917,8 @@
     &lt;<b role="tag">footer</b>&gt;&lt;/<b role="tag">footer</b>&gt;   <i>&lt;!-- 结语：可选 --&gt;</i>
 &lt;/<b role="tag">section</b>&gt;
 </code></pre>
-                    <aside>
-                        <p><strong>注：</strong>为便于准确表达普通片区的层次逻辑，在行文中有时用 <strong>深片区</strong> 来称呼。</p>
+                    <aside role="note">
+                        <strong>注：</strong>为便于准确表达普通片区的层次逻辑，在行文中有时用 <strong>深片区</strong> 来称呼。
                     </aside>
                     </section>
                     <section role="s3">
@@ -1097,6 +1086,7 @@
                     <h2 id="封装规则">封装规则</h2>
                     <p>代码内的各种单元采用 <code>&lt;b&gt;</code> 元素封装，由 <code>role</code> 定义单元类型，但注释和字符串类型分别采用 <code>&lt;i&gt;</code> 和 <code>&lt;s&gt;</code> 封装。</p>
                     <p>通常，各种单元类型（<code>&lt;b&gt;</code>）与注释（<code>&lt;i&gt;</code>）和字符串（<code>&lt;s&gt;</code>）都处于同一层级（<code>&lt;code&gt;</code> 的直接子元素），但注释和字符串内也可能包含进一步的标识，它们依然由 <code>&lt;b&gt;</code> 封装。</p>
+                    <p>另外，代码内也允许插入审校类元素（<code>&lt;ins&gt;</code>、<code>&lt;del&gt;</code> 和 <code>&lt;u&gt;</code>），这可方便教学类代码的书写。<strong>注</strong>：<code>&lt;u&gt;</code> 可用于标记书写错误或不应当被执行的代码。</p>
                     <p>基本名称（<strong>标识</strong>）定义如下：</p>
                     <table border="v">
                         <thead>
@@ -1211,7 +1201,7 @@
                         <ul>
                             <li>用 <code>&lt;b&gt;</code> 封装着色文本可减少书写，在没有样式渲染时，默认的粗体显示也较为友好。</li>
                             <li>用 <code>&lt;i&gt;</code> 封装注释也有类似的效果，斜体的“附加说明”感受较为明确。</li>
-                            <li>用 <code>&lt;s&gt;</code> 封装字符串，除了与<code>string</code>首字符相同外，默认的贯穿线醒目，或也表达了非执行的意思。</li>
+                            <li>用 <code>&lt;s&gt;</code> 封装字符串，除了与<code>string</code>首字符相同外，默认的贯穿线效果或也表达了非执行的意思。</li>
                         </ul>
                     </aside>
                 </section>

@@ -136,10 +136,9 @@ export const
     // 行块内容元素
     /////////////////////////////////////////////
     P               = 400,  // 段落 （p/#text, ...）
-    NOTE            = 401,  // 注解 （p:note/#text, ...）
-    TIPS            = 402,  // 提示 （p:tips/#text, ...）
-    PRE             = 403,  // 预排版 （pre/#text, ...）
-    ADDRESS         = 404,  // 地址 （address/#text, ...）
+    PRE             = 401,  // 预排版 （pre/#text, ...）
+    ADDRESS         = 402,  // 地址 （address/#text, ...）
+    NOTE            = 403,  // 注解 （aside:note/#text, ...）
 
     //
     // 块内结构子
@@ -174,7 +173,8 @@ export const
     XH5LI           = 524,  // 级联表标题项（li/h5, ul）
     XOLH5LI         = 525,  // 级联表有序标题项（li/h5, ol）
     XOLAH5LI        = 526,  // 级联表有序链接标题项（li/[h5/a], ol）
-    TOCCASCADE      = 527,  // 目录级联表（ol:cascade/[li/a]）
+    BLOCKLI         = 527,  // 大列表项（li/p, codeblock...）
+    TOCCASCADE      = 528,  // 目录级联表（ol:cascade/[li/a]）
 
     //
     // 行块结构元素
@@ -301,10 +301,9 @@ const Properties = {
     // 行块内容元素
     /////////////////////////////////////////////
     [ P ]:              BLOCKS | CONTENT,
-    [ NOTE ]:           BLOCKS | CONTENT,
-    [ TIPS ]:           BLOCKS | CONTENT,
     [ ADDRESS ]:        BLOCKS | CONTENT,
     [ PRE ]:            BLOCKS | CONTENT,
+    [ NOTE ]:           BLOCKS | CONTENT,
     //
     // 块内结构子
     /////////////////////////////////////////////
@@ -336,6 +335,7 @@ const Properties = {
     [ XH5LI ]:          STRUCT | STRUCTX | SEALED,
     [ XOLH5LI ]:        STRUCT | STRUCTX | SEALED,
     [ XOLAH5LI ]:       STRUCT | STRUCTX | SEALED,
+    [ BLOCKLI ]:        STRUCT | STRUCTX,
     [ TOCCASCADE ]:     STRUCT | FIXED1 | FIXED2 | SEALED,
 
     //
@@ -467,7 +467,7 @@ const _BLOLIMIT = [ BLOCKQUOTE, ASIDE, UL, OL, FIELDSET ];
 //
 const _BLOCKITS =
 [
-    P, NOTE, TIPS, PRE,
+    P, PRE, NOTE,
     UL, OL, CODELIST, ULX, OLX, CASCADE, DL, TABLE, FIGURE, BLOCKQUOTE, ASIDE, DETAILS, CODEBLOCK,
     BLANK, FIELDSET
 ];
@@ -518,13 +518,13 @@ export const ChildTypes = {
     [ A ]:              [ $TEXT, ..._NOMEDIA, IMG, SVG ],
     [ Q ]:              [ $TEXT, A, ..._NOMEDIA ],
     [ ABBR ]:           [ $TEXT, ..._SIMPLE ],
-    [ DEL ]:            [ $TEXT, A, ..._NOMEDIA ],
-    [ INS ]:            [ $TEXT, A, ..._NOMEDIA ],
+    [ DEL ]:            [ $TEXT, A, ..._NOMEDIA, B, I ],
+    [ INS ]:            [ $TEXT, A, ..._NOMEDIA, B, I ],
     [ DFN ]:            [ $TEXT, ABBR, ..._SIMPLE ],
     [ BDO ]:            [ $TEXT, A, ..._NOMEDIA ],
     [ BDI ]:            [ $TEXT, A, ..._NOMEDIA ],
     [ TIME ]:           [ $TEXT, ..._SIMPLE ],
-    [ CODE ]:           [ $TEXT, B, I, S ],
+    [ CODE ]:           [ $TEXT, B, I, S, ..._REVIEW ],
     [ STRONG ]:         [ $TEXT, A, ..._NOMEDIA ],
     [ EM ]:             [ $TEXT, A, ..._NOMEDIA ],
     [ CITE ]:           [ $TEXT, A, ..._NOMEDIA ],
@@ -536,7 +536,7 @@ export const ChildTypes = {
     [ SAMP ]:           [ $TEXT, ..._SIMPLE, A ],
     [ KBD ]:            [ $TEXT, ..._SIMPLE ],
     [ S ]:              [ $TEXT, A, ..._NOMEDIA ],
-    [ U ]:              [ $TEXT, A, ..._NOMEDIA ],
+    [ U ]:              [ $TEXT, A, ..._NOMEDIA, B, I ],
     [ VAR ]:            [ $TEXT, ..._SIMPLE ],
     [ CRUMB ]:          [ $TEXT, ..._SIMPLE ],
     //
@@ -555,10 +555,9 @@ export const ChildTypes = {
     // 行块内容元素
     /////////////////////////////////////////////
     [ P ]:              [ $TEXT, A, ..._INLALL, B, I ],
-    [ NOTE ]:           [ $TEXT, A, ..._INLALL, B, I ],
-    [ TIPS ]:           [ $TEXT, A, ..._INLALL, B, I ],
-    [ PRE ]:            [ $TEXT, A, ..._NOMEDIA ],
     [ ADDRESS ]:        [ $TEXT, A, ..._INLALL, B, I ],
+    [ PRE ]:            [ $TEXT, A, ..._NOMEDIA ],
+    [ NOTE ]:           [ $TEXT, A, ..._INLALL, B, I ],
     //
     // 块内结构元素
     /////////////////////////////////////////////
@@ -590,6 +589,7 @@ export const ChildTypes = {
     [ XH5LI ]:          [ H4, UL ],
     [ XOLH5LI ]:        [ H4, OL ],
     [ XOLAH5LI ]:       [ AH5, OL ],
+    [ BLOCKLI ]:        [ P, CODEBLOCK ],
     [ TOCCASCADE ]:     [ ALI, XOLAH5LI ],
     //
     // 行块结构元素
@@ -599,17 +599,17 @@ export const ChildTypes = {
     [ TOC ]:            [ AH4, H4, HR, TOCCASCADE ],
     [ REFERENCE ]:      [ H4, OL ],
     [ SEEALSO ]:        [ H4, UL ],
-    [ HEADER ]:         [ H4, P, TIPS, NOTE, ..._BLOLIMIT, ULX, OLX ],
-    [ FOOTER ]:         [ H4, P, TIPS, NOTE, ..._BLOLIMIT, ADDRESS ],
+    [ HEADER ]:         [ H4, P, NOTE, ..._BLOLIMIT, ULX, OLX ],
+    [ FOOTER ]:         [ H4, P, NOTE, ..._BLOLIMIT, ADDRESS ],
 
     // ARTICLE
     // S1-5, SECTION 另配置
 
-    [ UL ]:             [ LI, ALI ],
-    [ OL ]:             [ LI, ALI ],
+    [ UL ]:             [ LI, ALI, BLOCKLI ],
+    [ OL ]:             [ LI, ALI, BLOCKLI ],
     [ CODELIST ]:       [ CODELI ],
-    [ ULX ]:            [ LI, ALI, XH5LI, XOLH5LI ],
-    [ OLX ]:            [ LI, ALI, XH5LI, XOLH5LI ],
+    [ ULX ]:            [ LI, ALI, XH5LI, XOLH5LI, BLOCKLI ],
+    [ OLX ]:            [ LI, ALI, XH5LI, XOLH5LI, BLOCKLI ],
     [ CASCADE ]:        [ LI, ALI, XOLH5LI, XOLAH5LI ],
     [ DL ]:             [ DT, DD ],
     [ TABLE ]:          [ CAPTION, THEAD, TBODY, TFOOT ],
