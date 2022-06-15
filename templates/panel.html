@@ -254,7 +254,7 @@
             keydown 支持即时删除条目（友好）。 -->
         <select name="attrs" size="5" class="_list" title="删除〔Delete〕"
             on="follow|evo(3) children ev('detail');
-                change|('obts', 'empty', 'value') evo(3) val $case('on by to', null) str('attr:') node(_1);
+                change|(['obts', 'empty', 'value']) evo(3) val $case('on by to', null) str('attr:') node(_1);
                 attrto|evo(3) val dup pass sel0 pop attrs(_1);
                 addnew|ev('detail') dups(2) $$('/option') prop('value') inside(_) end elem('option');
                 select|ev('detail');

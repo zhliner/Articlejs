@@ -101,22 +101,6 @@
     </aside>
 </div>
 
-<!-- 提示 -->
-<div class="_body _Tips" obt-src="obts/list2ps.json" tpl-name="input:tips"
-    on="nodes|ev('detail')"
-    by="New2.tips"
-    to="form/|trigger('insert')">
-    <div class="_main">
-        <textarea name="tips" placeholder="内容"></textarea>
-    </div>
-    <aside>
-        <pre tpl-node="input:option2, input:insert2">
-            [选项2]
-            [插入2]
-        </pre>
-    </aside>
-</div>
-
 <!-- 地址 -->
 <div class="_body _Address" obt-src="obts/create.json" tpl-name="input:address"
     on="node|ev('detail') mdline"
@@ -1251,8 +1235,8 @@
 </div>
 
 <div class="_body _Blockli" obt-src="obts/list2ps.json" tpl-name="input:blockli"
-    on="node|ev('detail') Element('p')"
-    by="New.blockli"
+    on="nodes|ev('detail') wrap('<p>')"
+    by="New.blockli(null, true)"
     to="form/|trigger('insert')">
     <div class="_main">
         <textarea name="p" placeholder="段落内容"></textarea>

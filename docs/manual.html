@@ -128,7 +128,7 @@
             <section role="s1">
                 <h2>全局热键</h2>
                 <p>本编辑器的操作设计借鉴于大名鼎鼎的<strong>Vim</strong>，普通模式下通过<strong>热键</strong>完成大部分操作，内容录入主要从下方主面板上的内容标签页完成。</p>
-                <p role="note"><strong>注记</strong>：<br />要让一个普通的字符按键起作用，需要编辑器区域拥有<em>节点焦点</em>，以便让DOM节点树可以监听<em>按键事件</em>。</p>
+                <aside role="note"><strong>注记</strong>：<br />要让一个普通的字符按键起作用，需要编辑器区域拥有<em>节点焦点</em>，以便让DOM节点树可以监听<em>按键事件</em>。</aside>
                 <p>编辑器有两个<em>聚焦区域</em>：</p>
                 <ol>
                     <li><strong>编辑器</strong>。即编辑器自身整个界面（<em>全局</em>），单击编辑器任意位置即可。</li>
@@ -178,7 +178,7 @@
                     <h2>焦点元素</h2>
                     <header>
                         <p>选取集是元素按选中的先后顺序加入集合的，通常最后添加的元素拥有焦点。焦点是为了方便元素选取而设计的一个热点，大部分选取操作就是针对焦点元素而来。拥有焦点的元素即是焦点元素。</p>
-                        <p role="tips"><strong>提示</strong>：内容区底部的路径栏显示的即是<em>焦点元素</em>的DOM路径信息。</p>
+                        <aside role="note"><strong>提示</strong>：内容区底部的路径栏显示的即是<em>焦点元素</em>的DOM路径信息。</aside>
                         <p>焦点可以在任意元素间移动，通过鼠标单击点选，或者键入方向键来实现。这里的焦点与浏览器DOM元素焦点并不是同一个东西，为了与之相区别，我们可以视之为一种<strong>选取焦点</strong>。但下面为简单起见，统一称之为<strong>焦点</strong>。</p>
                     </header>
                     <section role="s3">
@@ -195,7 +195,7 @@
                             <li><kbd>←/H</kbd>：<strong>纵向移动</strong>，定位到父元素（<em>父级方向</em>）。支持数字指定移动层级，默认值 <code>1</code>（即父元素）。</li>
                             <li><kbd>→/L</kbd>：<strong>纵向移动</strong>，定位到子元素（<em>子级方向</em>），支持数字指定子元素位置下标，默认值 <code>0</code>（即首个子元素），负值表示从末尾算起（<code>-1</code> 为最后一个子元素）。</li>
                         </ul>
-                        <p role="tips"><strong>提示</strong>：<br />在内容区拥有浏览器焦点时，键入数字可设置之后操作的前置计数。左下角状态栏有数字提示，按<kbd>ESC</kbd>取消计数。</p>
+                        <aside role="note"><strong>提示</strong>：<br />在内容区拥有浏览器焦点时，键入数字可设置之后操作的前置计数。左下角状态栏有数字提示，按<kbd>ESC</kbd>取消计数。</aside>
                         <p><kbd>Tab</kbd>：普通模式下，在当前选取集成员间按<em>选取顺序</em>移动焦点。加按<kbd>Shift</kbd>则逆向移动。</p>
                     </section>
                     <section role="s3">
@@ -242,7 +242,7 @@
                             <li><kbd>Space</kbd>：<strong>选取切换</strong>。焦点元素选取或取消选取。不影响其它已选取元素，类似 <code>Ctrl</code> + <code>单击</code> 的效果。</li>
                             <li><kbd>Shift</kbd> + <em>箭头键</em>：<strong>单选游走</strong>。移动焦点的同时改选到目标元素，其它选取被取消，类似鼠标<code>单击</code>的效果。</li>
                         </ul>
-                        <p role="tips"><strong>提示</strong>：支持 <kbd>Shift</kbd>+<kbd>T</kbd> 单选游走到焦点元素的<strong>顶元素</strong>。顶元素含义见后。</p>
+                        <aside role="note"><strong>提示</strong>：支持 <kbd>Shift</kbd>+<kbd>T</kbd> 单选游走到焦点元素的<strong>顶元素</strong>。顶元素含义见后。</aside>
                     </section>
                     <section role="s3">
                         <h2>选取扩展</h2>
@@ -254,13 +254,13 @@
                             <li><kbd>Shift</kbd>+<kbd>E</kbd>：定位<strong>叔伯</strong>元素（父元素的兄弟元素）内的<em>相同标签</em>子元素，使之与焦点元素状态相同。焦点不变。这在选取同一父章节下的子章节的标题时很有用，或者选取表格中的列头（<code>&lt;th&gt;</code>）时有用。</li>
                             <li><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>E</kbd>：定位叔伯元素中<strong>标签相同</strong>且所在<strong>位置也相同</strong>的子元素，使之与焦点元素状态相同。焦点不变。这在选取<em>表格中的一列</em>时很有用。或者选取一个列表中<em>每一行的首个子元素</em>（如果标签相同）时有用。</li>
                         </ul>
-                        <p role="tips"><strong>提示</strong>：<br />新添加的元素位于选取集内的后部，这样的顺序可能并不是你想要的。按<kbd>S</kbd>键可以按DOM节点流顺序排序选取集。</p>
+                        <aside role="note"><strong>提示</strong>：<br />新添加的元素位于选取集内的后部，这样的顺序可能并不是你想要的。按<kbd>S</kbd>键可以按DOM节点流顺序排序选取集。</aside>
                         <p>下面的热键在移动焦点的同时会执行<strong>同态</strong>操作。</p>
                         <ul>
                             <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>↑/K</kbd>：同级<strong>向前</strong>（<code>previous</code>）扩展，支持前置数字指定扩展距离。焦点会移动到最终的元素上。</li>
                             <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>↓/J</kbd>：同级<strong>向后</strong>（<code>next</code>）扩展，支持同上。</li>
                         </ul>
-                        <p role="note"><strong>注记</strong>：<kbd>Shift</kbd>在这里表示选取增强，<kbd>Ctrl</kbd>则表示<em>多选/切换选取</em>的逻辑，与鼠标多选逻辑相同。</p>
+                        <aside role="note"><strong>注记</strong>：<kbd>Shift</kbd>在这里表示选取增强，<kbd>Ctrl</kbd>则表示<em>多选/切换选取</em>的逻辑，与鼠标多选逻辑相同。</aside>
                         <p>下面的热键在移动焦点的同时会执行<strong>选取</strong>操作。<em>注：纵深方向上没有同态逻辑，因为选取成员不能相互包含。</em></p>
                         <ul>
                             <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>←/H</kbd>：<strong>向上</strong>移动焦点到<em>父元素</em>上，同时选取父元素。支持<em>数字</em>指定距离。</li>
@@ -296,7 +296,7 @@
                                 <li><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>↑/K</kbd>：向前（previous）扩选同级兄弟元素，支持数字指定距离。</li>
                                 <li><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>↓/J</kbd>：向后（next）扩选同级兄弟元素，支持数字指定距离。</li>
                             </ul>
-                            <p role="note"><strong>注意</strong>：每个成员在其父元素内为单选，因为操作之后即失去了唯一性，所以这是<em>一次性</em>的。</p>
+                            <aside role="note"><strong>注意</strong>：每个成员在其父元素内为单选，因为操作之后即失去了唯一性，所以这是<em>一次性</em>的。</aside>
                         </section>
                         <section role="s4">
                             <h2>纵深类</h2>
@@ -307,14 +307,14 @@
                                 <li><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>→/L</kbd>：向下（内）选取子元素，支持<em>数字</em>指定目标子元素的位置下标。支持负数从末尾算起。</li>
                                 <li><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd>：向上选取顶元素。</li>
                             </ul>
-                            <p role="tips"><strong>提示</strong>：如果操作使用了虚焦点，<em>平级类</em>会保留原来的实际焦点不变，但<em>纵深类</em>则会将焦点移到整个选取集的<strong>首个</strong>成员上。</p>
+                            <aside role="note"><strong>提示</strong>：如果操作使用了虚焦点，<em>平级类</em>会保留原来的实际焦点不变，但<em>纵深类</em>则会将焦点移到整个选取集的<strong>首个</strong>成员上。</aside>
                         </section>
                     </section>
                     <section role="s3">
                         <h2>路径辅助选取</h2>
                         <p>在编辑器内容区的底部会显示当前焦点元素的<strong>DOM树路径</strong>，用鼠标单击其中任何一段，即可<strong>选取</strong>相应的元素。路径提供了清晰的节点树层次，可用于精确选取。</p>
                         <p>从路径上添加选取也可以是切换方式，按住<kbd>Ctrl</kbd>键单击即为切换，无辅助键则为简单多选。如果只需要从路径上<strong>聚焦</strong>目标元素，可按住<kbd>Alt</kbd>单击。注意此时只是改变焦点，路径序列并不会重构。</p>
-                        <p role="tips"><strong>提示</strong>：将鼠标滑过路径上的不同部分，会有其对应元素的背景阴影提示。</p>
+                        <aside role="note"><strong>提示</strong>：将鼠标滑过路径上的不同部分，会有其对应元素的背景阴影提示。</aside>
                     </section>
                     <section role="s3">
                         <h2>选取集排序</h2>
@@ -400,7 +400,7 @@
                             <li><kbd>Enter</kbd>：确认当前修订（退出微编辑）。</li>
                             <li><kbd>Tab</kbd>：确认当前修订。如果有多个选取，按选取顺序进入到下一个元素的修订。</li>
                         </ul>
-                        <p role="tips"><strong>提示</strong>：非内容元素不能直接进入微编辑，此时可以按<kbd>W</kbd>或<kbd>Shift + W</kbd>扩选其内容元素然后再继续。</p>
+                        <aside role="note"><strong>提示</strong>：非内容元素不能直接进入微编辑，此时可以按<kbd>W</kbd>或<kbd>Shift + W</kbd>扩选其内容元素然后再继续。</aside>
                     </section>
                     <section role="s3">
                         <h2>定位移动</h2>
@@ -447,7 +447,7 @@
                     <h2>样式刷</h2>
                     <p>样式标签栏有一个<strong>样式刷</strong>按钮，可以对选取集内的元素应用<strong>焦点元素</strong>的样式。这种操作并不像普通编辑器（如Word）里那样，用刷子去同步样式，而是反过来先选取元素，再定位同步的样式源（选取焦点）。</p>
                     <p>虽然<strong>内联的</strong>样式很容易设置，但文档编写者应当注意，这些内联的样式是一种<strong>硬编码</strong>，并不方便应用<em>外部共享</em>的样式。</p>
-                    <p role="tips"><strong>提示</strong>：这里编辑的文档有着规范化的HTML结构，样式共享很容易。你的读者可能希望使用他喜欢的样式来阅读。</p>
+                    <aside role="note"><strong>提示</strong>：这里编辑的文档有着规范化的HTML结构，样式共享很容易。你的读者可能希望使用他喜欢的样式来阅读。</aside>
                 </section>
             </section>
             <section role="s1">
@@ -479,7 +479,7 @@
                             <li><kbd>Ctrl</kbd>+<kbd>V</kbd>：浏览器<em>粘贴</em>功能，但内容以换行符分段，从当前单元格开始向后<strong>连续填充</strong>。</li>
                             <li><kbd>Shift</kbd>+<kbd>Ctrl</kbd>+<kbd>V</kbd> 保留浏览器普通方式粘贴（纯文本）。</li>
                         </ul>
-                        <p role="tips"><strong>提示</strong>：智能切分粘贴只支持<em>当前行</em>单元格。如果需要一次性对<em>多行粘贴</em>，可在内容区的普通模式下进行。</p>
+                        <aside role="note"><strong>提示</strong>：智能切分粘贴只支持<em>当前行</em>单元格。如果需要一次性对<em>多行粘贴</em>，可在内容区的普通模式下进行。</aside>
                     </section>
                     <section role="s3">
                         <h2>代码框&lt;pre._code&gt;</h2>
@@ -520,7 +520,7 @@
                     <li><strong>复选按钮</strong>：浏览器支持其<em>不确定</em>态的特殊外观（可能是小方框内一个短横线）。</li>
                     <li><strong>条目选单</strong>：即<code>&lt;select&gt;</code>元素，类似单选按钮组，没有任一条目被选中时为不确定态。</li>
                 </ul>
-                <p role="tips"><strong>提示</strong>：如果选取的多个目标类型不同，热键<kbd>P</kbd>不会有反应，展开上下文菜单时会发现<em>属性</em>条目为<em>禁用</em>状态。</p>
+                <aside role="note"><strong>提示</strong>：如果选取的多个目标类型不同，热键<kbd>P</kbd>不会有反应，展开上下文菜单时会发现<em>属性</em>条目为<em>禁用</em>状态。</aside>
             </section>
             <section role="s1">
                 <h2>命令行</h2>
@@ -586,7 +586,7 @@
                         <li><code>/[\w.$-]+/</code>：合法的正则表达式。</li>
                         <li><code>/[0-9a-f]/ </code>：搜索词中的空格不会被自动清除，因此这不是一个合法的正则表达式。</li>
                     </ul>
-                    <p role="tips"><strong>提示</strong>：<br />并不能在搜索表达式中直接使用替换，如果需要，可以在命令模式下执行<code>replace</code>指令来实现。</p>
+                    <aside role="note"><strong>提示</strong>：<br />并不能在搜索表达式中直接使用替换，如果需要，可以在命令模式下执行<code>replace</code>指令来实现。</aside>
                 </section>
                 <section role="s2">
                     <h2>命令（<kbd>:</kbd>）</h2>
