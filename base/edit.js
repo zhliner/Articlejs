@@ -461,10 +461,10 @@ class PickEdit {
      * @param {Element} hot 焦点元素
      */
     constructor( hot ) {
-        this._old = [...__ESet];
+        this._old = [ ...__ESet ];
         this._np2 = __ESet.cruise();
 
-        this._new = ElemSels.pickBack( hot );
+        this._new = __Selects.pickBack( hot );
     }
 
 
@@ -483,7 +483,8 @@ class PickEdit {
 
     /**
      * 重做。
-     * 仅选取重做，不再拥有切换能力。
+     * 因为.undo()必然已调用，所以切换能力已丢失。
+     * 仅选取部分有意义。
      */
     redo() {
         __ESet.cruise( null );
@@ -1094,6 +1095,26 @@ class ElemSels {
 
 
     /**
+     * 焦取独立。
+     * 需要发送状态信息以友好提示。
+     * - 进入临时态：[sels] >> 1
+     * - 恢复普通态：sels
+     * 注记：
+     * 撤销和重做仅针对选取集，因此不必处理状态信息。
+     * @param  {Element} hot 焦点元素
+     * @return {Element|[Element]}
+     */
+    pickBack( hot ) {
+        let _n = __ESetX.tmpsize();
+
+        statusInfo(
+            _n ? `[ ${_n} ]` : `[ ${__ESet.size} ] >> 1`
+        );
+        return __ESetX.pickback( hot );
+    }
+
+
+    /**
      * 向上父级清理。
      * 检索集合内包含目标子元素的成员并清除其选取。
      * 即清理目标元素的上级已选取。
@@ -1193,13 +1214,6 @@ class ElemSels {
     }
 
 }
-
-
-//
-// 焦取操作句柄。
-// 预存储以方便复用。
-//
-ElemSels.pickBack = __ESetX.pickback.bind( __ESetX );
 
 
 //
@@ -4817,7 +4831,7 @@ export const Edit = {
         if ( _nxt && _nxt !== _hot ) {
             setFocus( _nxt );
             // 当前位置提示
-            statusInfo( `${__ESet.index(_nxt)+1}/${__ESet.size}` );
+            statusInfo( `[ ${__ESet.index(_nxt)+1}/${__ESet.size} ]` );
         }
     },
 
@@ -4832,14 +4846,14 @@ export const Edit = {
         if ( _nxt && _nxt !== _hot ) {
             setFocus( _nxt );
             // 当前位置提示
-            statusInfo( `${__ESet.index(_nxt)+1}/${__ESet.size}` );
+            statusInfo( `[ ${__ESet.index(_nxt)+1}/${__ESet.size} ]` );
         }
     },
 
 
     /**
      * 焦取独立。
-     * - 初次调用时：暂存选取集并单独选取焦点元素。
+     * - 初次调用时：暂存当前选取集（不含焦点），单选焦点元素。
      * - 再次调用时：恢复之前的暂存（包括巡游态）。
      * 主要用于选取集的巡游编辑（焦点通过Tab键逐个巡游/检查）。
      */

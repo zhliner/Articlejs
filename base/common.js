@@ -303,6 +303,16 @@ export class ESetHot {
 
 
     /**
+     * 获取暂存集大小。
+     * 注：只有在执行了pickback()之后才有暂存集。
+     * @return {Number|null}
+     */
+    tmpsize() {
+        return this._tmp && this._tmp.length;
+    }
+
+
+    /**
      * 状态重置。
      * 主要用于编辑历史栈的撤销处理。
      */
@@ -317,11 +327,12 @@ export class ESetHot {
 
     /**
      * 焦点独选。
-     * 会暂存原有选取集。
+     * 暂存原有选取集（如果焦点元素在其中则排除）。
      * @param  {Element} hot 焦点元素
-     * @return {Element}
+     * @return {Element} hot
      */
     _pick( hot ) {
+        this._set.delete( hot );
         this._tmp = [ ...this._set ];
         this._np2 = this._set.cruise();
 
@@ -331,8 +342,8 @@ export class ESetHot {
 
     /**
      * 恢复暂存的选取集。
-     * 会同时恢复内部巡游游标（也需在DOM内）。
-     * @return {[Element]}
+     * 同时恢复内部巡游游标（仅包含还在DOM内的）。
+     * @return {[Element]} 恢复的选取集
      */
     _restore() {
         this._set.clear()
