@@ -953,8 +953,7 @@ export class Pager {
      * @return {Element} 新页面
      */
     page( i, data ) {
-        return this._pool[i] ||
-            this._render( i, this._clone(this._tpl), data );
+        return this._pool[i] || this._render( i, this._tpl, data );
     }
 
 
@@ -976,18 +975,7 @@ export class Pager {
      * @return {Element} tpl 渲染后的元素
      */
     _render( i, tpl, data ) {
-        return ( this._pool[i] = Render.update(tpl, data) );
-    }
-
-
-    /**
-     * 元素克隆。
-     * 包括子节点、事件处理器和渲染文法。
-     * @param  {Element} tpl 模板节点
-     * @return {Element} 新元素
-     */
-    _clone( tpl ) {
-        return Render.clone( tpl, $.clone(tpl, true, true, true) );
+        return ( this._pool[i] = Render.render(tpl, data) );
     }
 }
 
