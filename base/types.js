@@ -454,7 +454,7 @@ const _INLALL = [
 // 受限行块单元集。
 // 适用部分用途较明确的行块，作为其内部嵌套的小块。
 //
-const _BLOLIMIT = [ BLOCKQUOTE, ASIDE, UL, OL, FIELDSET ];
+const _BLOLIMIT = [ BLOCKQUOTE, ASIDE, UL, OL, DETAILS, FIELDSET ];
 
 
 //

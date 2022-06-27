@@ -1,5 +1,5 @@
 const
-    __cName = 'cooljed-v02',
+    __cName = 'cooljed-v024',
 
     __appFiles = [
         '/articlejs/',
@@ -44,6 +44,7 @@ const
         '/articlejs/base/tquery/tquery.min.js',
         '/articlejs/base/types.js',
         '/articlejs/config.js',
+        '/articlejs/coolj.webmanifest',
         '/articlejs/docs/intro.html',
         '/articlejs/docs/manual.html',
         '/articlejs/docs/article.html',
@@ -66,6 +67,7 @@ const
         '/articlejs/plugins/example/main.js',
         '/articlejs/plugins/example/maps.json',
         '/articlejs/plugins/example/styles.css',
+        '/articlejs/register.js',
         '/articlejs/styles.css',
         '/articlejs/styles/example/codes.css',
         '/articlejs/styles/example/main.css',
@@ -104,9 +106,10 @@ const
 
 
 /**
- * 缓存就绪处理。
- * @param {String} name 缓存名
- * @param {[String]} files 待缓存文件
+ * 初始缓存准备。
+ * @param  {String} name 缓存名
+ * @param  {[String]} files 待缓存文件
+ * @return {Promise}
  */
 async function cacheReady( name, files ) {
     const cache = await caches.open( name );
@@ -115,7 +118,19 @@ async function cacheReady( name, files ) {
 
 
 /**
- * 从缓存响应。
+ * 更新后清理缓存。
+ * 在用户关闭所有旧sw管理的页面后执行。
+ * @param  {String} name 缓存名称
+ * @return {Promise}
+ */
+async function updateClean( name ) {
+    const list = await caches.keys();
+    return Promise.all( list.map( key => name !== key && caches.delete(key) ) );
+}
+
+
+/**
+ * 从响应补充缓存。
  * @param  {FetchEvent} ev 请求事件对象
  * @param  {String} name 缓存名
  * @return {Response}
@@ -127,6 +142,7 @@ async function respondCache( ev, name ) {
         return _resp;
     }
     console.log( `[Service Worker] Caching new resource: ${ev.request.url}` );
+
     // 丢弃原有请求的状态直接使用.url，
     // 否则刷新fetch可能会出错（beep.ogg）。
     _resp = await fetch( ev.request.url );
@@ -144,6 +160,14 @@ self.addEventListener(
     'install',
     ev => ev.waitUntil( cacheReady(__cName, __appFiles) )
 );
+
+
+// 更新清理。
+self.addEventListener(
+    'activate',
+    ev => ev.waitUntil( updateClean(__cName) )
+);
+
 
 self.addEventListener(
     'fetch',

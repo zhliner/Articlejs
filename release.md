@@ -52,6 +52,7 @@
 - index.html
 - index.js
 - README.md
+- release.json
 - styles.css
 
 - base/hlparse/...

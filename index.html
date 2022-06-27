@@ -9,6 +9,7 @@
 <link rel="shortcut icon" href="favicon.ico">
 <link rel="manifest" href="coolj.webmanifest">
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="base/tpb/default.css">
 <script src="base/tquery/tquery.min.js"></script>
 <script type="module">
     import coolj from "./editor.js";
@@ -37,7 +38,30 @@
 </script>
 <script src="./register.js"></script>
 </head>
-<body>
+<!--swupdate:
+    发现新版本通知。 -->
+<body
+    on="swupdate|ev('detail')"
+    by="GET('json', _1) its('version gist')"
+    to="(/#_tmp)|render(true)|$('#updatebox') hide(false)">
+    <aside id="updatebox" data-pbo="hidden">
+        发现新的版本 <em id="_tmp" tpb-top _="$">[version]</em>
+        <details>
+            <summary>查看详细</summary>
+            <div class="_info">
+                <ul id="_tmp" class="_list" tpb-top tpb-for>
+                    <li _="$"></li>
+                </ul>
+                <p>更新：</p>
+                <ol class="_list">
+                    <li>保存您的工作（<kbd>Ctrl+S</kbd>）</li>
+                    <li>关闭全部相关页面（含浏览器内）</li>
+                    <li>重新打开编辑器</li>
+                </ol>
+            </div>
+        </details>
+        <b title="关闭" on="click|evo(3) parent hide">×</b>
+    </aside>
     <nav class="_top">
         <a href="https://github.com/cooljed/cooljed.github.io/" target="_blank" title="项目仓库">
             <svg height="18" viewBox="0 0 16 16" version="1.1" width="18">
@@ -49,7 +73,7 @@
         </a>
     </nav>
     <header>
-        <h1>◡酷几◡编辑器<small>v0.2.3</small></h1>
+        <h1>◡酷几◡编辑器<small>v0.2.4</small></h1>
     </header>
     <main>
         <nav id="navbar"

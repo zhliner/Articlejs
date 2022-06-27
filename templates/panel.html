@@ -777,7 +777,7 @@
                         1/span|trigger(_1)">管理</button>
             </div>
             <!--置顶区代码清单 -->
-            <ul id="sh-tops" class="_list" tpb-root tpb-for="$"
+            <ul id="sh-tops" class="_list" tpb-top tpb-for="$"
                 on="update|ev('detail')"
                 to="|replace">
                 <li _data-sid="$.shid">
@@ -850,7 +850,7 @@
             </div>
             <!--搜索结果清单
                 label:title 置顶或曾经置顶的条目有效。 -->
-            <ol id="sh-list" class="_list" tpb-root tpb-for="$"
+            <ol id="sh-list" class="_list" tpb-top tpb-for="$"
                 on="update|ev('detail')"
                 to="|replace">
                 <li _data-sid="$.shid">
