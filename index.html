@@ -43,8 +43,8 @@
 <body
     on="swupdate|ev('detail')"
     by="GET('json', _1) its('version gist')"
-    to="(/#_tmp)|render(true)|$('#updatebox') hide(false)">
-    <aside id="updatebox" data-pbo="hidden">
+    to="(/#_tmp)|render(true)|$('#updatebar') hide(false)">
+    <aside id="updatebar" data-pbo="hidden">
         发现新的版本 <em id="_tmp" tpb-top _="$">[version]</em>
         <details>
             <summary>查看详细</summary>

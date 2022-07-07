@@ -136,7 +136,7 @@ main nav > span > a {
 
 /* 更新提示
  ****************************************************************************/
-#updatebox {
+#updatebar {
     position: absolute;
     top: 0;
     opacity: 1;
@@ -150,29 +150,29 @@ main nav > span > a {
     /* 缓显 */
     transition: top 1.2s, opacity 2.2s;
 }
-#updatebox[data-pbo=hidden] {
+#updatebar[data-pbo=hidden] {
     top: -3em;
     opacity: 0;
     /* 快速关闭 */
     transition: top 0.2s;
 }
 
-#updatebox > em {
+#updatebar > em {
     font-weight: bold;
     color: crimson;
 }
 
-#updatebox > details {
+#updatebar > details {
     display: inline-block;
     margin-left: 1em;
 }
 
-#updatebox summary {
+#updatebar summary {
     color: #01839d;
     cursor: pointer;
 }
 
-#updatebox ._info {
+#updatebar ._info {
     position: absolute;
     left: 0;
     background-color: #fbffc2;
@@ -183,20 +183,20 @@ main nav > span > a {
     border-bottom: 1px #f63 solid;
 }
 
-#updatebox ._info ._list {
+#updatebar ._info ._list {
     padding-inline-start: 1.2em;
     line-height: 160%;
 }
 
-#updatebox ._info ol {
+#updatebar ._info ol {
     color: #02519a;
 }
 
-#updatebox ._info p {
+#updatebar ._info p {
     font-weight: bold;
     color: gray;
 }
-#updatebox > b {
+#updatebar > b {
     position: absolute;
     right: 3pt;
     top: -1pt;
