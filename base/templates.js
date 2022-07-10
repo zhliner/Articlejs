@@ -15,6 +15,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 
+import $ from "./tpb/config.js";
 import * as T from "./types.js";
 import { childTypes, isChildType, inlinesTeam } from "./base.js";
 import { Tips } from "../config.js";
@@ -271,7 +272,8 @@ function inlinesTpls( tvs ) {
     for ( const [key, ts] of inlinesTeam(tvs) ) {
         _buf.set(
             Tips[ key ],
-            ts.map( t => InputOptions[t] )
+            // InputOptions 中可能无定义
+            $.map( ts, t => InputOptions[t] )
         );
     }
     return _buf;

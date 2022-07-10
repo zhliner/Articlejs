@@ -1,5 +1,5 @@
 const
-    // updatetime: 2022.0707
+    // updatetime: 2022.0710
     __cName = 'cooljed-v024',
 
     __appFiles = [
