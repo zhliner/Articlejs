@@ -126,7 +126,7 @@ const
         T.LI,
         T.DT,
         T.DD,
-        T.P, T.TIPS, T.NOTE,
+        T.P, T.NOTE,
         T.ADDRESS,
     ]),
 

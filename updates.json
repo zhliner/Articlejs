@@ -1,0 +1,33 @@
+{
+    "files": [
+        "config.js",
+        "editor.js",
+        "favicon.ico",
+        "index.html",
+        "index.js",
+        "README.md",
+        "release.json",
+        "styles.css",
+        "base/shortcuts.js",
+        "base/scripter.js",
+        "docs/article.html",
+        "docs/intro.html",
+        "docs/manual.html",
+        "docs/内容结构.md",
+        "docs/简介.md",
+        "docs/编辑操作.md",
+        "docs/base.css",
+        "docs/style2pack.zip",
+        "docs/theme2pack.zip"
+    ],
+
+    "dirs": [
+        "base/hlparse",
+        "icons",
+        "plugins",
+        "styles",
+        "templates",
+        "themes",
+        "upload/data"
+    ]
+}
