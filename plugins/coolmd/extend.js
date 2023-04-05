@@ -1146,18 +1146,18 @@ function wrapCell( el, ch1 = '', ch2 = '' ) {
 
 
 /**
- * 插入表区域间隔行。
- * 内部间隔线至少3个短横线，整体长度不超过80字节。
+ * 插入表区域间隔。
+ * 内部间隔线至少6个短横线，整体长度不超过80字节。
  * @param  {[String]} buf 缓存集
  * @return {[String]} buf
  */
 function pushSpace( buf ) {
     let _ref = buf[ buf.length-1 ],
         _n = Math.min(
-            Math.max( _ref.length, 5 ), 80
+            Math.max( _ref.length, 6 ), 80
         );
     buf.push(
-        __tableFlag + __cellStart + ''.padStart(_n - 2, '-') + __cellEnd
+        __tableFlag + ''.padStart(_n, '-')
     )
     return buf;
 }
