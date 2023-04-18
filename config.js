@@ -28,7 +28,7 @@ const
 
         // MdLine自动解析开关
         // 内容录入文本框中自动MarkDown单行解析。
-        mdline:   false,
+        mdline:   true,
 
         // 出错提示音。
         beeptip:  true,
